@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1216 [USACO1.5]数字三角形 Number Triangles | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+首先肯定是边读边做，第一层循环i从n到1，第二层循环j从i到n（为了每次都能取到上次的值）,每次读入一个变量p，
+状态转移方程：a[j]=max{a[j],a[j+1]}+p（a[j]表示走到第i层第j个时的最大值）。最后输出a数组..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1216 [USACO1.5]数字三角形 Number Triangles</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>首先肯定是边读边做，第一层循环i从n到1，第二层循环j从i到n（为了每次都能取到上次的值）,每次读入一个变量p，</p>
+<p>状态转移方程：a[j]=max{a[j],a[j+1]}+p（a[j]表示走到第i层第j个时的最大值）。最后输出a数组的最大值即可。</p>
+<p>下面我来用测试数据模拟一下](注意：要开1002的数组，不然会越界)：</p>
+<p>a[1] a[2] a[3] a[4] a[5] a[6]</p>
+<p>初始化： 00 00 00 00 00 00<br>
+第一次： 00 00 00 00 07 00<br>
+第二次： 00 00 00 10 15 00<br>
+第三次： 00 00 18 16 15 00<br>
+第四次： 00 20 25 20 19 00<br>
+第五次： 24 30 27 26 24 00<br>
+理解：a[j]=max{a[j],a[j+1]}+p，跟之前上面最大值进行比较并且加上当前读入的值</p>
+<pre class="wp-block-code"><code>#include&lt;cstdio>
+int n,a[1002],i,j,ans,p;
+int max(int &x,int &y){return x>y?x:y;}
+int main(){
+    scanf("%d",&n);
+        for(i=n;i;i--)
+                for(j=i;j&lt;=n;j++)
+                        scanf("%d",&p),a[j]=max(a[j],a[j+1])+p;
+        for(i=1;i&lt;=n;i++)
+        ans=max(ans,a[i]);
+        printf("%d",ans);
+        return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1120-小木棍-［数据加强版］/">
+                  <h3 class="post-title">
+                    P1120 小木棍 ［数据加强版］
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

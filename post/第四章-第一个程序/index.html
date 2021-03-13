@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第四章-第一个程序 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.汇编源程序转成系统可直接运行的可执行文件
+一.编写汇编源程序
+二.用汇编语言编译程序 对源程序文件进行编译，产生目标文件，再用连接程序对目标文件进行连接，生产可在系统中直接运行的可执行文件
+可执行文件：
+
+程序（从源程序中编译过来的机器..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第四章-第一个程序</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.汇编源程序转成系统可直接运行的可执行文件</p>
+<p>一.编写汇编源程序</p>
+<p>二.用汇编语言编译程序 对源程序文件进行编译，产生目标文件，再用连接程序对目标文件进行连接，生产可在系统中直接运行的可执行文件</p>
+<p>可执行文件：</p>
+<ul>
+<li>程序（从源程序中编译过来的机器码）和数据（源程序中定义的数据）</li>
+<li>描述信息（程序大小，占多少内存空间。。。）</li>
+</ul>
+<p>三.执行可执行文件中的程序</p>
+<p>2.汇编程序中有两种指令</p>
+<p>一是汇编指令，有对应的机器码的指令，可被编译成机器指令，最后被CPU执行</p>
+<p>二是伪指令，没对应的机器指令，最终不被CPU执行，它是被编译器执行的指令，编译器根据伪指令进行相关编译工作</p>
+<p>3.伪指令(都是由编译器运行处理)</p>
+<pre class="wp-block-code"><code>（1）segment和ends是成对使用的伪指令，在写可被编译器编译的汇编程序时，必须用到的一对伪指令，segment和ends 定义一个段，segment 说明一个段的开始，ends说明一个段结束
+一个汇编程序由多个段组成，这些段可存放代码，数据，或作为栈空间。
+一个源程序中所有将被计算机所处理的信息：指令，数据，栈，都被划分到不同的段
+一个有意义的汇编程序至少有一个段，用来存放代码
+（2）end
+一个汇编程序的结束标记，编译器在编译汇编程序的过程中，若碰到伪代码end，则结束对源程序的编译（end一定要加）
+特别地：end是一个汇编程序结束，ends是一个段结束！
+（3）assume
+这个伪代码含义是 假设，它假设某个段存储器和程序中的某一个用segment---ends定义的段相关联</code></pre>
+<p>4.程序</p>
+<ul>
+<li>源程序文件中的所有内容称为源程序</li>
+<li>源程序中的汇编指令组成最终由计算机执行的**程序，**程序最先以汇编指令的形式存在源程序中，经过编译和连接后变成机器码，存储在可执行文件中（伪指令由编译器处理）</li>
+</ul>
+<p>5.标号</p>
+<p>汇编程序里，除汇编指令和伪代码外，还有一些标号，一个标号指代一个地址，标号在segment的前面，也就是段的名称，这个段名称最终被编译和连接程序处理为一个段的段地址</p>
+<p>6.通过了编译和连接后转为机器码存在可执行文件，这个可执行文件如何运行？一个程序P2在可执行文件中，，则肯定有一个正在运行的程序P1，将P2从可执行文件中加载到内存中，将CPU的控制权交给P2，P2才能运行，P2运行时，P1暂停运行，P2运行完后，将CPU控制权交还给使它得以运行的程序P1，这个过程为程序返回。</p>
+<p>如何程序返回？</p>
+<pre class="wp-block-code"><code>在程序末尾添加两条指令
+mov ax,4c00H
+int 21H</code></pre>
+<p>一.编译源程序</p>
+<ul>
+<li>写好一个源程序，并且保存为asm后缀，设保存在c:\1.asm</li>
+<li>用微软的masm5.0汇编编译器，进入汇编编译器的目录,假设在c:\masm</li>
+<li>进入后，运行masm，看到版本信息，然后输入要被编译的源程序文件名，默认后缀名为asm，如果要编译的源程序在当前目录并且是asm后缀，则可以直接输入名称，若在其他目录下，则要输入路径，如：c:\windows\desktop\p1.txt</li>
+<li>回车之后，程序提示，要输入，将要编译出的目标文件的名称，一般来说，直接回车，就会生成一个跟源程序同名的一个obj文件，也可以生成目标文件到指定目录下，如：c:\windows]desktop\1</li>
+<li>确认目标文件名称后，后面要输入两个文件的名称（列表文件和交叉引用文件），这两个文件都是将源程序编译成目标文件的过程中产生的中间结果，可以不生成这两个文件，直接回车就好</li>
+<li>然后编译就完成，一般产生编译错误有两种<br>
+程序中有server Errors<br>
+找不到所给出的源程序文件</li>
+</ul>
+<p>（ 如果没有报错，则编译成功，生成了目标文件 ）</p>
+<p>二.连接目标文件</p>
+<ul>
+<li>假设已经得到了目标文件，并且在c:\masm\1.obj</li>
+<li>用微软的overlay Linker3.60</li>
+<li>进入c:\masm，运行link.exe</li>
+<li>运行后，有版本号，然后要输入被连接的目标文件的名称，默认扩展名是obj，直接输入1然后回车</li>
+<li>程序提示输入将要生成的可执行文件的名称，默认为目标文件的文件名.exe，直接回车就好，也可以在其他目录下生成，如：c:\windows\desktop\1</li>
+<li>程序提示输入映像文件的名称，这个文件是连接程序将目标文件连接为可执行文件过程中产生的中间结果，可以不生成，直接回车</li>
+<li>然后，程序提示输入库文件名称，库文件中包含一些可以调用的子程序，若程序中调用了某个库文件的子程序，则需在连接时，将这个库文件和目标文件连接起来，若没有则直接回车</li>
+<li>然后就生成了一个可执行文件</li>
+</ul>
+<p>连接的作用：</p>
+<pre class="wp-block-code"><code>（1）当源程序很大，可将它分为多个源程序文件来编译，每个源程序编译成目标文件后，用连接程序将它们连接到一起，生成一个可执行文件
+（2）程序调用某个库文件中的子程序时，要将这个库文件和该程序生成的目标文件连接到一起，生成一个可执行文件
+（3）一个源程序编译后得到一个目标文件，这个目标文件中还有一些内容不能直接用来生成可执行文件，连接程序就将这些内容处理为最终的可执行信息</code></pre>
+<p>三.简单的编译和连接</p>
+<pre class="wp-block-code"><code>（1）进入masm目录
+（2）然后输入masm 后面加上被编译的源程序文件的路径，分号结束，回车，就可以在当前目录下生成一个跟源程序同名的obj文件
+（3）link 后面加上被连接的目标文件的路径（文件名默认obj），然后分号结束，回车后就在当前目录下生成了一个跟目标文件同名的exe文件</code></pre>
+<ol start="8">
+<li></li>
+</ol>
+<ul>
+<li>若此时有一个正在运行的程序，将已经编译连接完的程序加载到内存中，这个运行程序是command</li>
+<li>它将程序加载到内存后，并且设置CPU的CS：IP指向程序的第一条指令（程序的入口），从而使程序运行</li>
+<li>程序运行结束后，返回command，CPU继续运行command</li>
+</ul>
+<p>扩展：操作系统的外壳</p>
+<pre class="wp-block-code"><code>一.任何通用的操作系统，都提供一个shell（外壳）给用户（操作人员）用这个程序操作计算机系统来工作
+二.dos启动后，先完成其他重要初始化工作，然后运行command.com,然后执行完其他相关任务后，在屏幕显示出当前盘符和路径组成的提示符等待用户输入
+三.若用户要运行一个程序，就要输入改程序的可执行文件名，command会首先根据文件名称找到这个可执行文件，然后讲这个可执行文件中的程序加载到内存中，设置CS：IP指向程序入口，然后command停止运行，CPU运行程序，程序运行完后，返回command，command，再次显示当前盘符和当前路径的提示符，等待用户输入
+四.在dos中，command处理各种输入，命令和要执行的程序的文件名</code></pre>
+<ol start="9">
+<li></li>
+</ol>
+<pre class="wp-block-code"><code>（一）command的程序加载，设置CS：IP指向程序的入口的操作是连续完成的，当CS：IP指向程序入口之后，command就放弃了CPU的控制权，CPU就立刻开始运行程序，直到程序结束
+（二）为了观察程序的运行过程，可用debug，debug可以将程序加载到内存中，设置CS：IP指向程序入口，但debug并不放弃对CPU的控制，所以可以用debug的相关命令单步执行程序，查看每一条指令的执行结果
+（debug将程序从可执行文件加载到内存后，cx中存放的是程序的长度）</code></pre>
+<p>10.dos系统中exe文件中的<strong>程序的加载过程</strong></p>
+<ul>
+<li>找到一段初始地址为SA：0000（即初始地址的偏移地址为0）的容量足够的空闲内存区</li>
+<li>在这段内存区的前256字节中，创建一个程序段前缀（PSP）的数据区，dos用psp来和被加载的程序进行通信</li>
+<li>从这段内存区的PSP后面（256字节后面）将程序装入，程序的地址呗设为SA+10H:0</li>
+<li>将该内存区的段地址存入到DS，初始化其他寄存器，设置CS：IP指向程序的入口</li>
+</ul>
+<pre class="wp-block-code"><code>{概要
+（1）程序加载后，ds存放着程序所在的内存区的段地址，如：这个内存区的偏移地址为0，则程序所在的内存区的地址为ds：0
+（2）这个内存区的前256个字节（100H==>16*16）中存放的是PSP，dos用来和程序通信，256字节之后的空间就是存放程序的
+如：(建立在8086CPU上) DS的值为129E，则PSP的地址为129E:0，程序的地址为段地址*16+偏移地址=129E*16+100H+0=12AE0（因为前256个字节（内存单元）已经被用来当成PSP了）
+程序的地址可以写成： 段地址：100H+偏移地址 也可以写成：段地址+10H：偏移地址
+}</code></pre>
+<p>特别地：用debug调试程序的时候，用P命令执行int 21</p>
+<p>程序加载的顺序：command加载debug，debug加载1.exe，返回顺序：从1.exe的程序返回到debug，从debug返回到command</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第三章-寄存器（内存访问）/">
+                  <h3 class="post-title">
+                    第三章-寄存器（内存访问）
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

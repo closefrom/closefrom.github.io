@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1160 队列安排 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="/*
+题目还是非常有意思的，重点是链表读取效率的优化。
+首先，既然题目中多次提到了“移去”、“插入”等字眼，很明显需要用到链表。
+在这里，我们使用一个结构体存储这个链表，并使用一个head指针指向队列的队首，方便输出时使用。
+struct ..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1160 队列安排</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>/*</p>
+<p>题目还是非常有意思的，重点是链表读取效率的优化。</p>
+<p>首先，既然题目中多次提到了“移去”、“插入”等字眼，很明显需要用到链表。</p>
+<p>在这里，我们使用一个结构体存储这个链表，并使用一个head指针指向队列的队首，方便输出时使用。</p>
+<pre class="wp-block-code"><code>struct queueDat
+{
+    int ID;            //该同学的号码
+    queueDat *front = NULL, *back = NULL;
+}que[100001];
+queueDat *head = &que[1];</code></pre>
+<p>使用链表，可以极大地方便我们进行_插入_和_删除_的操作，不过，相比较于数组，</p>
+<p>链表最大的弊端就是在读取时不方便，我们为了寻找一个数据，</p>
+<p>可能需要从链表的某一个地方开始，一个个地找，这样就浪费了大量的时间，程序的效率极为低下。 幸运的是，</p>
+<p>在这道题中，所有的数据均为整数，所以我们可以让同学们的号码和que一 一对应。</p>
+<p>也就是说，如果需要寻找i号同学，直接使用que[i]即可，</p>
+<p>这么做不仅使我们的代码更为简单易懂，更重要的是节约了大量的宝贵时间。</p>
+<p>for (int i = 1; i &lt; 100001; i++)</p>
+<pre class="wp-block-code"><code>que[i].ID = i;        //que[i]对应i号同学</code></pre>
+<p>我们还需要做的另外一件事，就是设置好已经在队列中的1号同学的数据信息，</p>
+<p>由于在程序刚刚开始运行时，队列中只有1号同学一个人，</p>
+<p>为了方便后面的_插入_和_删除_的操作，</p>
+<p>在这里我使用了双向链表，因此，1号同学的前面和后面都是1号同学。</p>
+<p>que[1].back = &amp;que[1]; que[1].front = &amp;que[1];</p>
+<p>接下来我们就可以开始构建整个队列了，本题当中，比较好的选择是边读边做，</p>
+<p>一次读完不仅没有必要，而且会复杂化我们的程序。</p>
+<p>在后面的处理中，移去的同学编号有重复，因此我们可以使用一个布尔数组判断i号同学是否在队列之中。</p>
+<p>bool inQueue[100001]; memset(inQueue, false, sizeof(inQueue)); inQueue[1] = true;</p>
+<pre class="wp-block-code"><code>    for (int i = 1; i &lt; 100001; i++)
+        que[i].ID = i;        //que[i]对应i号同学
+    que[1].back = &que[1]; que[1].front = &que[1];
+    int totStudents, a, b;
+    cin >> totStudents;            //同学总数
+    for (int i = 2; i &lt;= totStudents; i++)    //i代表同学的号码
+    {
+        inQueue[i] = true;                    //确认i号同学在队列当中
+        cin >> a >> b;                        //插入在a同学的 左边或右边
+    }</code></pre>
+<p>至此，我们只是读取了需要的数据，并没有在链表中进行相应的操作。</p>
+<p>所以，我们需要一些代码来实现插入的过程。这里我把它封装成了一个函数_add.</p>
+<pre class="wp-block-code"><code> void _add(int num, int ID, bool back)
+{
+    queueDat *find = &que[ID], *add = &que[num];
+    if (back)        //插入在后面
+    {
+        add->front = find;
+        add->back = find->back;
+        find->back = add;
+        find = find->back->back;
+        find->front = add;
+        return;
+    }
+    else            //插入在前面
+    {
+        add->back = find;
+        add->front = find->front;
+        find = find->front;
+        find->back = add;
+        find = find->back->back;
+        find->front = add;
+        if (ID == head->ID)head = add;
+    }
+}</code></pre>
+<p>在这当中，num代表需要插入的数，ID代表插入到的位置，back则表示是否插入在该同学的后面。首先定义指针find和add，分别指向需要插入的数和插入到的位置，之后进行相应的操作。 这些乱七八糟的代码可能会让不少初学者感到不适，所以在这里详细解释一下，以back==true的情况——即插入在后面为例。</p>
+<p>我们需要在一条完整的双向链表中插入一项，更改的数据包括四项：我们需要插入的数据的front和back指针，以及被我们“破坏了”的find-&gt;next指针和原本是find-&gt;back的front指针。</p>
+<p>add-&gt;front = find;</p>
+<p>add-&gt;back = find-&gt;back;</p>
+<p>这两行代码设置好了add即需要插入的数的两个指针，让它们分别指向插入到的位置和这个位置下一个，也就是back指针指向的位置。</p>
+<p>find-&gt;back = add;</p>
+<p>接着，设置好find的back指针，让它指向需要添加的数。</p>
+<p>find = find-&gt;back-&gt;back;</p>
+<p>find-&gt;front = add;</p>
+<p>然后，来到原本是find-&gt;back的位置，设置好front指针。这样，整个添加过程就完成了，插入在前面与后面的原理基本都是一样的。只不过若是插入在前面，有可能这个同学插入到了原先队首同学前，所以完成插入后需要再判断一下，更新一下队首的指针。</p>
+<p>if (ID == head-&gt;ID)head = add;</p>
+<p>我们完成了实现插入的函数之后，删除就变得非常简单了，实现起来并没有什么困难（如果理解了插入的过程的话）。</p>
+<pre class="wp-block-code"><code> void _cut(int ID)
+{
+    queueDat *cut = &que[ID];
+    if (cut->ID == head->ID)head = cut->back;
+    cut = cut->front;
+    cut->back = cut->back->back;
+    cut = cut->back;
+    cut->front = cut->front->front;
+}</code></pre>
+<p>到这里，程序主体部分就写完了，剩下的就是非常简单的模拟，按照题目的要求一步步来即可。 以下是完整代码。</p>
+<pre class="wp-block-code"><code>#include&lt;iostream>
+#include&lt;cstring>    //仅用作memset
+using namespace std;
+struct queueDat
+{
+    int ID;            //该同学的号码
+    queueDat *front = NULL, *back = NULL;
+}que[100001];
+queueDat *head = &que[1];
+void _cut(int ID)
+{
+    queueDat *cut = &que[ID];
+    if (cut->ID == head->ID)head = cut->back;
+    cut = cut->front;
+    cut->back = cut->back->back;
+    cut = cut->back;
+    cut->front = cut->front->front;
+}
+void _add(int num, int ID, bool back)
+{
+    queueDat *find = &que[ID], *add = &que[num];
+    if (back)        //插入在后面
+    {
+        add->front = find;
+        add->back = find->back;
+        find->back = add;
+        find = find->back->back;
+        find->front = add;
+        return;
+    }
+    else            //插入在前面
+    {
+        add->back = find;
+        add->front = find->front;
+        find = find->front;
+        find->back = add;
+        find = find->back->back;
+        find->front = add;
+        if (ID == head->ID)head = add;
+    }
+}
+int main()
+{
+    bool inQueue[100001]; memset(inQueue, false, sizeof(inQueue)); inQueue[1] = true;
+    for (int i = 1; i &lt; 100001; i++)
+        que[i].ID = i;        //que[i]对应i号同学
+    que[1].back = &que[1]; que[1].front = &que[1];
+    int totStudents, a, b;
+    cin >> totStudents;            //同学总数
+    for (int i = 2; i &lt;= totStudents; i++)    //i代表同学的号码
+    {
+        inQueue[i] = true;                    //确认i号同学在队列当中
+        cin >> a >> b;                        //插入在a同学的 左边或右边
+        _add(i, a, ((b == 0) ? false : true));
+    }
+    cin >> totStudents;
+    for (int i = 0; i &lt; totStudents; i++)
+    {
+        cin >> a;
+        if (inQueue[a] == true)
+        {
+            inQueue[a] = false;
+            _cut(a);
+        }
+    }
+    b = head->ID;
+    do
+    {
+        cout &lt;&lt; head->ID &lt;&lt; " ";
+        head = head->back;
+    } while (b != head->ID);
+    cout &lt;&lt; endl;
+    system("pause");
+    return 0;
+}</code></pre>
+<p>这道题目对于才刚刚接触链表不久的我和其它初学者来说或许有些难度，不过只要正确理解并掌握了链表的插入和删除操作，这种数据结构的相关题目其实也并没有多难。</p>
+<p>*/</p>
+<pre class="wp-block-code"><code>//my ac code
+#include &lt;cstdio>
+using namespace std;
+int n,tk,tp,m,yd;
+bool pn[100005];
+struct node{
+    int id;
+    node *l=NULL;node *r=NULL;
+}nn[100005];
+node *head=&nn[1];
+void add(int xh,int cs,bool zy){
+    node *bj=&nn[cs];node *yj=&nn[xh];
+    if(zy){//right
+    
+        yj->r=bj->r;
+        bj->r->l=yj;
+        bj->r=yj;
+        yj->l=bj;
+        
+    }else{
+        yj->l=bj->l;
+        bj->l->r=yj;
+        bj->l=yj;
+        yj->r=bj;
+        
+         if (cs == head->id)head = yj;
+    }
+}
+void delnode(int i){
+    node *dn=&nn[i];
+    if(dn->id==head->id)head=dn->r;
+    dn->r->l=dn->l;
+    dn->l->r=dn->r;
+}
+int main(){
+    scanf("%d",&n);
+    nn[1].id=1;nn[1].l=&nn[1];nn[1].r=&nn[1];pn[1]=true;
+    for(int i=2;i&lt;=n;i++)nn[i].id=i;
+    for(int i=2;i&lt;=n;i++){
+        scanf("%d%d",&tk,&tp);
+        pn[i]=true;
+        add(i,tk,(tp==0)?false:true);
+    }
+    scanf("%d",&m);
+    for(int i=1;i&lt;=m;i++){
+        scanf("%d",&yd);
+        if(pn[yd]){
+            delnode(yd);
+            pn[yd]=false;
+        }
+    }
+    n=head->id;
+    do{
+        printf("%d ",head->id);
+        head=head->r;
+    }while(n!=head->id);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p2123-皇后游戏/">
+                  <h3 class="post-title">
+                    P2123 皇后游戏
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

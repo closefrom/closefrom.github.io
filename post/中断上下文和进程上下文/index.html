@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>中断上下文和进程上下文 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="１、内核态，运行于进程上下文，内核代表进程运行于内核空间；
+２、内核态，运行于中断上下文，内核代表硬件运行于内核空间；
+３、用户态，运行于用户空间。
+用户空间的应用程序，通过系统调用，进入内核空间。这个时候用户空间的进程要传递很多变量、参数..." />
+    <meta name="keywords" content="pwn知识点,知识点总结" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">中断上下文和进程上下文</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>１、内核态，运行于进程上下文，内核代表进程运行于内核空间；<br>
+２、内核态，运行于中断上下文，内核代表硬件运行于内核空间；<br>
+３、用户态，运行于用户空间。<br>
+用户空间的应用程序，通过系统调用，进入内核空间。这个时候用户空间的进程要传递很多变量、参数的值给内核，内核态运行的时候也要保存用户进程的一些寄存器值、变量等。所谓的“进程上下文”，可以看作是用户进程传递给内核的这些参数以及内核要保存的那一整套的变量和寄存器值和当时的环境等。<br>
+硬件通过触发信号，导致内核调用中断处理程序，进入内核空间。这个过程中，硬件的一些变量和参数也要传递给内核，内核通过这些参数进行中断处理。所谓的“中断上下文”，其实也可以看作就是硬件传递过来的这些参数和内核需要保存的一些其他环境（主要是当前被打断执行的进程环境）。</p>
+<p>LINUX完全注释中的一段话：<br>
+当一个进程在执行时,CPU的所有寄存器中的值、进程的状态以及堆栈中的内容被称为该进程的上下文。当内核需要切换到另一个进程时，它需要保存当前进程的所有状态，即保存当前进程的上下文，以便在再次执行该进程时，能够必得到切换时的状态执行下去。在LINUX中，当前进程上下文均保存在进程的任务数据结构中。在发生中断时,内核就在被中断进程的上下文中，在内核态下执行中断服务例程。但同时会保留所有需要用到的资源，以便中继服务结束时能恢复被中断进程的执行。</p>
+<p>上下文context： 上下文简单说来就是一个环境，相对于进程而言，就是进程执行时的环境。具体来说就是各个变量和数据，包括所有的寄存器变量、进程打开的文件、内存信息等。<br>
+一个进程的上下文可以分为三个部分:用户级上下文、寄存器上下文以及系统级上下文。<br>
+用户级上下文: 正文、数据、用户堆栈以及共享存储区；<br>
+寄存器上下文: 通用寄存器、程序寄存器(IP)、处理器状态寄存器(EFLAGS)、栈指针(ESP)；<br>
+系统级上下文: 进程控制块task_struct、内存管理信息(mm_struct、vm_area_struct、pgd、pte)、内核栈。</p>
+<pre><code>当发生进程调度时，进行进程切换就是上下文切换(context switch).操作系统必须对上面提到的全部信息进行切换，新调度的进程才能运行。而系统调用进行的模式切换(mode switch)。模式切换与进程切换比较起来，容易很多，而且节省时间，因为模式切换最主要的任务只是切换进程寄存器上下文的切换。
+</code></pre>
+<p>一.什么是内核态和用户态<br>
+内核态：在内核空间执行，通常是驱动程序，中断相关程序，内核调度程序，内存管理及其操作程序。<br>
+用户态：用户程序运行空间。<br>
+二.什么是进程上下文与中断上下文<br>
+1.进程上下文：</p>
+<p>（1）进程上文：其是指进程由用户态切换到内核态是需要保存用户态时cpu寄存器中的值，进程状态以及堆栈上的内容，即保存当前进程的进程上下文，以便再次执行该进程时，能够恢复切换时的状态，继续执行。</p>
+<p>（2）进程下文：其是指切换到内核态后执行的程序，即进程运行在内核空间的部分。</p>
+<p>2.中断上下文：</p>
+<p>（1）中断上文：硬件通过中断触发信号，导致内核调用中断处理程序，进入内核空间。这个过程中，硬件的一些变量和参数也要传递给内核，内核通过这些参数进行中断处理。中断上文可以看作就是硬件传递过来的这些参数和内核需要保存的一些其他环境（主要是当前被中断的进程环境。</p>
+<p>（2）中断下文：执行在内核空间的中断服务程序。</p>
+<p>三.为什么要进行不同之间状态的切换<br>
+在现在操作系统中，内核功能模块运行在内核空间，而应用程序运行在用户空间。现代的CPU都具有不同的操作模式，代表不同的级别，不同的级别具有不同的功能，其所拥有的资源也不同；在较低的级别中将禁止使用某些处理器的资源。Linux系统设计时利用了这种硬件特性，使用了两个级别，最高级别和最低级别，内核运行在最高级别（内核态），这个级别几乎可以使用处理器的所有资源，而应用程序运行在较低级别（用户态），在这个级别的用户不能对硬件进行直接访问以及对内存的非授权访问。内核态和用户态有自己的内存映射，即自己的地址空间。</p>
+<p>当工作在用户态的进程想访问某些内核才能访问的资源时，必须通过系统调用或者中断切换到内核态，由内核代替其执行。进程上下文和中断上下文就是完成这两种状态切换所进行的操作总称。我将其理解为保存用户空间状态是上文，切换后在内核态执行的程序是下文。</p>
+<p>四.什么情况下进行用户态到内核态的切换<br>
+1.进程上下文主要是异常处理程序和内核线程。内核之所以进入进程上下文是因为进程自身的一些工作需要在内核中做。例如，系统调用是为当前进程服务的，异常通常是处理进程导致的错误状态等。</p>
+<p>2.中断上下文是由于硬件发生中断时会触发中断信号请求，请求系统处理中断，执行中断服务子程序。</p>
+<p>五.中断上下文代码中注意事项<br>
+运行于进程上下文的内核代码是可抢占的，但中断上下文则会一直运行至结束，不会被抢占。所以中断处理程序代码要受到一些限制，在中断代码中不能出现实现下面功能的代码：</p>
+<p>（1）睡眠或者放弃CPU。<br>
+因为内核在进入中断之前会关闭进程调度，一旦睡眠或者放弃CPU，这时内核无法调度别的进程来执行，系统就会死掉。牢记：中断服务子程序一定不能睡眠（或者阻塞）。</p>
+<p>（2）尝试获得信号量<br>
+如果获得不到信号量，代码就会睡眠，导致（1）中的结果。</p>
+<p>（3）执行耗时的任务<br>
+中断处理应该尽可能快，因为如果一个处理程序是IRQF_DISABLED类型，他执行的时候会禁止所有本地中断线，而内核要响应大量服务和请求，中断上下文占用CPU时间太长会严重影响系统功能。中断处理程序的任务尽可能放在中断下半部执行。</p>
+<p>（4）访问用户空间的虚拟地址<br>
+因为中断运行在内核空间。</p>
+<p>在gcc、glibc和内核的共同支持下，Linux对所有的可能发生缓冲区溢出的栈返回地址都进行了保护：<br>
+（1）在应用进程上下文，canary值由glibc产生并保存在tcbhead_t中，当canary检查失败时执行glibc的__stack_chk_fail，并终止进程；<br>
+（2）在内核进程上下文，canary值在内核copy_process时产生并保存在task_struct中，当canary检查失败时执行内核的__stack_chk_fail，并产生panic；<br>
+（3）在内核中断上下文，canary值在start_kernel以及每个CPU核心初始化的时候产生并保存在每个CPU核心的idle进程task_struct中，当canary检查失败时执行内核的__stack_chk_fail，并产生panic。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/gpDrmX3H7/" class="tag">
+                    pwn知识点
+                  </a>
+                
+                  <a href="https://closefrom.github.io/tag/EpFCy9P6n/" class="tag">
+                    知识点总结
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/elf中动态链接和延迟绑定/">
+                  <h3 class="post-title">
+                    动态链接和延迟绑定
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

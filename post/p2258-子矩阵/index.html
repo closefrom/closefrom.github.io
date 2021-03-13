@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P2258 子矩阵 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+看得懂的题解：
+楼下的题解都是大神发的，我真的一个都看不懂。今天经过一天的整理，终于理解了这道题的做法，并且一遍AC。
+下面的神犇们虽然都很牛，但是解释都过于的简洁，像我这种蒟蒻是不可能看懂的。所以，我想在这一题的题解里为一些跟我一..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P2258 子矩阵</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>看得懂的题解：</p>
+<p>楼下的题解都是大神发的，我真的一个都看不懂。今天经过一天的整理，终于理解了这道题的做法，并且一遍AC。</p>
+<p>下面的神犇们虽然都很牛，但是解释都过于的简洁，像我这种蒟蒻是不可能看懂的。所以，我想在这一题的题解里为一些跟我一样看不懂楼下大神犇们的代码的同学来一波福利。</p>
+<p>首先介绍一下这一题的暴力思路。其实暴力思路很简单，就是枚举行的所有可能组合，再枚举列的所有可能组合，然后对其进行如题目所述般的处理，然后取所有情况的最小值。但是，这样的时间复杂度是O(C(n,n/2)<sup>2*n</sup>2)，对于所有数据，可能的最大运算总数是C(16,8)<sup>2，本人计算了一下，大约已经有三百亿了（注意后面那个n</sup>2，它是处理（即）每一个情况时所花的时间复杂度），所以不可能过所有的数据点（本人试验了一下，只有60分）。</p>
+<p>很多人因此止步，是因为都在想着正解会不会是根本不用枚举情况，直接O(n^k)（k不知道是多少……）DP就搞定了。那我告诉各位，正解其实还是要枚举的……所以，这里一定要注意，不要被传统的DP形式坑了。</p>
+<p>做法的结构大致是这样的：首先枚举其行的排列情况（类似全排列，只是元素个数确定）。然后，对于每一种行的排列情况，DP出它列的最优情况（DP等会儿再讲），然后取所有行的排列情况的最优情况的最小值。这样，就只需要一维的枚举了，比暴力快了不少。有的人可能还会问，这样会不会也超时？我们来算一下。这样的结构时间复杂度是：O(C(n,n/2)_n<sup>3)，其中(C(n,n/2)是一维枚举的时间复杂度，n</sup>3是DP的时间复杂度。那么，对于所有数据，它最多的运算次数是：C(16,8)_16^3，大约是五千万，是可以通过的。所以只要把细节打出来，此题就过了。</p>
+<p>那么，具体的算法如何实现呢？首先，枚举就不用讲了（代码里会讲到一点优化剪枝），然后就是DP的事了。问题就在于如何DP呢？其实，我们可以针对每一种枚举出来的行的情况都进行一次类似的DP。而针对于每一种情况，我们可以把它抽象化成一个更简单的问题：一个r_m矩阵，选择c列，问其相邻元素的差的绝对值的和最小是多少？在这个r_m的矩阵中，那r行其实就是我们已经枚举出来的几行，而m和c与原题中的m和c相同，从而将二维选择的问题降至了一维。</p>
+<p>而DP也变得十分明显了：设f[i][j]表示在这个r*m的矩阵中，在其前i列中选择j列（且选的列中包括第i列），组成的子矩阵中，最小值（即其相邻元素的差的绝对值的和的最小值（之后的值等表达也是指的这个东西，即题目要求求出的值））是多少。这样，便可以很显然的推出动态转移方程：</p>
+<p>f[i][j]=min(f[k][j-1]+lc[i]+hc[i][k])</p>
+<p>这里的lc[i]指的是第i列中所有元素的值，而hc[i][j]指的是仅对于第i列与第j列之间，所有同行元素的差的绝对值的和。懂线性DP的同学应该都能理解这个动态转移方程。而求lc与hc也很简单，直接在DP前暴力预处理即可。于是，DP便写完了。</p>
+<p>而此题并没有到此结束，因为边界条件也是需要格外注意的。首先是k，k的取值范围是从j-1到i-1。i-1很好理解，而j-1是因为若k小于j-1，则k&lt;j-1，f[k][j-1]这个状态也就自然不存在了（从定义上很好理解）。所以得出了k的取值范围。</p>
+<p>另外需要注意的是边界情况，有两个边界：</p>
+<p>第一个是j<mark>1的情况，此时f[i][j]=lc[i]<br>
+第二个是j</mark>i的情况，即前i列都取，所以f[i][j]=f[i-1][j-1]+lc[i]+hc[i][j-1]。将DP写好，此题便处理完成了。<br>
+写了这么多，总结一下吧。DP题很容易被看出来，但是总是因为DP的变换莫测难以入手。所以，一定要好好地练DP。</p>
+<pre class="wp-block-code"><code>//My AC Code && 
+
+#include &lt;cstdio>
+#include &lt;cmath>
+using namespace std;
+int n,m,r,c,nm[20][20];
+int hc[20][20],lc[20];//hc表示选了r行，某两列之间差的绝对值的和。lc表示为选了r行，某列，r行间的差的绝对值的和
+int dp[20][20];//dp用的数组，表示前n列选m(m&lt;=n)列，最小
+int ch[20],dss=1,mii=0,ans=2e9;
+/*
+日常费解.jpg:
+lc数组是选出的r行 的 每列 的 行与行之间的差的绝对值的和
+lc[1]是第一列 选r行，行与行之间的差 和
+hc[i][j]是 选出r行后，r行中的i列和j列之间的所有数作差，取绝对值，相加
+hc[2][1]表示 选定了r行之后， 第2列的所有数和第1列的所有数的差的绝对值的和
+
+lc为表示为某列，在选择r行的情况下，r行之间的所有数作差的绝对值的和  （单列 r行间|差|和）
+hc为表示某两列，选择r行后， r中的其中一行，某两列 作差的绝对值的和   （r行 两列间|差|和）
+*/
+int min(int a,int b){return a>b?b:a;}
+void csh(){
+    //因为dfs，要初始化数组多次，所以要净化数组环境pwp
+    for(int i=1;i&lt;=m;i++){
+        lc[i]=0;
+        for(int j=1;j&lt;r;j++){
+            lc[i]+=abs(nm[ch[j]][i]-nm[ch[j+1]][i]);
+        }
+    }
+    for(int i=2;i&lt;=m;i++){
+        for(int j=1;j&lt;i;j++){
+            hc[i][j]=0;
+            for(int k=1;k&lt;=r;k++)
+                hc[i][j]+=abs(nm[ch[k]][i]-nm[ch[k]][j]);
+        }
+    }
+}
+void ddp(){
+/*
+f[i][j]表示为 前i列选j列
+
+j==1
+f[i][j]=lc[j];
+
+i==j
+f[i][j]=f[i-1][j-1]+lc[i]+hc[i][j-1]  
+=>=>  i==j 即 前i列都选，则 从i-1,j-1转移过来，
+由于定于，f[i][j],在其前i列中选择j列（且选的列中包括第i列）
+所以加上第i列r行的|差|和 还要加上 第i列与前面那列，r行，两列间的｜差｜和
+
+f[i][j]=min(f[k][j-1]+lc[i]+hc[i][k])  =>  (k=j-1 &lt; i)
+i>j  从f[k(即j-1)][j-1]开始  选一个 与i列（已选的列）之间差最小的
+由于定于，f[i][j],在其前i列中选择j列（且选的列中包括第i列）
+在前面j-1列已选的情况下， 且 i为已选列 ，比较出 剩下的 j-1列到i-1列 与 已选的第i列之间 的｜差｜和 哪一列最小
+*/
+    for(int i=1;i&lt;=m;i++){
+        mii=min(i,c);
+        for(int j=1;j&lt;=mii;j++){
+            if(j==1)dp[i][j]=lc[j];
+            if(i==j)dp[i][j]=dp[i-1][j-1]+lc[i]+hc[i][j-1];
+            else{
+                dp[i][j]=1e9;
+                for(int k=j-1;k&lt;i;k++){//由于dp是用以前的已有的状态，所有j-1，至于k的取值是因为k小于j-1则无意义
+                    dp[i][j]=min(dp[i][j],dp[k][j-1]+lc[i]+hc[i][k]);
+                }
+            }
+            //会存在 i>=j 所以 j==c即满足条件，则更新值
+            if(j==c)ans=min(ans,dp[i][c]);
+        }
+    }
+}
+void dfs(int node){
+    if(node>n){//dfs搜索是+1，所以大于n行就表示搜完了
+    csh();
+    ddp();
+        return;
+    }
+    if(r-dss+1==n-node+1){
+/*
+即 r==n dss==node
+这里就是解释中所述的优化。
+如果node和node以后的元素必须全部取完，
+才能满足刚好有r个的条件，则必须取node，
+否则便会取到少于r个元素的情况。这样保证了node>n时所有情况都刚好有r个，
+这便是个优化剪枝
+*/
+        ch[dss++]=node;
+        dfs(node+1);
+        ch[dss--]=0;//回溯，将数组清空，以便下次使用
+        return;
+    }
+    dfs(node+1);//不选当前node行
+    if(dss&lt;=r){
+        ch[dss++]=node;
+        dfs(node+1);
+        ch[dss--]=0;
+    }
+}
+int main(){
+    scanf("%d%d%d%d",&n,&m,&r,&c);
+    for(int i=1;i&lt;=n;i++)
+        for(int j=1;j&lt;=m;j++)
+            scanf("%d",&nm[i][j]);
+    
+    dfs(1);
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1220-关路灯/">
+                  <h3 class="post-title">
+                    P1220 关路灯
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

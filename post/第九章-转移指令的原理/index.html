@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第九章-转移指令的原理 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.8086CPU的转移指令分为以下几类：
+无条件转移指令
+条件转移指令
+循环指令
+过程
+中断
+2.offset，功能：取得标号的偏移地址
+如：
+assume cs:codesg
+codesg segment
+start:mov ax,of..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第九章-转移指令的原理</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.8086CPU的转移指令分为以下几类：</p>
+<pre class="wp-block-code"><code>无条件转移指令
+条件转移指令
+循环指令
+过程
+中断</code></pre>
+<p>2.offset，功能：取得标号的偏移地址</p>
+<pre class="wp-block-code"><code>如：
+assume cs:codesg
+codesg segment
+start:mov ax,offset start 
+s:mov ax,offset s
+code ends
+end start</code></pre>
+<p>mov ax,offset start相当于mov ax,0,因为start是代码段中的标号，它标记的指令是代码段中的第一条指令，偏移地址为0</p>
+<p>mov ax,offset s 相当于mov ax,3 因为s是代码段中的标号，它标记的指令是代码段中的第二条指令，第一条指令长度为3个字节，则s的偏移地址为3</p>
+<p>3.jmp指令，可修改IP，或同时修改CS和IP</p>
+<p>jmp指令要给出两种信息</p>
+<p>（1）转移的目的地址</p>
+<p>（2）转移的距离（段间转移，段内短转移，段内近转移）</p>
+<ul>
+<li>段内短转移：jmp short 标号（转至标号处执行指令） 功能：（IP）=（IP）+8位位移<br>
+(1)它对IP的修改范围是-128~127<br>
+(2)jmp short 标号 指令所对应的机器码中，并不包括转移的目的地址，而是包含的是转移的位移，这个位移是编译器根据汇编指令中的标号计算出来的</li>
+</ul>
+<pre class="wp-block-code"><code>一.8位位移=标号处的地址-jmp指令后的第一个字节的地址
+二.short指明此处的位移为8位位移
+三.8位位移的范围-128~127,
+四.8位位移由编译器编译时算出</code></pre>
+<ul>
+<li>段内近转移：jmp near ptr 标号 功能：（IP）=（IP）+16位位移</li>
+</ul>
+<pre class="wp-block-code"><code>一.16位位移=标号处的地址-jmp指令后的第一个字节的地址
+二.near ptr 指明此处的位移为16位位移，进行的是段内近转移
+三.16位位移的范围是-32768~32767
+四.16位位移由编译程序在编译时算出
+（ps：段内短转移和段内近转移都是没有给出转移的目的地址的，而是通过给出位移来实现）</code></pre>
+<ul>
+<li>段间转移又称远转移（转移的目的地址在指令中的jmp指令）jmp far ptr 标号</li>
+</ul>
+<p>far ptr 指明了指令用标号的段地址和偏移地址修改CS和IP</p>
+<ul>
+<li>还有一种就是转移地址在寄存器中的jmp指令，jmp 16位reg 功能：（IP）=（16位reg）</li>
+<li>转移地址在内存中的jmp指令<br>
+(1)jmp word ptr 内存单元地址（段内转移）<br>
+功能：从内存单元地址处开始存放着一个字，是转移的目的偏移地址<br>
+如：<br>
+mov ax,0123H<br>
+mov ds:[0],ax<br>
+jmp word ptr ds:[0]<br>
+执行完后，(IP)=0123H<br>
+(2)jmp dword ptr 内存单元地址（段间转移）<br>
+功能：从内存单元地址处开始存放着两个字，高地址处的字是转移的目的段地址，低地址处是转移的目的偏移地址<br>
+如：<br>
+mov ax,0123H<br>
+mov ds:[0],ax<br>
+mov word ptr ds:[2],0<br>
+jmp dword ptr ds:[0]<br>
+执行后（CS）=0，（IP）=0123H,CS:IP指向0000:0123</li>
+</ul>
+<p>4.jcxz指令 有条件转移指令，所有有条件转移指令都是短转移，在对应的机器码中，包含转移的位移，而不是目的地址。</p>
+<p>指令格式jcxz 标号 （若（cx）==0转移到标号处执行）</p>
+<p>操作：当（cx）=0,（IP）=（IP）+8位位移</p>
+<pre class="wp-block-code"><code>一.8位位移=标号处的地址-jcxz指令后的第一个字节的地址
+二.8位位移的范围为-128~127,用补码表示
+三.8位位移由编译器在编译时算出
+可用C语言描述   if((cx)==0)jmp short 标号</code></pre>
+<p>5.loop 循环指令，所有的循环指令都是短转移，在对应的机器码中包含转移的位移，而不是目的地址，对IP的修改范围为-128~127</p>
+<p>指令格式：loop 标号（(cx)=(cx)-1,若（cx）!=0,转至标号处执行）</p>
+<pre class="wp-block-code"><code>操作：
+（1）（cx）=(cx)-1
+（2）若（cx）！=0，（IP）=（IP）+8位位移</code></pre>
+<pre class="wp-block-code"><code>一.8位位移=标号处的地址-loop指令后的第一个字节的地址
+二.8位位移的范围为-128~127，用补码表示
+三.8位位移由编译程序在编译时算出
+若（cx）=0,什么都不做，程序向下执行</code></pre>
+<ol start="6">
+<li></li>
+</ol>
+<pre class="wp-block-code"><code>jmp short 标号
+jmp near ptr 标号
+jcxz 标号
+loop 标号
+等汇编命令，它们对IP的修改是根据转移目的地址和转移起始地址之间的位移来进行的，在它们对应的机器码中不包含转移的目的地址，而是包含的是目的地址的位移
+如：
+mov cx,6   机器代码：B90600
+mov ax,10H 机器代码：B81000
+s:add ax,ax 机器代码：01C0
+loop s 机器代码：E2FC
+若loop s 的机器码中含s的地址，则对程序段在内存中的偏移地址有了严格的限制，若s处的指令不在目的地址处，程序执行就会出错，所以loop s的机器码中包含的是转移的位移，因为，无论s处的指令的实际地址是多少，loop指令的转移位移是不变的</code></pre>
+<p>自我理解：即，程序在内存的不同段，若loop s的机器码是含s的地址，则这个偏移地址，可能不在当前cs段，s标号的指令位置，可能是在另一个段地址的这个偏移地址处，若当前这个偏移地址 对应的CS：IP 不是s标号，而是其他命令，程序就会出错</p>
+<p>（ps:在第二章中，形如jmp 2000:0100的转移指令，只能在debug中用的汇编指令，不能在源程序中出现，因为汇编编译器不认识）</p>
+<p>7.80*25彩色字符模式显示缓冲区的结构：</p>
+<ul>
+<li>内存地址空间中，B8000H~BFFFFH，共32KB的空间，为80*25彩色字符模式的显示缓冲区，向这个地址空间写入数据，写入的内容立即出现在显示器上</li>
+<li>在80*25彩色字符模式下，显示器可显示25行，每行80字符，每个字符有256种属性</li>
+<li>一个字符在显示缓冲区中就要占两个字节，一个字节存放字符的ascii码，另一个字节存放属性，在80*25模式下，一屏的内容在显示缓冲区共占4000个字节</li>
+<li>显示缓冲区共8页，每页4KB，显示器可显示任意一页，一般情况显示第0页，也就是B8000H~B8F9FH中的4000个字节的内容将出现在显示器中<br>
+如：<br>
+偏移000~09F对应显示器上的第一行（80字符==160字节）<br>
+偏移0A0~13F对应显示器上的第二行<br>
+如此类推 偏移F00~F9F对应显示器第二十五行</li>
+<li>显示缓冲区中，偶地址存放字符，奇地址存放字符的颜色属性<br>
+属性字节的格式：<br>
+7（BL闪烁） 6（R） 5（G） 4（B） 3（I） 2（R） 1（G） 0（B）<br>
+其中654是背景颜色，3是字符高亮属性，210是字体颜色属性</li>
+</ul>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第八章-数据处理的两个基本问题/">
+                  <h3 class="post-title">
+                    第八章-数据处理的两个基本问题
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1120 小木棍 ［数据加强版］ | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="暴搜的思路并不难想到，主要难点是各种优化、各种剪枝：
+预先处理出所有木棍的总长度，且保证枚举答案的值能被总长度整除。
+每根木棍的长度可用桶来存储，并且预先处理出最长的和最短的木棍的长度，搜索时从最大长度到最小长度递减枚举。
+若拼接当前木棍时..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1120 小木棍 ［数据加强版］</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>暴搜的思路并不难想到，主要难点是各种优化、各种剪枝：</p>
+<p>预先处理出所有木棍的总长度，且保证枚举答案的值能被总长度整除。</p>
+<p>每根木棍的长度可用桶来存储，并且预先处理出最长的和最短的木棍的长度，搜索时从最大长度到最小长度递减枚举。</p>
+<p>若拼接当前木棍时已用了一根长为X的木棍，则dfs时从长度X开始搜索。</p>
+<p>若某组拼接不成立，且此时 已拼接的长度为0 或 当前已拼接的长度与刚才枚举的长度之和为最终枚举的答案 时，则可直接跳出循环，因为此时继续枚举其它更小的值时，显然可能情况更少，且同样凑不完。</p>
+<p>注意常数不要太大。</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;cstring>
+#include &lt;algorithm>
+using namespace std;
+int n,nn[70],sum=0,mid2=0,mii=0,md,flag=0,mxx,mnn=2e9;
+int cnt=0,x;
+/*
+nn数组表示当前长度的木棍的个数 sum表示全部木棍长度 
+
+mid2表示原本有多少根木棍
+*/
+int max(int a,int b){return a>b?a:b;}
+int min(int a,int b){return a>b?b:a;}
+void checkdfs(int ss,int sm,int p){//（一共有多少根大木棍，和为多少，从长度为多少的木棍开始搜索）
+    if(ss==0){printf("%d",md);exit(0);}
+    if(sm==md){checkdfs(ss-1,0,mxx);return;}
+    for(int i=p;i>=mnn;i--){
+        if(nn[i]&&(i+sm&lt;=md)){
+            nn[i]--;
+            checkdfs(ss,sm+i,i);
+            nn[i]++;
+            if(sm==0||sm+i==md)break;
+            }
+    }
+    return;
+}
+
+int main(){
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;i++){
+        scanf("%d",&x);
+        if(x>50)continue;
+        nn[x]++;
+        cnt++;
+        sum+=x;
+        mxx=max(mxx,x);
+        mnn=min(mnn,x);
+    }
+     //mii=sum;
+     for(int i=cnt;i>=2;i--){//从 初始化棍数最多 开始找  因为棍数越多，每根长度越小
+         if(sum%i==0){
+             mid2=i;
+             md=sum/i;
+             //printf("mid2:%d\n md:%d",mid2,md);
+             //flag=0;
+             checkdfs(mid2,0,mxx);
+             //if(flag){mii=min(mii,md);}
+         }
+     }
+     /*for(int i=mxx;i&lt;=sum>>1;i++){
+         if(sum%i==0){
+             md=i;
+             flag=0;
+             checkdfs(sum/i,0,i,50);
+             //if(flag)mii=min(mii,i);
+         }
+     }*/
+     printf("%d",sum);//最后都没输出，则输出 所有小木棒的总和
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1508-likecloud-吃、吃、吃/">
+                  <h3 class="post-title">
+                    P1508 Likecloud-吃、吃、吃
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

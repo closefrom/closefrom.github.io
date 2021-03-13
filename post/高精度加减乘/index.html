@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>高精度加减乘 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="加：
+#include &lt;cstdio>
+#include &lt;cstring>
+using namespace std;
+char c1[505],c2[505];
+int a[505],b[505],c[505];
+int m..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">高精度加减乘</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <pre class="wp-block-code"><code>加：
+#include &lt;cstdio>
+#include &lt;cstring>
+using namespace std;
+char c1[505],c2[505];
+int a[505],b[505],c[505];
+int max(int a,int b){return a>b?a:b;}
+int main(){
+    scanf("%s",c1);scanf("%s",c2);//printf("%s %s",c1,c2);
+    if(c1[0]==48&&c2[0]==48){printf("0");return 0;}
+    int len1=strlen(c1);int len2=strlen(c2);
+    for(int i=0;i&lt;len1;i++)a[len1-i-1]=int(c1[i]-48);
+    for(int i=0;i&lt;len2;i++)b[len2-i-1]=int(c2[i]-48);
+    //printf("%d %d",a[0],b[0]);
+    int maxx=max(len1,len2);
+    for(int i=0;i&lt;maxx;i++){
+        c[i]+=a[i]+b[i];
+        while(c[i]>=10){c[i+1]++;c[i]-=10;}
+    }
+    maxx++;
+    while(c[maxx]==0)maxx--;
+    for(int i=maxx;i>=0;i--)printf("%d",c[i]);
+    return 0;
+}
+
+减：
+#include &lt;cstdio>
+#include &lt;cstring>
+#include &lt;iostream>
+using namespace std;
+
+string a,b,c;
+int d[10005];
+bool pd,ling=1;
+int main(){
+    cin >> a >> b;
+    int lena = a.length();
+    int lenb = b.length();
+    if(a==b){printf("0");return 0;}
+    if(lena>lenb)pd=1;
+    else if(lena&lt;lenb)pd=0;
+    else {
+        if(a>b)pd=1;
+        else pd=0;
+    }
+    if(!pd)swap(a,b);
+    int m=a.length()-b.length();
+    for(int i=1;i&lt;=m;i++)c=c+"0";
+    b=c+b;
+    for(int i=a.length()-1;i>=0;i--){
+        if(a[i]>=b[i])d[i]=a[i]-b[i];
+        else{
+            a[i-1]--;
+            d[i]=a[i]+10-b[i];
+        }
+    }
+    if(!pd)printf("-");
+    
+    for(int i=0;i&lt;=a.length()-1;i++){
+        if(ling && d[i]==0)continue;
+        else if(d[i]>0)ling=0;
+        printf("%d",d[i]);
+    }
+    return 0;
+}
+
+乘：
+#include &lt;cstdio>
+#include &lt;cstring>
+using namespace std;
+int a[2005],b[2005],c[4005];
+char s1[2005],s2[2005];
+int main(){
+   scanf("%s%s",s1,s2);
+   a[0]=strlen(s1);b[0]=strlen(s2);
+   for(int i=1;i&lt;=a[0];i++)a[i]=s1[a[0]-i]-48;
+   for(int i=1;i&lt;=b[0];i++)b[i]=s2[b[0]-i]-48;
+   c[0]=a[0]+b[0]-1;
+   for(int i=1;i&lt;=b[0];i++)
+    for(int j=1;j&lt;=a[0];j++){
+            c[i+j-1]+=a[j]*b[i];
+            c[i+j]+=c[i+j-1]/10;
+            c[i+j-1]%=10;
+        }
+    
+    if(c[c[0]+1]>0)c[0]++;
+    while(c[c[0]]==0&&c[0]>1)c[0]--;
+    for(int i=c[0];i>=1;i--)printf("%d",c[i]);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/树形dp入门题/">
+                  <h3 class="post-title">
+                    树形DP入门题
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

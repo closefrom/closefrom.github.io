@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P2577 [ZJOI2005]午餐 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="//My AC Code：
+
+#include &lt;cstdio>
+#include &lt;algorithm>
+#include &lt;cstring>
+using namespace std;
+int n,dp[205][205..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P2577 [ZJOI2005]午餐</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <pre class="wp-block-code"><code>//My AC Code：
+
+#include &lt;cstdio>
+#include &lt;algorithm>
+#include &lt;cstring>
+using namespace std;
+int n,dp[205][205*205];
+int sum[205];
+//n表示有多少个人要分两队打饭
+//dp[i][j]表示 前i个人也表示选第i个人，在第一个窗口打饭的总时间j ， 最早吃完饭的时间
+struct node{
+    int ai,bi;
+}nd[205];
+/*
+容易想到贪心：吃饭慢的先打饭节约时间， 所以先将人按吃饭时间从大到小排序。
+
+然后就是dp了： 首先，应该想到f[i][j][k]:前i个人，在1号窗口打饭总时间j，在2号窗口打饭总时间k
+
+当然，这样会爆空间，所以想到去掉一维。
+
+f[i][j]表示前i个人，在1号窗口打饭总时间j，最早吃完饭的时间
+
+我们可以发现 j+k=前i个人打饭总和，k = sum(i)-j。 所以可以维护一个前缀和
+*/
+bool cmp(node a,node b){return a.bi>b.bi;}
+int min(int a,int b){return a>b?b:a;}
+int max(int a,int b){return a>b?a:b;}
+//按照吃饭时间 ，从大到小排序
+/*
+一看题目 就知道 是应该从前往后推的dp
+所以 核心代码的第一个for是表示表示 选第i个人在哪号窗口打饭，或者是 前i个人 的意思
+然后第二个循环 就是前i个人的打饭时间总和 一定要0 推到 sum[i] 因为 0的时候代表   不去1号窗口去了2号窗口，然后 就可以状态转移
+最后 就是 要 判断 dp[n][i] 最小是哪个然后输出
+*/
+int main(){
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;i++)scanf("%d%d",&nd[i].ai,&nd[i].bi);
+    sort(nd+1,nd+1+n,cmp);
+    for(int i=1;i&lt;=n;i++)sum[i]=sum[i-1]+nd[i].ai;
+    memset(dp,1,sizeof(dp));
+    dp[0][0]=0;
+    for(int i=1;i&lt;=n;i++){
+        for(int j=0;j&lt;=sum[i];j++){
+            if(j>=nd[i].ai)dp[i][j]=min(dp[i][j],max(dp[i-1][j-nd[i].ai],j+nd[i].bi));
+            dp[i][j]=min(dp[i][j],max(dp[i-1][j],sum[i]-j+nd[i].bi));
+        }
+    }
+    int ans=2e9;
+    for(int i=0;i&lt;=sum[n];i++){
+        ans=min(ans,dp[n][i]);
+    }
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1435-回文字串/">
+                  <h3 class="post-title">
+                    P1435 回文字串
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

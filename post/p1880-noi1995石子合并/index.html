@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1880 [NOI1995]石子合并 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+这是一道区间dp十分经典的模板题，让我们揣测一下，前辈们是如何得到这个状态转移方程的。
+首先，要计算合并的最大值、最小值，既然是动态规划，我们需要洞悉其中一些关联且确定的状态。
+以下以最大值为例。
+既然是最大值，那么求得的结果是否满..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1880 [NOI1995]石子合并</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>这是一道区间dp十分经典的模板题，让我们揣测一下，前辈们是如何得到这个状态转移方程的。</p>
+<p>首先，要计算合并的最大值、最小值，既然是动态规划，我们需要洞悉其中一些关联且确定的状态。</p>
+<p>以下以最大值为例。</p>
+<p>既然是最大值，那么求得的结果是否满足每一区间都是该区间所能达得到的的最大值？</p>
+<p>显然是这样的。反证法：倘若有一个区间不是，那么换做该区间取得最大值的方案，最终结果将比原得分大。显然必定满足任意区间得分一定是该区间内的最大值。</p>
+<p>这样我们可以定义状态f[i][j]，表示i到j合并后的最大得分。其中1&lt;=i&lt;=j&lt;=N。</p>
+<p>既然这样，我们就需要将这一圈石子分割。很显然，我们需要枚举一个k，来作为这一圈石子的分割线。</p>
+<p>这样我们就能得到状态转移方程：</p>
+<p>f[i][j] = max(f[i][k] + f[k+1][j] + d(i,j));其中，1&lt;=i&lt;=&lt;=k&lt;j&lt;=N。</p>
+<p>d(i,j)表示从i到j石子个数的和。</p>
+<p>那么如何编写更快的递推来解决这个问题？</p>
+<p>在考虑如何递推时，通常考虑如下几个方面：</p>
+<p>是否能覆盖全部状态？</p>
+<p>求解后面状态时是否保证前面状态已经确定？</p>
+<p>是否修改了已经确定的状态？</p>
+<p>也就是说，在考虑递推顺序时，务必参考动态规划的适应对象多具有的性质，具体参考《算法导论》相关或百度百科或wiki。</p>
+<p>既然之前说过我们需要枚举k来划分i和j，那么如果通过枚举i和j进行状态转移，很显然某些k值时并不能保证已经确定过所需状态。</p>
+<p>如，i=1 to 10,j=1 to 10,k=1 to 9.当i=1,j=5,k=3时，显然状态f[k+1][j]没有结果。</p>
+<p>那么，我们是不是应该考虑枚举k？</p>
+<p>但这样i和j就难以确定了。</p>
+<p>我们不难得到一个两全的方法：枚举j-i，并在j-i中枚举k。这样，就能保证地推的正确。</p>
+<pre class="wp-block-code"><code>#include&lt;iostream>  
+#include&lt;cstdio>  
+#include&lt;cmath>  
+using namespace std;   
+int n,minl,maxl,f1[300][300],f2[300][300],num[300];  
+int s[300];  
+inline int d(int i,int j){return s[j]-s[i-1];}  
+//转移方程：f[i][j] = max(f[i][k]+f[k+1][j]+d[i][j];
+int main()  
+{   
+    scanf("%d",&n);  
+    for(int i=1;i&lt;=n+n;i++)  
+    {  
+        scanf("%d",&num[i]);  
+        num[i+n]=num[i];  
+        s[i]=s[i-1]+num[i];  
+    }  
+    for(int p=1;p&lt;n;p++)  
+    {  
+        for(int i=1,j=i+p;(j&lt;n+n) && (i&lt;n+n);i++,j=i+p)  
+        {  
+            f2[i][j]=999999999;  
+            for(int k=i;k&lt;j;k++)  
+            {  
+                f1[i][j] = max(f1[i][j], f1[i][k]+f1[k+1][j]+d(i,j));   
+                f2[i][j] = min(f2[i][j], f2[i][k]+f2[k+1][j]+d(i,j));  
+            }  
+        }  
+    }  
+    minl=999999999;  
+    for(int i=1;i&lt;=n;i++)  
+    {  
+        maxl=max(maxl,f1[i][i+n-1]);  
+        minl=min(minl,f2[i][i+n-1]);  
+    }  
+    printf("%d\n%d",minl,maxl);  
+    return 0;  
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1309-瑞士轮/">
+                  <h3 class="post-title">
+                    P1309 瑞士轮
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

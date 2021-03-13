@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>对破解版moba手游商业化辅助简单分析(java层) | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="样本链接：https://pan.baidu.com/s/1IvjvXvwa0x9mXedzN6vfDA
+提取码：mdbl
+（本文只对以框架方式运行辅助且只对辅助透视开启路径进行简析{android开发}）
+1.入口类com.tencent..." />
+    <meta name="keywords" content="安卓开发" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">对破解版moba手游商业化辅助简单分析(java层)</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>样本链接：https://pan.baidu.com/s/1IvjvXvwa0x9mXedzN6vfDA<br>
+提取码：mdbl</p>
+<p>（本文只对以框架方式运行辅助且只对辅助透视开启路径进行简析{android开发}）</p>
+<p>1.入口类com.tencent.music.MainActivity简易源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package: com.tencent.music.MainActivity;
+class MainActivity extends Activity
+{
+      public void <init>();
+      virtual protected void onCreate(Bundle p0);
+      Handler hd;
+      String md5;
+      TimerTask task;
+}
+</code></pre>
+<p>其中仅有的构造函数代码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//Package com.tencent.music.MainActivity;
+public void MainActivity.<init>()       //method@0002d2
+{
+   super();
+   this.task = new MainActivity$100000002(this);
+   this.hd = new MainActivity$100000004(this);
+}
+</code></pre>
+<p>/*<br>
+在当前主线程MainActivity中</p>
+<p>调用com.tencent.music.MainActivity$100000002的构造函数，初始化Timetask类型的task变量，用于调用MainActivity中的Handler类型的hd中的sendMessage函数发送message对象。</p>
+<p>调用com.tencent.music.MainActivity$100000004的构造函数，初始化hd类型的hd变量，用于接收message对象，并以message对象的what值来判断，值为1则结束当前activity（MainActivity）并跳转到com.tencent.music.DlActivity。值为0则打开一个url。</p>
+<p>发送message对象的com.tencent.music.MainActivity$100000002.run源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void MainActivity$100000002.run()        //method@0002cb
+{
+   Message message;
+   this.this$0.md5 = "";
+   message = new Message();
+   message.what = Integer.parseInt("1");
+   this.this$0.hd.sendMessage(message);
+}
+</code></pre>
+<p>接收并处理message对象的com.tencent.music.MainActivity$100000004.handleMessage源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void MainActivity$100000004.handleMessage(Message p0)    //method@0002d1
+{
+   super.handleMessage(p0);
+   switch (p0.what){    
+       case 0:  
+         new AlertDialog$Builder(this.this$0).setTitle(Zw.Fhzw(1)).setMessage(Zw.Fhzw(2)).setIcon(0x7f020003).setCancelable(false).setPositiveButton(Zw.Fhzw(3), new MainActivity$100000004$100000003(this)).create().show();
+         break; 
+       case 1:  
+         Context cApplication = this.this$0.getApplicationContext();
+         try{   
+            this.this$0.startActivity(new Intent(cApplication, Class.forName("com.tencent.music.DlActivity")));
+            this.this$0.finish();
+         }catch(java.lang.ClassNotFoundException e0){   
+            throw new NoClassDefFoundError(e0.getMessage());
+         }
+         break; 
+   }    
+   return;
+}
+</code></pre>
+<p>具体定时器原理参考：https://blog.csdn.net/a78270528/article/details/49448635<br>
+*/</p>
+<p>其中的onCreate函数代码：</p>
+ <pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//Package com.tencent.music.MainActivity
+protected void MainActivity.onCreate(Bundle p0) //method@0002d6
+{
+   String str = 19;
+   int vint = 1;
+   ADRTLogCatReader.onContext(this, "com.aide.ui.mgai");
+   super.onCreate(p0);
+   this.requestWindowFeature(vint);
+
+   if (Build$VERSION.SDK_INT >= 21) {   
+      this.getWindow().addFlags(0x80000000);
+   }    
+   if (Build$VERSION.SDK_INT >= str) {  
+      this.getWindow().addFlags(0x04000000);
+   }    
+   if (Build$VERSION.SDK_INT >= str) {  
+      this.getWindow().addFlags(0x08000000);
+   }    
+   //布局及运行环境参数
+   this.setContentView(0x7f030002);
+   AlertDialog$Builder builder = new AlertDialog$Builder(this);
+   builder.setTitle("自定义安装");
+   builder.setMessage("请输入你想要的包名，例如android.xx，安装后请一定卸载掉旧的app！！！如果你已经重新安装了，请点取消！");
+   EditText editText = new EditText(this);
+   editText.setHint("输入包名");
+   LinearLayout linearLayout = new LinearLayout(this);
+   linearLayout.setOrientation(vint);
+   //setOrientation 设置布局
+   linearLayout.addView(editText);
+   builder.setView(linearLayout);
+   builder.setPositiveButton("生成", new MainActivity$100000000(this, editText));
+   builder.setNegativeButton("取消", new MainActivity$100000001(this));
+   builder.show();
+   return;
+}
+/*
+(android.app.AlertDialog.Builder类的setPositiveButton、setNegativeButton、setNeutralButton方法都是AlertDialog弹出框的按钮，都是封装好的button，只是显示的位置不同，项目中可根据情况选择使用)
+ //主要逻辑是询问是否要安装的包，有则输入包名进行安装。（此处以研究透视为主，则取消即可）
+*/
+ </code></pre>
+<p>2.点击取消按钮，则会触发com.tencent.music.MainActivity$100000001类实例的onClick方法：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//Package com.tencent.music.MainActivity$100000001;
+public void MainActivity$100000001.onClick(DialogInterface p0,int p1)   //method@0002c8
+{
+   p0.dismiss();
+   new Timer().schedule(this.this$0.task, (long)1000);
+}
+/*
+(主要逻辑是关闭上一个窗口，创建timer实例调用schedule方法，每1秒调用以此MainActivity类的task对应的run方法发送message对象（what值为1），然后MainActivity类的hd的则会结束当前activity（MainActivity）并跳转到com.tencent.music.DlActivity。)
+*/
+</code></pre>
+<p>3.com.tencent.music.DlActivity的简易源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package: com.tencent.music.DlActivity;
+class DlActivity extends Activity       // class@000082
+{
+      public void <init>();
+      public static String dq(String p0);
+      public static boolean fileIsExists(String p0);
+      public static void xr(String p0,String p1);
+      virtual protected void onCreate(Bundle p0);
+      AlertDialog alertDialog;
+      EditText bjk;
+      String fhz;
+      Handler hd;
+}
+/*
+(关于startacitivty函数来开启目标activity时会调用目标activity的构造函数，参考：https://ccpat.blog.csdn.net/article/details/54915200)
+*/
+</code></pre>
+<p>其中仅有的构造函数代码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void DlActivity.<init>() //method@0002b0
+{
+   super();
+   this.hd = new DlActivity$100000002(this);
+}
+/*
+主要逻辑是通过创建com.tencent.music.DlActivity$100000002类实例，初始化当前Activity类的Handler的hd变量，届时，通过com.tencent.music.DlActivity$100000002的handleMessage处理com.tencent.music.DlActivity线程收到的message对象。(此处暂不对handleMessage函数进行分析)
+*/
+</code></pre>
+<p>其中的onCreate函数代码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+protected void DlActivity.onCreate(Bundle p0)   //method@0002ba
+{
+   ADRTLogCatReader.onContext(this, "com.aide.ui.mgai");
+   super.onCreate(p0);
+   this.requestWindowFeature(1);
+   if (Build$VERSION.SDK_INT >= 21) {   
+      this.getWindow().addFlags(0x80000000);
+   }    
+   if (Build$VERSION.SDK_INT >= 19) {   
+      this.getWindow().addFlags(0x04000000);
+   }    
+   if (Build$VERSION.SDK_INT >= 19) {   
+      this.getWindow().addFlags(0x08000000);
+   }    
+   this.setContentView(0x7f030000);
+   //<public type="layout" name="a" id="2130903040" />
+   this.bjk = this.findViewById(0x7f070004);
+   //<public type="id" name="e" id="2131165188" />
+   if (DlActivity.fileIsExists("/storage/emulated/0/叶")) { 
+      this.bjk.setText(DlActivity.dq("/storage/emulated/0/叶"));
+   }    
+   this.findViewById(0x7f070005).setOnClickListener(new DlActivity$100000001(this));
+   //<public type="id" name="f" id="2131165189" />
+   //通过arsc的信息在r/a/a.xml文件可找到相关视图
+   return;
+}
+/*
+主要逻辑是：
+调用fileIsExists测试传入此字符串对应的抽象路径名表示的文件是否存在，为真（文件存在）则进入if语句中调用com.tencent.music.DlActivity.dq将字符串对应的文件内的字符放到视图上。
+最后设置登录按钮并通过创建com.tencent.music.DlActivity$100000001实例来监控按钮。
+ */
+</code></pre>
+<p>4.追到com.tencent.music.DlActivity$100000001.onClick:</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//Package com.tencent.music.DlActivity$100000001;
+public void DlActivity$100000001.onClick(View p0)  //method@0002a9
+{
+   this.this$0.alertDialog = new AlertDialog$Builder(this.this$0).setTitle("提示：").setMessage("登录中...").setIcon(0x7f020003).setCancelable(false).create();
+   this.this$0.alertDialog.show();
+   new DlActivity$100000001$100000000(this, new DlActivity$T(this.this$0)).start();
+}
+</code></pre>
+<p>/*<br>
+关键逻辑是调用了继承Thread类的com.tencent.music.DlActivity$100000001$100000000的构造方法com.tencent.music.DlActivity$100000001$100000000.<init>(DlActivity$100000001 p0,Runnable p1),传入了当前类(DlActivity<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>100000001</mn><mo>)</mo><mi mathvariant="normal">实</mi><mi mathvariant="normal">例</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">以</mi><mi mathvariant="normal">及</mi><mi mathvariant="normal">创</mi><mi mathvariant="normal">建</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">实</mi><mi mathvariant="normal">现</mi><mi mathvariant="normal">了</mi><mi>R</mi><mi>u</mi><mi>n</mi><mi>n</mi><mi>a</mi><mi>b</mi><mi>l</mi><mi>e</mi><mi mathvariant="normal">接</mi><mi mathvariant="normal">口</mi><mi mathvariant="normal">的</mi><mi>c</mi><mi>o</mi><mi>m</mi><mi mathvariant="normal">.</mi><mi>t</mi><mi>e</mi><mi>n</mi><mi>c</mi><mi>e</mi><mi>n</mi><mi>t</mi><mi mathvariant="normal">.</mi><mi>m</mi><mi>u</mi><mi>s</mi><mi>i</mi><mi>c</mi><mi mathvariant="normal">.</mi><mi>D</mi><mi>l</mi><mi>A</mi><mi>c</mi><mi>t</mi><mi>i</mi><mi>v</mi><mi>i</mi><mi>t</mi><mi>y</mi></mrow><annotation encoding="application/x-tex">100000001)实例，以及创建的一个实现了Runnable接口的com.tencent.music.DlActivity</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">1</span><span class="mclose">)</span><span class="mord cjk_fallback">实</span><span class="mord cjk_fallback">例</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">以</span><span class="mord cjk_fallback">及</span><span class="mord cjk_fallback">创</span><span class="mord cjk_fallback">建</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">实</span><span class="mord cjk_fallback">现</span><span class="mord cjk_fallback">了</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mord mathdefault">u</span><span class="mord mathdefault">n</span><span class="mord mathdefault">n</span><span class="mord mathdefault">a</span><span class="mord mathdefault">b</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">e</span><span class="mord cjk_fallback">接</span><span class="mord cjk_fallback">口</span><span class="mord cjk_fallback">的</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">m</span><span class="mord">.</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">c</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">t</span><span class="mord">.</span><span class="mord mathdefault">m</span><span class="mord mathdefault">u</span><span class="mord mathdefault">s</span><span class="mord mathdefault">i</span><span class="mord mathdefault">c</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.02778em;">D</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">A</span><span class="mord mathdefault">c</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">i</span><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span></span></span></span>T类的实例。最终调用start()调用的是com.tencent.music.DlActivity$T.run函数。</p>
+<p>相关细节参考：参考：<br>
+https://www.cnblogs.com/wpy188/p/12094072.html<br>
+https://blog.csdn.net/sihai12345/article/details/80458763</p>
+<p>com.tencent.music.DlActivity$100000001$100000000简易源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package: com.tencent.music.DlActivity$100000001$100000000;
+class DlActivity$100000001$100000000 extends Thread
+{
+      void <init>(DlActivity$100000001 p0,Runnable p1);
+      static DlActivity$100000001 access$0(DlActivity$100000001$100000000 p0);
+      private final DlActivity$100000001 this$0;
+}
+</code></pre>
+<p>com.tencent.music.DlActivity$T简易源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package: com.tencent.music.DlActivity$T;
+class DlActivity$T extends Object implements Runnable // class@000081
+{
+      public void <init>(DlActivity p0);
+      static DlActivity access$0(DlActivity$T p0);
+      virtual public void run();
+      private final DlActivity this$0;
+}
+</code></pre>
+<p>*/</p>
+<p>5.com.tencent.music.DlActivity$T.run源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//Package com.tencent.music.DlActivity$T;
+public void DlActivity$T.run()
+{
+   Message message;
+   String sstr = Settings$System.getString(this.this$0.getContentResolver(), "android_id");
+   new StringBuffer().append(new StringBuffer().append(new StringBuffer().append(new StringBuffer().append(new StringBuffer().append("SingleCode=").append(this.this$0.bjk.getText())).append("&Ver=")).append("1.9993")).append("&Mac=")).append(sstr).toString();
+   data.set机器码(sstr);
+   message = new Message();
+   message.what = 1;
+   this.this$0.hd.sendMessage(message);
+}
+/*
+主要逻辑是获取当前设备的android_id字符串并将此赋值给com.tencent.music.data类的String类型的"机器码"变量。最后使用com.tencent.music.DlActivity类实例中headler类型的hd变量发送message对象(其中what值为1)，通过上面提到的com.tencent.music.DlActivity$100000002.handleMessage方法来接收并处理message对象。
+
+getString方法用法参考：https://vimsky.com/examples/detail/java-method-android.provider.Settings.System.getString.html
+
+ android_id的生成，参考：https://blog.csdn.net/shuang__zi/article/details/103423257?utm_medium=distribute.pc_relevant.none-task-blog-searchFromBaidu-8.control&dist_request_id=&depth_1-utm_source=distribute.pc_relevant.none-task-blog-searchFromBaidu-8.control
+ */
+</code></pre>
+<p>6.com.tencent.music.DlActivity$100000002.handleMessage源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void DlActivity$100000002.handleMessage(Message p0)  //method@0002ac
+{
+   DlActivity dlActivity = null;
+   super.handleMessage(p0);
+   switch (p0.what){  
+       case 1:  
+         Point point = new Point();
+         this.this$0.getApplication().getSystemService("window").getDefaultDisplay().getRealSize(point);
+         int int = point.int;
+         int int1 = point.int;
+         Sy.ydr(this.this$0, this.this$0.getFilesDir().toString());
+         if (!DlActivity.fileIsExists("/storage/emulated/0/Android/k") && !DlActivity.fileIsExists("/storage/emulated/0/Android/g") && !DlActivity.fileIsExists("/storage/emulated/0/Android/f") && !DlActivity.fileIsExists("/storage/emulated/0/Android/sy") && !DlActivity.fileIsExists("/storage/emulated/0/Android/xy") && !DlActivity.fileIsExists("/storage/emulated/0/Android/root") && !DlActivity.fileIsExists("/storage/emulated/0/Android/fjh") && !DlActivity.fileIsExists("/storage/emulated/0/Android/jqm")) { 
+            DlActivity.xr("/storage/emulated/0/Android/k", String.valueOf(int1));
+            DlActivity.xr("/storage/emulated/0/Android/g", String.valueOf(int));
+            DlActivity.xr("/storage/emulated/0/Android/f", "30");
+            DlActivity.xr("/storage/emulated/0/Android/sy", "0");
+            DlActivity.xr("/storage/emulated/0/Android/xy", "0");
+            DlActivity.xr("/storage/emulated/0/Android/root", "0");
+            DlActivity.xr("/storage/emulated/0/Android/fjh", data.get机器码());
+         }  
+         if (!DlActivity.fileIsExists(new StringBuffer().append(this.this$0.getFilesDir()).append("/bbh").toString()) && !DlActivity.fileIsExists(new StringBuffer().append(this.this$0.getFilesDir()).append("/zr").toString())) { 
+            DlActivity.xr(new StringBuffer().append(this.this$0.getFilesDir()).append("/bbh").toString(), "0");
+         }  
+         DlActivity.xr("/storage/emulated/0/Android/jqm", data.get机器码());
+         DlActivity.xr("/storage/emulated/0/Android/mode", "0");
+         DlActivity.xr("/storage/emulated/0/Android/sj", "0");
+         DlActivity.xr("/storage/emulated/0/Android/sjvalue", "-1.34");
+         DlActivity.xr("/storage/emulated/0/Android/aim", "0");
+         DlActivity.xr("/storage/emulated/0/Android/aimA", "0");
+         DlActivity.xr("/storage/emulated/0/Android/aimB", "0");
+         DlActivity.xr("/storage/emulated/0/Android/aimC", "0");
+         DlActivity.xr("/storage/emulated/0/Android/aimD", "0");
+         DlActivity.xr("/storage/emulated/0/Android/dat", "0");
+         DlActivity.xr("/storage/emulated/0/Android/esp", "0");
+         DlActivity.xr("/storage/emulated/0/叶", this.this$0.bjk.getText().toString());
+         this.this$0.alertDialog.dismiss();
+         Context cApplication = this.this$0.getApplicationContext();
+         try{ 
+            this.this$0.startActivity(new Intent(cApplication, Class.forName("com.tencent.music.ZjmActivity")));
+            this.this$0.finish();
+         }catch(java.lang.ClassNotFoundException e0){ 
+            throw new NoClassDefFoundError(e0.getMessage());
+         }  
+         break; 
+       case 2:  
+         if (this.this$0.fhz.equals("-401")) {  
+            this.this$0.alertDialog.dismiss();
+            Toast.makeText(this.this$0, Zw.Fhzw(4), dlActivity).show();
+         }else if(this.this$0.fhz.equals("-402")){    
+            this.this$0.alertDialog.dismiss();
+            Toast.makeText(this.this$0, Zw.Fhzw(5), dlActivity).show();
+         }else if(this.this$0.fhz.equals("-406")){    
+            this.this$0.alertDialog.dismiss();
+            Toast.makeText(this.this$0, Zw.Fhzw(6), dlActivity).show();
+         }else if(this.this$0.fhz.equals("-410")){    
+            this.this$0.alertDialog.dismiss();
+            Toast.makeText(this.this$0, Zw.Fhzw(7), dlActivity).show();
+         }else {  
+            this.this$0.alertDialog.dismiss();
+            Toast.makeText(this.this$0, this.this$0.fhz, dlActivity).show();
+         }  
+         break; 
+   }  
+   return;
+}
+/*
+主要逻辑：
+若是从com.tencent.music.DlActivity$T.run中发送message对象过来的，则很明显是进入case 1的中，其中的代码逻辑大致：
+(1)调用com.tencent.music.DlActivity.fileIsExists判断/storage/emulated/0/Android/*文件是否存在，不存在则调用com.tencent.music.DlActivity.xr函数创建并写入指定值。
+(2)调用com.tencent.music.DlActivity.fileIsExists判断/data/data/android.chi.tong/files/bbh以及/data/data/android.chi.tong/files/zr文件是否存在，不存在则向/data/data/android.chi.tong/files/bbh写入0
+(3)向/storage/emulated/0/Android目录中若干文件写入内容。
+(4)关闭当前activity(com.tencent.music.DlActivity)，跳转到com.tencent.music.ZjmActivity。
+其中
+/storage/emulated/0/Android/fjh存放机器码
+/storage/emulated/0/Android/jqm存放机器码
+/storage/emulated/0/叶存放登录界面键入的卡密字符串
+
+getSystemService中的常量值参考：https://www.jianshu.com/p/b6a37ac6d89d
+ */
+</code></pre>
+<p>7.com.tencent.music.ZjmActivity简易源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package: com.tencent.music.ZjmActivity;
+class ZjmActivity extends Activity  // class@0000b9
+{
+      public void <init>();
+      public static String dq(String p0);
+      public static void xr(String p0,String p1);
+      virtual protected void onCreate(Bundle p0);
+      String execResult;
+      TextView fjh;
+      TextView gg;
+      String ggfh;
+      Handler hd;
+      Handler hd1;
+      Handler hd2;
+      String stri;
+      String kjpd;
+      String result;
+      View viewv;
+      WindowManager windowManaw;
+      WindowManager$LayoutParams window;
+      LinearLayout xfc;
+      boolean ycpd;
+      int 当前版本;
+      String 文件下载地址;
+      int 服务器版本;
+}
+</code></pre>
+<p>其中仅有的构造函数源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//Package com.tencent.music.ZjmActivity;
+public void ZjmActivity.<init>()  //method@000367
+{
+   super();
+   this.ycpd = 1;
+   this.文件下载地址 = "";
+   this.当前版本 = 0;
+   this.服务器版本 = 0;
+   this.hd = new ZjmActivity$100000027(this);
+   this.execResult = "";
+   this.hd1 = new ZjmActivity$100000028(this);
+   this.result = "";
+   this.hd2 = new ZjmActivity$100000029(this);
+}
+/*
+初始化类中各个变量，其中创建了com.tencent.music.ZjmActivity$100000027、com.tencent.music.ZjmActivity$100000028、com.tencent.music.ZjmActivity$100000029（都继承了Handler类）的实例，并使用其中的handleMessage函数分别对类中handler类型的hd,hd1,hd2接收到的message对象进行处理。
+ */
+</code></pre>
+<p>其中的onCreate函数源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//Package com.tencent.music.ZjmActivity;
+protected void ZjmActivity.onCreate(Bundle p0)  //method@00036f
+{
+   String str = 19;
+   ADRTLogCatReader.onContext(this, "com.aide.ui.mgai");
+   super.onCreate(p0);
+   this.requestWindowFeature(1);
+   if (Build$VERSION.SDK_INT >= 21) { 
+      this.getWindow().addFlags(0x80000000);
+   }  
+   if (Build$VERSION.SDK_INT >= str) {  
+      this.getWindow().addFlags(0x04000000);
+   }  
+   if (Build$VERSION.SDK_INT >= str) {  
+      this.getWindow().addFlags(0x08000000);
+   }  
+   this.setContentView(0x7f030004);
+   if (Build$VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) {  
+      Toast.makeText(this, "请开启悬浮窗权限", 1).show();
+      this.startActivityForResult(new Intent("android.settings.action.MANAGE_OVERLAY_PERMISSION", Uri.parse(new StringBuffer().append("package:").append(this.getPackageName()).toString())), 0);
+   }  
+   this.gg = this.findViewById(0x7f07001a);
+   //0x7f07001a对应标签为textview视图内容，字样为"检查核心更新中……请稍后"
+   new ZjmActivity$100000000(this, new ZjmActivity$T(this)).start();
+   this.viewv = LayoutInflater.from(this).inflate(0x7f030003, null);
+   //0x7f030003对应标签为LinearLayout视图内容，字样为"请输入卡密"
+   this.windowManaw = this.getSystemService("window");
+   this.window = new WindowManager$LayoutParams();
+   this.window.type = (Build$VERSION.SDK_INT >= 26)? 2038 : 2002; 
+   this.window.format = 1;
+   this.window.flags = 8;
+   this.window.gravity = 51;
+   this.window.int = 100;
+   this.window.int = 100;
+   this.window.width = -2;
+   this.window.height = -2;
+   this.findViewById(0x7f07001c).setText(ZjmActivity.dq("/storage/emulated/0/Android/fjh"));
+   //0x7f07001c对应标签为EditText视图内容，字样为"请输入房间号"
+   ZjmActivity.xr("/storage/emulated/0/Android/root", "0");
+   data.set目录(new StringBuffer().append(this.getFilesDir()).append("/").toString());
+   this.findViewById(0x7f07001b).setOnClickListener(new ZjmActivity$100000005(this));
+   //0x7f07001b对应标签为button视图内容，字样为"开启悬浮窗"
+   this.xfc = this.viewv.findViewById(0x7f070008);
+   ImageView iId = this.viewv.findViewById(0x7f070007);
+   iId.setOnClickListener(new ZjmActivity$100000006(this));
+   iId.setOnTouchListener(new ZjmActivity$100000007(this));
+
+   this.viewv.findViewById(0x7f070009).setOnCheckedChangeListener(new ZjmActivity$100000008(this));
+   this.viewv.findViewById(0x7f07000b).setOnCheckedChangeListener(new ZjmActivity$100000009(this));
+   this.viewv.findViewById(0x7f07000a).setOnCheckedChangeListener(new ZjmActivity$100000012(this));
+   this.viewv.findViewById(0x7f070010).setOnCheckedChangeListener(new ZjmActivity$100000013(this));
+   this.viewv.findViewById(0x7f070011).setOnCheckedChangeListener(new ZjmActivity$100000014(this));
+   this.viewv.findViewById(0x7f070015).setOnCheckedChangeListener(new ZjmActivity$100000015(this));
+   this.viewv.findViewById(0x7f070012).setOnCheckedChangeListener(new ZjmActivity$100000016(this));
+   this.viewv.findViewById(0x7f070013).setOnCheckedChangeListener(new ZjmActivity$100000017(this));
+   this.viewv.findViewById(0x7f070014).setOnCheckedChangeListener(new ZjmActivity$100000018(this));
+   this.viewv.findViewById(0x7f07000c).setOnCheckedChangeListener(new ZjmActivity$100000019(this));
+   this.viewv.findViewById(0x7f07000d).setOnCheckedChangeListener(new ZjmActivity$100000020(this));
+   this.viewv.findViewById(0x7f07000e).setOnCheckedChangeListener(new ZjmActivity$100000021(this));
+   this.viewv.findViewById(0x7f07000f).setOnCheckedChangeListener(new ZjmActivity$100000022(this));
+   this.viewv.findViewById(0x7f070016).setOnClickListener(new ZjmActivity$100000023(this));
+   this.viewv.findViewById(0x7f070017).setOnClickListener(new ZjmActivity$100000024(this));
+   this.viewv.findViewById(0x7f070018).setOnClickListener(new ZjmActivity$100000025(this));
+   this.viewv.findViewById(0x7f070019).setOnClickListener(new ZjmActivity$100000026(this));
+   return;
+}
+</code></pre>
+<p>/*<br>
+(1)设置环境变量，检测此应用是否有打开悬浮窗的权限，若没有则申请。设置一些文本内容视图。<br>
+(2)调用com.tencent.music.ZjmActivity<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>T</mi><mi mathvariant="normal">.</mi><mi>r</mi><mi>u</mi><mi>n</mi><mi mathvariant="normal">函</mi><mi mathvariant="normal">数</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">将</mi><mi mathvariant="normal">/</mi><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi><mi mathvariant="normal">/</mi><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi><mi mathvariant="normal">/</mi><mi>a</mi><mi>n</mi><mi>d</mi><mi>r</mi><mi>o</mi><mi>i</mi><mi>d</mi><mi mathvariant="normal">.</mi><mi>c</mi><mi>h</mi><mi>i</mi><mi mathvariant="normal">.</mi><mi>t</mi><mi>o</mi><mi>n</mi><mi>g</mi><mi mathvariant="normal">/</mi><mi>f</mi><mi>i</mi><mi>l</mi><mi>e</mi><mi>s</mi><mi mathvariant="normal">/</mi><mi>b</mi><mi>b</mi><mi>h</mi><mi mathvariant="normal">文</mi><mi mathvariant="normal">件</mi><mi mathvariant="normal">内</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">内</mi><mi mathvariant="normal">容</mi><mi mathvariant="normal">赋</mi><mi mathvariant="normal">值</mi><mi mathvariant="normal">给</mi><mi>c</mi><mi>o</mi><mi>m</mi><mi mathvariant="normal">.</mi><mi>t</mi><mi>e</mi><mi>n</mi><mi>c</mi><mi>e</mi><mi>n</mi><mi>t</mi><mi mathvariant="normal">.</mi><mi>m</mi><mi>u</mi><mi>s</mi><mi>i</mi><mi>c</mi><mi mathvariant="normal">.</mi><mi>Z</mi><mi>j</mi><mi>m</mi><mi>A</mi><mi>c</mi><mi>t</mi><mi>i</mi><mi>v</mi><mi>i</mi><mi>t</mi><mi>y</mi><mi mathvariant="normal">类</mi><mi mathvariant="normal">实</mi><mi mathvariant="normal">例</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">&quot;</mi><mi mathvariant="normal">当</mi><mi mathvariant="normal">前</mi><mi mathvariant="normal">版</mi><mi mathvariant="normal">本</mi><mi mathvariant="normal">&quot;</mi><mi mathvariant="normal">变</mi><mi mathvariant="normal">量</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">通</mi><mi mathvariant="normal">过</mi><mi>p</mi><mi>o</mi><mi>s</mi><mi>t</mi><mi mathvariant="normal">请</mi><mi mathvariant="normal">求</mi><mi mathvariant="normal">指</mi><mi mathvariant="normal">定</mi><mi mathvariant="normal">网</mi><mi mathvariant="normal">址</mi><mi mathvariant="normal">获</mi><mi mathvariant="normal">取</mi><mi mathvariant="normal">值</mi><mi mathvariant="normal">对</mi><mi>c</mi><mi>o</mi><mi>m</mi><mi mathvariant="normal">.</mi><mi>t</mi><mi>e</mi><mi>n</mi><mi>c</mi><mi>e</mi><mi>n</mi><mi>t</mi><mi mathvariant="normal">.</mi><mi>m</mi><mi>u</mi><mi>s</mi><mi>i</mi><mi>c</mi><mi mathvariant="normal">.</mi><mi>Z</mi><mi>j</mi><mi>m</mi><mi>A</mi><mi>c</mi><mi>t</mi><mi>i</mi><mi>v</mi><mi>i</mi><mi>t</mi><mi>y</mi><mi mathvariant="normal">类</mi><mi mathvariant="normal">实</mi><mi mathvariant="normal">例</mi><mi mathvariant="normal">中</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">&quot;</mi><mi mathvariant="normal">服</mi><mi mathvariant="normal">务</mi><mi mathvariant="normal">器</mi><mi mathvariant="normal">版</mi><mi mathvariant="normal">本</mi><mi mathvariant="normal">&quot;</mi><mi mathvariant="normal">变</mi><mi mathvariant="normal">量</mi><mi mathvariant="normal">、</mi><mi mathvariant="normal">&quot;</mi><mi mathvariant="normal">文</mi><mi mathvariant="normal">件</mi><mi mathvariant="normal">下</mi><mi mathvariant="normal">载</mi><mi mathvariant="normal">地</mi><mi mathvariant="normal">址</mi><mi mathvariant="normal">&quot;</mi><mi mathvariant="normal">变</mi><mi mathvariant="normal">量</mi><mi mathvariant="normal">以</mi><mi mathvariant="normal">及</mi><mi>g</mi><mi>g</mi><mi>f</mi><mi>h</mi><mi mathvariant="normal">变</mi><mi mathvariant="normal">量</mi><mi mathvariant="normal">进</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">初</mi><mi mathvariant="normal">始</mi><mi mathvariant="normal">化</mi><mi mathvariant="normal">最</mi><mi mathvariant="normal">后</mi><mi mathvariant="normal">调</mi><mi mathvariant="normal">用</mi><mi>c</mi><mi>o</mi><mi>m</mi><mi mathvariant="normal">.</mi><mi>t</mi><mi>e</mi><mi>n</mi><mi>c</mi><mi>e</mi><mi>n</mi><mi>t</mi><mi mathvariant="normal">.</mi><mi>m</mi><mi>u</mi><mi>s</mi><mi>i</mi><mi>c</mi><mi mathvariant="normal">.</mi><mi>Z</mi><mi>j</mi><mi>m</mi><mi>A</mi><mi>c</mi><mi>t</mi><mi>i</mi><mi>v</mi><mi>i</mi><mi>t</mi><mi>y</mi><mi mathvariant="normal">类</mi><mi>t</mi><mi>e</mi><mi>s</mi><mi>t</mi><mi>v</mi><mi>i</mi><mi>e</mi><mi>w</mi><mi mathvariant="normal">类</mi><mi mathvariant="normal">型</mi><mi mathvariant="normal">的</mi><mi>g</mi><mi>g</mi><mi mathvariant="normal">变</mi><mi mathvariant="normal">量</mi><mi mathvariant="normal">对</mi><mi>g</mi><mi>g</mi><mi>f</mi><mi>h</mi><mi mathvariant="normal">值</mi><mi mathvariant="normal">进</mi><mi mathvariant="normal">行</mi><mi mathvariant="normal">显</mi><mi mathvariant="normal">示</mi><mi mathvariant="normal">。</mi><mo>(</mo><mn>3</mn><mo>)</mo><mi mathvariant="normal">获</mi><mi mathvariant="normal">取</mi><mi mathvariant="normal">窗</mi><mi mathvariant="normal">口</mi><mi mathvariant="normal">管</mi><mi mathvariant="normal">理</mi><mi mathvariant="normal">器</mi><mi mathvariant="normal">赋</mi><mi mathvariant="normal">值</mi><mi mathvariant="normal">给</mi><mi mathvariant="normal">当</mi><mi mathvariant="normal">前</mi><mi mathvariant="normal">类</mi><mi mathvariant="normal">的</mi><mi>a</mi><mi>n</mi><mi>d</mi><mi>r</mi><mi>o</mi><mi>i</mi><mi>d</mi><mi mathvariant="normal">.</mi><mi>v</mi><mi>i</mi><mi>e</mi><mi>w</mi><mi mathvariant="normal">.</mi><mi>W</mi><mi>i</mi><mi>n</mi><mi>d</mi><mi>o</mi><mi>w</mi><mi>M</mi><mi>a</mi><mi>n</mi><mi>a</mi><mi>g</mi><mi>e</mi><mi>r</mi><mi mathvariant="normal">类</mi><mi mathvariant="normal">型</mi><mi mathvariant="normal">的</mi><mi>w</mi><mi>i</mi><mi>n</mi><mi>d</mi><mi>o</mi><mi>w</mi><mi>M</mi><mi>a</mi><mi>n</mi><mi>a</mi><mi>w</mi><mi mathvariant="normal">变</mi><mi mathvariant="normal">量</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">以</mi><mi mathvariant="normal">能</mi><mi mathvariant="normal">管</mi><mi mathvariant="normal">理</mi><mi mathvariant="normal">打</mi><mi mathvariant="normal">开</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">窗</mi><mi mathvariant="normal">口</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">序</mi><mo>(</mo><mn>4</mn><mo>)</mo><mi mathvariant="normal">初</mi><mi mathvariant="normal">始</mi><mi mathvariant="normal">化</mi><mi mathvariant="normal">当</mi><mi mathvariant="normal">前</mi><mi mathvariant="normal">类</mi><mi mathvariant="normal">的</mi><mi>a</mi><mi>n</mi><mi>d</mi><mi>r</mi><mi>o</mi><mi>i</mi><mi>d</mi><mi mathvariant="normal">.</mi><mi>v</mi><mi>i</mi><mi>e</mi><mi>w</mi><mi mathvariant="normal">.</mi><mi>W</mi><mi>i</mi><mi>n</mi><mi>d</mi><mi>o</mi><mi>w</mi><mi>M</mi><mi>a</mi><mi>n</mi><mi>a</mi><mi>g</mi><mi>e</mi><mi>r</mi></mrow><annotation encoding="application/x-tex">T.run函数，将/data/data/android.chi.tong/files/bbh文件内的内容赋值给com.tencent.music.ZjmActivity类实例的&quot;当前版本&quot;变量，通过post请求指定网址获取值对com.tencent.music.ZjmActivity类实例中的&quot;服务器版本&quot;变量、&quot;文件下载地址&quot;变量以及ggfh变量进行初始化最后调用com.tencent.music.ZjmActivity类testview类型的gg变量对ggfh值进行显示。
+(3)获取窗口管理器赋值给当前类的android.view.WindowManager类型的windowManaw变量，以能管理打开的窗口程序
+(4)初始化当前类的android.view.WindowManager</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">u</span><span class="mord mathdefault">n</span><span class="mord cjk_fallback">函</span><span class="mord cjk_fallback">数</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">将</span><span class="mord">/</span><span class="mord mathdefault">d</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">a</span><span class="mord">/</span><span class="mord mathdefault">d</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">a</span><span class="mord">/</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">o</span><span class="mord mathdefault">i</span><span class="mord mathdefault">d</span><span class="mord">.</span><span class="mord mathdefault">c</span><span class="mord mathdefault">h</span><span class="mord mathdefault">i</span><span class="mord">.</span><span class="mord mathdefault">t</span><span class="mord mathdefault">o</span><span class="mord mathdefault">n</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord">/</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">e</span><span class="mord mathdefault">s</span><span class="mord">/</span><span class="mord mathdefault">b</span><span class="mord mathdefault">b</span><span class="mord mathdefault">h</span><span class="mord cjk_fallback">文</span><span class="mord cjk_fallback">件</span><span class="mord cjk_fallback">内</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">内</span><span class="mord cjk_fallback">容</span><span class="mord cjk_fallback">赋</span><span class="mord cjk_fallback">值</span><span class="mord cjk_fallback">给</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">m</span><span class="mord">.</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">c</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">t</span><span class="mord">.</span><span class="mord mathdefault">m</span><span class="mord mathdefault">u</span><span class="mord mathdefault">s</span><span class="mord mathdefault">i</span><span class="mord mathdefault">c</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.07153em;">Z</span><span class="mord mathdefault" style="margin-right:0.05724em;">j</span><span class="mord mathdefault">m</span><span class="mord mathdefault">A</span><span class="mord mathdefault">c</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">i</span><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mord cjk_fallback">类</span><span class="mord cjk_fallback">实</span><span class="mord cjk_fallback">例</span><span class="mord cjk_fallback">的</span><span class="mord">&quot;</span><span class="mord cjk_fallback">当</span><span class="mord cjk_fallback">前</span><span class="mord cjk_fallback">版</span><span class="mord cjk_fallback">本</span><span class="mord">&quot;</span><span class="mord cjk_fallback">变</span><span class="mord cjk_fallback">量</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">通</span><span class="mord cjk_fallback">过</span><span class="mord mathdefault">p</span><span class="mord mathdefault">o</span><span class="mord mathdefault">s</span><span class="mord mathdefault">t</span><span class="mord cjk_fallback">请</span><span class="mord cjk_fallback">求</span><span class="mord cjk_fallback">指</span><span class="mord cjk_fallback">定</span><span class="mord cjk_fallback">网</span><span class="mord cjk_fallback">址</span><span class="mord cjk_fallback">获</span><span class="mord cjk_fallback">取</span><span class="mord cjk_fallback">值</span><span class="mord cjk_fallback">对</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">m</span><span class="mord">.</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">c</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">t</span><span class="mord">.</span><span class="mord mathdefault">m</span><span class="mord mathdefault">u</span><span class="mord mathdefault">s</span><span class="mord mathdefault">i</span><span class="mord mathdefault">c</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.07153em;">Z</span><span class="mord mathdefault" style="margin-right:0.05724em;">j</span><span class="mord mathdefault">m</span><span class="mord mathdefault">A</span><span class="mord mathdefault">c</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">i</span><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mord cjk_fallback">类</span><span class="mord cjk_fallback">实</span><span class="mord cjk_fallback">例</span><span class="mord cjk_fallback">中</span><span class="mord cjk_fallback">的</span><span class="mord">&quot;</span><span class="mord cjk_fallback">服</span><span class="mord cjk_fallback">务</span><span class="mord cjk_fallback">器</span><span class="mord cjk_fallback">版</span><span class="mord cjk_fallback">本</span><span class="mord">&quot;</span><span class="mord cjk_fallback">变</span><span class="mord cjk_fallback">量</span><span class="mord cjk_fallback">、</span><span class="mord">&quot;</span><span class="mord cjk_fallback">文</span><span class="mord cjk_fallback">件</span><span class="mord cjk_fallback">下</span><span class="mord cjk_fallback">载</span><span class="mord cjk_fallback">地</span><span class="mord cjk_fallback">址</span><span class="mord">&quot;</span><span class="mord cjk_fallback">变</span><span class="mord cjk_fallback">量</span><span class="mord cjk_fallback">以</span><span class="mord cjk_fallback">及</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">h</span><span class="mord cjk_fallback">变</span><span class="mord cjk_fallback">量</span><span class="mord cjk_fallback">进</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">初</span><span class="mord cjk_fallback">始</span><span class="mord cjk_fallback">化</span><span class="mord cjk_fallback">最</span><span class="mord cjk_fallback">后</span><span class="mord cjk_fallback">调</span><span class="mord cjk_fallback">用</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">m</span><span class="mord">.</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">c</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">t</span><span class="mord">.</span><span class="mord mathdefault">m</span><span class="mord mathdefault">u</span><span class="mord mathdefault">s</span><span class="mord mathdefault">i</span><span class="mord mathdefault">c</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.07153em;">Z</span><span class="mord mathdefault" style="margin-right:0.05724em;">j</span><span class="mord mathdefault">m</span><span class="mord mathdefault">A</span><span class="mord mathdefault">c</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">i</span><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mord cjk_fallback">类</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord mathdefault">s</span><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord cjk_fallback">类</span><span class="mord cjk_fallback">型</span><span class="mord cjk_fallback">的</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord cjk_fallback">变</span><span class="mord cjk_fallback">量</span><span class="mord cjk_fallback">对</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">h</span><span class="mord cjk_fallback">值</span><span class="mord cjk_fallback">进</span><span class="mord cjk_fallback">行</span><span class="mord cjk_fallback">显</span><span class="mord cjk_fallback">示</span><span class="mord cjk_fallback">。</span><span class="mopen">(</span><span class="mord">3</span><span class="mclose">)</span><span class="mord cjk_fallback">获</span><span class="mord cjk_fallback">取</span><span class="mord cjk_fallback">窗</span><span class="mord cjk_fallback">口</span><span class="mord cjk_fallback">管</span><span class="mord cjk_fallback">理</span><span class="mord cjk_fallback">器</span><span class="mord cjk_fallback">赋</span><span class="mord cjk_fallback">值</span><span class="mord cjk_fallback">给</span><span class="mord cjk_fallback">当</span><span class="mord cjk_fallback">前</span><span class="mord cjk_fallback">类</span><span class="mord cjk_fallback">的</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">o</span><span class="mord mathdefault">i</span><span class="mord mathdefault">d</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord cjk_fallback">类</span><span class="mord cjk_fallback">型</span><span class="mord cjk_fallback">的</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord cjk_fallback">变</span><span class="mord cjk_fallback">量</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">以</span><span class="mord cjk_fallback">能</span><span class="mord cjk_fallback">管</span><span class="mord cjk_fallback">理</span><span class="mord cjk_fallback">打</span><span class="mord cjk_fallback">开</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">窗</span><span class="mord cjk_fallback">口</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">序</span><span class="mopen">(</span><span class="mord">4</span><span class="mclose">)</span><span class="mord cjk_fallback">初</span><span class="mord cjk_fallback">始</span><span class="mord cjk_fallback">化</span><span class="mord cjk_fallback">当</span><span class="mord cjk_fallback">前</span><span class="mord cjk_fallback">类</span><span class="mord cjk_fallback">的</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">o</span><span class="mord mathdefault">i</span><span class="mord mathdefault">d</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">i</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span></span></span></span>LayoutParams类型的window变量，并设置窗口的各种属性。<br>
+(PS:android.view.WindowManager以及android.view.WindowManager.LayoutParams使用相关信息参考：https://blog.csdn.net/core_ice/article/details/52464125 以及 https://www.jianshu.com/p/b6a37ac6d89d)<br>
+(5)显示字样为&quot;请输入房间号&quot;的文本框并向其中填入/storage/emulated/0/Android/fjh的内容（机器码）<br>
+(6)向/storage/emulated/0/Android/root文件写入0值。<br>
+(7)设置com.tencent.music.data类中类型为String的&quot;目录&quot;变量值为&quot;/data/data/android.chi.tong/files/&quot;<br>
+(8)显示字样为&quot;开启悬浮窗&quot;的按钮，并创建com.tencent.music.ZjmActivity$100000005类实例，以此实例仅有的onClick方法监听按钮。<br>
+(9)显示辅助的主界面，并将返回的LinearLayout对象赋值给当前类的LinearLayout类型的xfc变量。<br>
+(10)显示&quot;小美队&quot;的小图片，创建com.tencent.music.ZjmActivity$100000006类用其中的onClick方法来监听小图片是否被点击，以当前类的boolean类型的ycpd变量判断是否显示辅助的主界面，以当前类的xfc变量来调用android.widget.LinearLayout.setVisibility函数实现对辅助主界面的隐藏和显示。创建com.tencent.music.ZjmActivity$100000007类的实例，以其中的onTouch方法来监听小图片是否被长按，用android.view.MotionEvent.getAction函数来获取，返回值为0则处于触摸状态，返回值为2则非触摸状态。以此来执行更新小图片(以及辅助主界面)出现的位置。<br>
+(11)通过id找到对应的控件，并在每个控件上添加状态检测：<br>
+一。0x7f070009对应的switch控件与辅助主界面中字样为&quot;第一步:游戏界面点我&quot;同一栏。<br>
+控件对应的状态检测函数为com.tencent.music.ZjmActivity$100000008.onCheckedChanged,源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void ZjmActivity$100000008.onCheckedChanged(CompoundButton p0,boolean p1)
+{
+   if (p1) {  
+      Point point = new Point();
+      this.this$0.getApplication().getSystemService("window").getDefaultDisplay().getRealSize(point);
+      //获取屏幕真实宽高
+      Qjbl.setB(point.int);//设置宽
+      Qjbl.setC(point.int);//设置高
+      Qjbl.setKQ(0);
+      kqhz.hz(this.this$0);
+      ZjmActivity.xr("/storage/emulated/0/Android/esp", "1");
+   }else {  
+      ZjmActivity.xr("/storage/emulated/0/Android/esp", "0");
+      Qjbl.setKQ(1);
+      kqhz.gb();
+      Toast.makeText(this.this$0, "关闭", 0).show();
+   }  
+   return;
+}
+/*
+若开启此控件则进入if中，主要逻辑是获取屏幕的真实宽和高，
+将宽高的值分别赋值给com.tencent.music.Qjbl类的int类型的b和c变量，
+再将com.tencent.music.Qjbl类的int类型的kq变量设置为0，
+然后调用com.tencent.music.kqhz类(继承了Service)中的hz方法，hz方法中判断若为kqhz.Instance为空则会开启一个com.tencent.music.kqhz的Service实例。再然后调用com.tencent.music.ZjmActivity类的xr方法，向/storage/emulated/0/Android/esp文件写入值1。
+
+若关闭此控件则进入下面的else中，主要逻辑是调用com.tencent.music.ZjmActivity类的xr方法，向/storage/emulated/0/Android/esp文件写入值0，然后将com.tencent.music.Qjbl类的int类型的kq变量设置为1，随后调用com.tencent.music.kqhz类的gb函数若kqhz.Instance不为空则关闭此Service。最后弹出字样为"关闭"的弹窗。
+
+Android中startService的使用及Service生命周期参考：https://blog.csdn.net/iispring/article/details/47689819
+*/
+</code></pre>
+<p>二。0x7f07000a对应的switch控件与辅助主界面中字样为&quot;第二步:点我开启绘制&quot;同一栏。<br>
+控件对应的状态检测函数为com.tencent.music.ZjmActivity$1000000012.onCheckedChanged,源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void ZjmActivity$100000012.onCheckedChanged(CompoundButton p0,boolean p1)  //method@000326
+{
+   if (p1) {  
+      if (this.this$0.kjpd.equals("框架")) {  
+         new ZjmActivity$100000012$100000010(this, new ZjmActivity$T1(this.this$0)).start();
+      }else if(this.this$0.kjpd.equals("root")){    
+         new ZjmActivity$100000012$100000011(this, new ZjmActivity$T2(this.this$0)).start();
+      } 
+   }else {  
+      Toast.makeText(this.this$0, "关闭", 0).show();
+   }  
+   return;
+}
+/*
+若开启此控件则进入if中，主要逻辑是点击框架启动的辅助还是root启动的辅助
+若点击框架进入的辅助则会调用com.tencent.music.ZjmActivity$100000012$100000010.<init>(ZjmActivity$100000012 p0,Runnable p1)构造函数，传入ZjmActivity$100000012实例以及实现了Runnable的com.tencent.music.ZjmActivity$T1类的实例，最终会调用的是com.tencent.music.ZjmActivity$T1.run方法，源码如下：
+public void ZjmActivity$T1.run()  //method@000360
+{
+   String sLine;
+   try{ 
+      BufferedReader bufferedRead = new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec(new StringBuffer().append(new StringBuffer().append(this.this$0.getFilesDir()).append("/")).append("zr")).getInputStream()));
+      while ((sLine = bufferedRead.readLine())) { 
+         this.this$0.execResult = new StringBuffer().append(this.this$0.execResult).append(new StringBuffer().append(sLine).append("\n"));
+      } 
+   }catch(java.lang.Exception e0){  
+   }  
+   return;
+}
+com.tencent.music.ZjmActivity$T1.run方法主要逻辑是调用Runtime.getRuntime().exec执行/data/data/android.chi.tong/files/zr文件中内容，并将输出流封装到java.io.BufferedReader类型的bufferedRead中，读取循环读取输出流的每一行并用String类型的sLine局部变量存放，每次都在com.tencent.music.ZjmActivity类String类型的execResult变量后面追加sLine局部变量加上"\n"换行符。
+
+若关闭此控件则进入下面的else，弹出"关闭"字样的窗口。
+ */
+</code></pre>
+<p>三。0x7f07000b对应的switch控件与辅助主界面中字样为&quot;全技能自瞄(泉水开关)&quot;同一栏。<br>
+四。0x7f07000c对应的CheckBox控件，其中有&quot;1技能&quot;字样<br>
+五。0x7f07000d对应的CheckBox控件，其中有&quot;2技能&quot;字样<br>
+六。0x7f07000e对应的CheckBox控件，其中有&quot;3技能&quot;字样<br>
+七。0x7f07000f对应的CheckBox控件，其中有&quot;4技能&quot;字样<br>
+八。0x7f070010对应的CheckBox控件，其中有&quot;30FPS&quot;字样<br>
+九。0x7f070011对应的CheckBox控件，其中有&quot;60FPS&quot;字样<br>
+十。0x7f070012对应的CheckBox控件，其中有&quot;无限视距&quot;字样<br>
+十一。0x7f070013对应的CheckBox控件，其中有&quot;显示方框&quot;字样，控件对应的状态检测函数为com.tencent.music.ZjmActivity$100000017.onCheckedChanged,源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void ZjmActivity$100000017.onCheckedChanged(CompoundButton p0,boolean p1)	//method@000339
+{
+   if (p1) {	
+      data.setfk(true);
+   }else {	
+      data.setfk(false);
+   }	
+   return;
+}
+/*
+主要逻辑是对com.tencent.music.data类boolean类型的fk设置值以达到开启/关闭方框的功能
+*/
+</code></pre>
+<p>十二。0x7f070014对应的CheckBox控件，其中有&quot;显示射线&quot;字样<br>
+十三。0x7f070015对应的CheckBox控件，其中有&quot;开启秒杀&quot;字样<br>
+十四。0x7f070016对应的button控件，按钮上面有&quot;左&quot;字样<br>
+十五。0x7f070017对应的button控件，按钮上面有&quot;右&quot;字样<br>
+十六。0x7f070018对应的button控件，按钮上面有&quot;上&quot;字样<br>
+十七。0x7f070019对应的button控件，按钮上面有&quot;下&quot;字样</p>
+<p>8.com.tencent.music.kqhz简易源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package: com.tencent.music.kqhz;
+class kqhz extends Service  // class@0000c3
+{
+      public void <init>();
+      private void SetFloatView();
+      public static void gb();
+      public static void hz(Context p0);
+      virtual public void Hide();
+      virtual public IBinder onBind(Intent p0);
+      virtual public void onCreate();
+      LinearLayout mFloatLayout;
+      WindowManager windowManaw;
+      WindowManager$LayoutParams window;
+      static private static kqhz Instance;
+}
+</code></pre>
+<p>其中仅有的构造函数源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void kqhz.onCreate() //method@0003b3
+{
+   ADRTLogCatReader.onContext(this, "com.aide.ui.mgai");
+   super.onCreate();
+   kqhz.Instance = this;
+   this.SetFloatView();
+}
+//主要是初始化kqhz.Instance以及调用当前类的SetFloatView函数。
+</code></pre>
+<p>其中的SetFloatView函数源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+private void kqhz.SetFloatView()  //method@0003ae
+{
+   this.mFloatLayout = LayoutInflater.from(this.getApplication()).inflate(0x7f030001, null);
+   this.getApplication();
+   this.windowManaw = this.getApplication().getSystemService(Context.WINDOW_SERVICE);
+   this.window = new WindowManager$LayoutParams();
+   this.window.type = (Build$VERSION.SDK_INT >= 26)? 2038 : 2002; 
+   this.window.format = 1;
+   this.window.flags = 1016;
+   this.window.gravity = 51;
+   this.window.int = 0;
+   this.window.int = 0;
+   this.window.width = Qjbl.getB();
+   this.window.height = Qjbl.getC();
+   this.windowManaw.addView(this.mFloatLayout, this.window);
+   return;
+}
+/*
+主要逻辑是设置窗口的宽高以及其他属性，然后将一个控件放在窗口里(控件的上边缘和父控件的上边缘对齐)
+*/
+</code></pre>
+<p>9.com.tencent.music.ZjmActivity中的onCreate创建的窗口中，点击开启悬浮窗按钮后调用com.tencent.music.ZjmActivity$100000005.onClick：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void ZjmActivity$100000005.onClick(View p0)
+{
+   int vint = 0;
+   ZjmActivity.xr("/storage/emulated/0/Android/fjh", this.this$0.findViewById(0x7f07001c).getText().toString());
+   if (this.this$0.服务器版本 && this.this$0.文件下载地址 != "" && this.this$0.服务器版本 != this.this$0.当前版本) {        
+      Toast.makeText(this.this$0, "检测到核心更新baba自动更新，更新为2M，视网络情况自行判断下载完成后，才可开启第一步和第二步\(约5秒\)", vint).show();
+      data.服务器版本 = this.this$0.服务器版本;
+      data.下载进制(this.this$0.文件下载地址);
+   }else if(this.this$0.文件下载地址 == "" || !this.this$0.服务器版本){            
+      Toast.makeText(this.this$0, "网络错误，无法检查核心文件版本，如你已经是最新版核心，请忽略，否则请重开辅助，或稍后再试", vint).show();
+   }else {      
+      Toast.makeText(this.this$0, "核心已是最新版，可正常开启", vint).show();
+   }    
+   new AlertDialog$Builder(this.this$0).setTitle("提示：").setMessage("欢迎使用baba").setIcon(0x7f020003).setCancelable(vint).setPositiveButton("框架", new ZjmActivity$100000005$100000002(this)).setNegativeButton("root", new ZjmActivity$100000005$100000004(this)).create().show();
+   return;
+}
+/*
+com.tencent.music.ZjmActivity$100000005.onClick主要逻辑是将0x7f07001c对应标签为EditText的控件中输入的内容写入到/storage/emulated/0/Android/fjh文件中，然后就是检测更新当前程序，如果是第一次运行此辅助程序则由于com.tencent.music.ZjmActivity的构造函数初始化了各种变量，以及com.tencent.music.ZjmActivity.onCreate方法调用了com.tencent.music.ZjmActivity$T.run方法再次初始化了"服务器版本"、"文件下载地址"以及"当前版本"所以会进入第一个if中更新com.tencent.music.data.服务器版本的值以及下载透视所需要用到的ELF文件存于/storage/emulated/0/zr，后面代码逻辑就是弹出"框架"字样和"root"字样按钮供用户选择以什么方式开启辅助。
+
+点击框架则调用com.tencent.music.ZjmActivity$100000005$100000002.onClick方法，源码：
+public void ZjmActivity$100000005$100000002.onClick(DialogInterface p0,int p1)  //method@000304
+{
+   ZjmActivity zaccess$0;
+   zaccess$0 = ZjmActivity$100000005.access$0(this.this$0);
+   zaccess$0.kjpd = "框架";
+   ZjmActivity$100000005.access$0(this.this$0).windowManaw.addView(ZjmActivity$100000005.access$0(this.this$0).viewv, ZjmActivity$100000005.access$0(this.this$0).window);
+   new ZjmActivity$100000005$100000002$100000001(this).start();
+}
+
+com.tencent.music.ZjmActivity$100000005$100000002.onClick主要逻辑是访问当前仅有的一个com.tencent.music.ZjmActivity实例，通过此实例WindowManager类型的windowManaw变量来显示辅助界面的各种控件。
+最后创建一个线程实例类com.tencent.music.ZjmActivity$100000005$100000002$100000001并执行其中的run函数，源码如下：
+public void ZjmActivity$100000005$100000002$100000001.run() //method@000300
+{
+   long vlong = 0x044aa200;
+   try{ 
+      vlong = (long)vlong;
+      Thread.sleep(vlong);
+      Qjbl.setKQ(1);
+      kqhz.gb();
+      ZjmActivity$100000005.access$0(ZjmActivity$100000005$100000002.access$0(this.this$0)).windowManaw.removeView(ZjmActivity$100000005.access$0(ZjmActivity$100000005$100000002.access$0(this.this$0)).viewv);
+   }catch(java.lang.Exception e0){  
+   }  
+   return;
+}
+com.tencent.music.ZjmActivity$100000005$100000002$100000001.run函数主要逻辑是睡眠指定时间，将com.tencent.music.Qjbl类int类型的kq设为1，调用com.tencent.music.kqhz.gb方法移除用于放置绘制英雄头像的容器，并结束com.tencent.music.kqhz这个Service类的唯一实例。最后使用com.tencent.music.ZjmActivity类的唯一实例中WindowManager类型的windowManaw变量调用removeView关闭辅助主界面。
+*/
+</code></pre>
+<p>end：对于com.tencent.music.ZjmActivity.onCreate打开的悬浮窗中的root按钮执行流程暂不分析</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/65Spe0LaQ/" class="tag">
+                    安卓开发
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/linux-pwn-ret2dl-resolve/">
+                  <h3 class="post-title">
+                    linux pwn ret2dl-resolve
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P3371 【模板】单源最短路径（弱化版） | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="AC Code：
+#include &lt;cstdio>
+#include &lt;queue>
+using namespace std;
+const int mxn=2e9;
+int n,m,s,cnt=0;
+int first[100..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P3371 【模板】单源最短路径（弱化版）</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <pre class="wp-block-code"><code>AC Code：
+#include &lt;cstdio>
+#include &lt;queue>
+using namespace std;
+const int mxn=2e9;
+int n,m,s,cnt=0;
+int first[10005];//记录 一个点 最后的出边 的边编号
+int dq[10005],vis[10005];//dp数组 表示从初始点 到当前点的最近距离  vis数组表示哪个节点是否在队列中
+struct node{
+    int back,to,cd;//back是 当前边的 上一条边  to表示当前边的目的节点号，cd表示当前边的长度
+}nm[500005];//结构体表示静态邻接表
+void addljb(int from,int to,int dis){
+    nm[++cnt].back=first[from];// 第++cnt 条边的上一条边 等于 以from为起点 上一次 的 出边的编号
+    nm[cnt].to=to; //当前的边 通往哪个节点
+    nm[cnt].cd=dis;//当前边的长度
+    first[from]=cnt; //最后 把  以from为起点的 最后一条出边 赋值给当前 边的编号
+}
+void spfa(){
+    queue&lt;int> quq;
+    for(int i=1;i&lt;=n;i++){
+        dq[i]=mxn; //带权图初始化
+        vis[i]=0;//i是否在队列中
+    }
+    dq[s]=0;vis[s]=1;quq.push(s);
+    while(!quq.empty()){
+        int qwq=quq.front();//取出队首
+        quq.pop();vis[qwq]=0;//出队标记
+        //遍历qwq为起点的所有出边
+        for(int i=first[qwq];i;i=nm[i].back){//遍历 静态邻接表 ，以qwq为起点的最后一条边，开始
+            int bian=nm[i].to;
+            if(dq[bian]>dq[qwq]+nm[i].cd){//如果有最短路就更改
+                dq[bian]=dq[qwq]+nm[i].cd;
+                if(!vis[bian]){//未入队则入队
+                    vis[bian]=1;//标记入队
+                    quq.push(bian);
+                }
+            }
+            
+        }
+    }
+}
+int main(){
+    scanf("%d%d%d",&n,&m,&s);
+    int f,g,w;
+    for(int i=1;i&lt;=m;i++){
+        scanf("%d%d%d",&f,&g,&w);
+        addljb(f,g,w);//建图，有向图连一次边就可以了
+    }
+    spfa();
+    for(int i=1;i&lt;=n;i++){
+        if(dq[i]==mxn)printf("2147483647 ");
+        else printf("%d ",dq[i]);
+    }
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1879-usaco06nov玉米田corn-fields/">
+                  <h3 class="post-title">
+                    P1879 [USACO06NOV]玉米田Corn Fields
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

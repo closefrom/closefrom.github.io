@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>树形DP入门题 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="树形dp
+概念类
+树形dp是一种很优美的动态规划，真的很优美真的，前提是在你学会它之后。
+实现形式
+树形dp的主要实现形式是dfs，在dfs中dp，
+主要的实现形式是dp[i][j][0/1]，
+i是以i为根的子树，j是表示在以i为根的子树..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">树形DP入门题</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>树形dp</p>
+<p>概念类</p>
+<p>树形dp是一种很优美的动态规划，真的很优美真的，前提是在你学会它之后。</p>
+<p>实现形式</p>
+<p>树形dp的主要实现形式是dfs，在dfs中dp，</p>
+<p>主要的实现形式是dp[i][j][0/1]，</p>
+<p>i是以i为根的子树，j是表示在以i为根的子树中选择j个子节点，</p>
+<p>0表示这个节点不选，1表示选择这个节点。有的时候j或0/1这一维可以压掉</p>
+<p>基本的dp方程</p>
+<p>选择节点类</p>
+<p>dp[i][0]=dp[j][1]</p>
+<p>dp[i][1]=max/min(dp[j][0],dp[j][1])</p>
+<p>树形背包类</p>
+<p>dp[v][k]=dp[u][k]+val</p>
+<p>dp[u][k]=max(dp[u][k],dp[v][k-1])</p>
+<p>DP入门第一题</p>
+<p>第一题：Anniversary party 没有上司的舞会</p>
+<p>洛谷链接：https://www.luogu.org/problemnew/show/P1352</p>
+<pre class="wp-block-code"><code>//My AC Code：
+#include &lt;cstdio>
+#include &lt;vector>
+#include &lt;cstring>
+using namespace std;
+const int maxn = 6005;
+int max(int a,int b){return a>b?a:b;}
+vector&lt;int> G[maxn];
+int fad[maxn];
+int dp[maxn][2];
+int L,K,n;
+void dfs(int zd){
+    for(int i=0;i&lt;G[zd].size();i++){
+        dfs(G[zd][i]);
+        //dp[i][0]:表示不邀请i员工其子树达到的最大快乐值，dp[i][1]则表示邀请。
+        /*
+        若一个上司不来 那他的最大值取决自己的下属 下属又分两种情况 来或者不来 所以就是取这两个的最大值来加上
+        若一个上司来 那他的下属必然不会来 于是直接加上下属不来的情况就行了
+        dp转移考虑在dfs里面搞 dfs从整个树的根节点出发 一直往下dfs。。。
+        */
+        dp[zd][0]+=max(dp[G[zd][i]][0],dp[G[zd][i]][1]);
+        dp[zd][1]+=dp[G[zd][i]][0];
+    }
+}
+int main(){
+    scanf("%d",&n);
+    memset(dp,0,sizeof(dp));
+    memset(fad,-1,sizeof(fad));
+    for(int i=1;i&lt;=n;i++){
+        scanf("%d",&dp[i][1]);//读取当前节点（职员）去舞会的快乐点
+        G[i].clear();//一定要吧vector数组初始化
+    }
+    while(scanf("%d%d",&L,&K)&&L&&K){
+        G[K].push_back(L);//用vector数组 存储 每一个父节点 下面有几个子节点
+        fad[L]=K;//fad[L]=K,表示 L节点的父节点是K
+    }
+    int root=1;//找整颗树的根
+    while(fad[root]!=-1)root=fad[root];
+    dfs(root);
+    printf("%d",max(dp[root][0],dp[root][1]));
+    return 0;
+}</code></pre>
+<p>第二题：Strategic game</p>
+<p>洛谷链接：https://www.luogu.org/problemnew/show/UVA1292</p>
+<pre class="wp-block-code"><code>//My AC Code:
+#include &lt;cstdio>
+#include &lt;vector>
+using namespace std;
+const int maxn = 1505;
+int n,r,rm,zs;
+char cr;
+vector&lt;int> G[maxn];
+int dp[maxn][2];
+int fad[maxn];
+int min(int a,int b){return a>b?b:a;}
+void dfs(int rt){
+    for(int i=0;i&lt;G[rt].size();i++){
+        dfs(G[rt][i]);
+        dp[rt][0]+=dp[G[rt][i]][1];
+        dp[rt][1]+=min(dp[G[rt][i]][0],dp[G[rt][i]][1]);
+        /*
+        如果根节点 没放士兵，则，子节点一定要都放士兵，可脑补画面
+        如果根节点放了士兵，则 当前根节点的士兵可以 保卫 所有的子节点，
+        也就是 子节点可以有士兵，也可以没有士兵，所以要当根节点有士兵有两种情况
+        */
+    }
+}
+int main(){
+    while(scanf("%d",&n)!=EOF){
+        for(int i=0;i&lt;=n;i++){
+            G[i].clear();
+            dp[i][1]=1;dp[i][0]=0;
+            fad[i]=-1;
+        }
+/*
+树形DP之前一定要清空，所有相关存树的，数组，还有初始化要dp的数组
+以及 存放每个节点的父节点的数组
+*/
+        for(int i=1;i&lt;=n;i++){
+            scanf("%d:(%d)",&r,&rm);
+            for(int j=0;j&lt;rm;j++){
+                scanf("%d",&zs);
+                G[r].push_back(zs);
+                fad[zs]=r;
+            }
+        }
+        int root=0;
+        while(fad[root]!=-1)root=fad[root];
+        dfs(root);
+        printf("%d\n",min(dp[root][0],dp[root][1]));
+    }
+    return 0;
+}</code></pre>
+<p>第三题：选课<br>
+洛谷链接：https://www.luogu.org/problemnew/show/P2014</p>
+<p>/*</p>
+<p>首先，观察题目，我们把这道题转换一下：给定一颗树，选出包含1号节点（根)的一颗子树，使得点权和最大。</p>
+<p>我们可以这样子定义状态：</p>
+<p>设f[i][j] 表示以i为根节点的子树，选出j个节点，所能达到的最大点权值。</p>
+<p>对于二叉树来说，转移很显然，就是枚举左子树分配多少个节点，就可以对应的得出右子树能分配到多少个节点，对所有情况取最大值就好。</p>
+<p>对于多叉树来说，问题就没有那么简单了，这里，我们有两个方案可以解决这个问题：</p>
+<p>多叉树转二叉树，树上背包。</p>
+<p>因为我不会多叉树转二叉树，所以在这里我主要讲一讲第二种方法。</p>
+<p>我们在树上做背包本质上一般是多重背包问题。</p>
+<p>我以本题为例子，讲一下树上如何做多重背包。</p>
+<p>首先，我们肯定要一层循环枚举子树(可以类似为背包问题中枚举第几件物品)。</p>
+<p>第二层循环我们得枚举当前以节点的子树能分配的节点数（可以类似为背包问题中枚举背包容量）</p>
+<p>这一层循环一定要从后往前枚举，类似与背包压在一维做的做法</p>
+<p>第三层循环我们就可以枚举当前子树分配多少个节点了（可以类似多重背包中枚举第i件物品要几件）<br>
+*/</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;vector>
+using namespace std;
+const int maxn = 305;
+int n,m,ta,tb;
+int dp[maxn][maxn];
+vector&lt;int> G[maxn];
+int v[maxn];
+int dfs(int x){
+    /*
+    一层循环枚举子树(可以类似为背包问题中枚举第几件物品)。
+    第二层循环我们得枚举当前以节点的子树能分配的节点数（可以类似为背包问题中枚举背包容量）   这一层循环一定要从后往前枚举，类似与背包压在一维做的做法
+    第三层循环我们就可以枚举当前子树分配多少个节点了（可以类似多重背包中枚举第i件物品要几件）
+    */
+    int tot=1;//tot表示包括根节点，当前树的所有节点数
+    dp[x][1]=v[x];
+    for(int i=0;i&lt;G[x].size();i++){//第一层循环 相当于  分别 对每个子树（求出当前树总节点数） 进行DP     枚举子树
+        int temp=dfs(G[x][i]);//先把子树的f递归下去算出来
+        tot+=temp;//tot记录到当前子树为止总节点数
+        for(int j=tot;j>=1;j--){//这层循环相当于 背包中的 枚举 容量，一定要倒着枚举   枚举自己这颗树的总分配数
+            for(int k=0;k&lt;=temp;k++)//枚举子树分配多少个节点
+                if(j-k>=1)//j也就是 一共选的点数，减去k 也就是 要给当前这颗子树分配的节点数，一定要大于等于1，因为最少，也要选根树   
+                dp[x][j]=max(dp[x][j],dp[x][j-k]+dp[G[x][i]][k]);
+            
+        }
+    }
+    return tot;
+}
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1;i&lt;=n;i++){
+        scanf("%d%d",&ta,&tb);
+        G[ta].push_back(i);
+        v[i]=tb;
+    }
+    dfs(0);
+    printf("%d",dp[0][m+1]);
+    return 0;
+}</code></pre>
+<p>第四题：有线电视<br>
+洛谷连接：https://www.luogu.org/problemnew/show/P1273</p>
+<pre class="wp-block-code"><code>//My AC Code:
+#include &lt;cstdio>
+#include &lt;cstring>
+using namespace std;
+const int maxn = 3005;
+struct node{
+    int to,back,cd;//这边 去哪个节点  这边的上一条边是啥  这条边长度多少
+}nd[maxn];
+int v[maxn];
+int first[maxn];
+int dp[maxn][maxn];//如dp[i][j],则表示 以第i节点为根节点，选j个用户 花了多少钱
+int n,m,po,xn,xa,xb;
+void addedge(int from,int to,int dis){
+    nd[++po].back=first[from];
+    nd[po].to=to;
+    nd[po].cd=dis;
+    first[from]=po;
+}
+int max(int a, int b){return a>b?a:b;}
+int dfs(int x){
+    if(x>n-m){
+        dp[x][1]=v[x];
+        return 1;
+    }
+/*
+如果根节点 是大于n-m 
+也就是 用户节点，所以可以初始化dp[x][1]=v[x]
+*/
+    int sum=0;
+    for(int i=first[x];i;i=nd[i].back){
+        int vv=nd[i].to;
+        int temp=dfs(vv);sum+=temp;//temp表示当前子树一共有多少用户，sum表示，以x为根，一共有多少用户，即当前子树可以选多少用户
+        for(int j=sum;j>=0;j--){
+            for(int k=1;k&lt;=temp;k++){
+/*
+j循环表示 以x为根节点，一共可以选 sum个用户到0个用户
+k循环表示 当前子树i，可以选择1-temp个用户，也可以是选择0-temp个用户
+然后的话，j-k一定要大于等于零，因为 子树选择的节点数一定小于等于根树选择的节点数
+*/
+                if(j-k>=0)dp[x][j]=max(dp[x][j],dp[x][j-k]+dp[vv][k]-nd[i].cd);
+/*
+dp[x][j]=max(dp[x][j],dp[x][j-k]+dp[vv][k]-nd[i].cd);
+以x为根节点，选j个用户，可以分成
+选x为根节点，选j-k个用户
+选vv(x的子节点)为根节点，选k个用户，一定要减去 根节点和当前vv节点之间的消耗或者说是边权值
+*/
+            }
+        }
+    }
+    return sum;
+}
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1;i&lt;=n-m;i++){
+        scanf("%d",&xn);
+        for(int j=1;j&lt;=xn;j++){
+            scanf("%d%d",&xa,&xb);
+            addedge(i,xa,xb);
+        }
+    }
+    for(int i=n-m+1;i&lt;=n;i++)scanf("%d",&v[i]);
+    memset(dp,~0x3f,sizeof(dp));
+    for(int i=1;i&lt;=n;i++)dp[i][0]=0;//因为 如果选0个用户，一定是花了0元，dp 如果有可以初始化的数据，一定要初始化
+    dfs(1);
+    for(int i=m;i>=1;i--){
+        if(dp[1][i]>=0){printf("%d",i);break;}
+    }
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/最长（上升、下降、不升、不降）子序列/">
+                  <h3 class="post-title">
+                    最长（上升、下降、不升、不降）子序列
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

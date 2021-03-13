@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第六章-包含多个段的程序 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="使用同一个段，定义数据，栈，代码
+1.若要操作不同的数据，则可以在程序第一行使用dw定义字形数据
+如：
+assume cs:code
+code segment
+dw 0123H,0456H,0789H,0abcH,0defH,0fedH,0..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第六章-包含多个段的程序</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p><strong><em>使用同一个段，定义数据，栈，代码</em></strong></p>
+<p>1.若要操作不同的数据，则可以在程序第一行使用dw定义字形数据</p>
+<pre class="wp-block-code"><code>如：
+assume cs:code
+code segment
+dw 0123H,0456H,0789H,0abcH,0defH,0fedH,0cbaH,0987H
+mov bx,0
+mov ax,0
+mov cx,8
+s:add ax,cs:[bx]
+  add bx,2
+  loop s
+mov ax,4c00H
+int 21H
+code ends
+end</code></pre>
+<p>2.end，除了通知编译器程序结束外，还可以通知编译器程序的入口在哪里</p>
+<pre class="wp-block-code"><code>如：
+assume cs:code
+code segment
+dw 0123H,0456H,0789H,0abcH,0defH,0fedH,0cbaH,0987H
+start:mov bx,0
+mov ax,0
+mov cx,8
+s:add ax,cs:[bx]
+  add bx,2
+  loop s
+mov ax,4c00H
+int 21H
+code ends
+end start</code></pre>
+<p>(ps:end start指明了程序入口，被转化为一个入口地址，存放在可执行文件的描述信息中)</p>
+<p>在单任务系统中，可执行文件中的程序，执行过程如下：</p>
+<pre class="wp-block-code"><code>（1）由其他程序（debug，command或其他程序）将可执行文件中的程序加载到内存
+（2）设置CS：IP指向程序的第一条要执行的指令（即程序的入口），从而使程序得以运行
+（3）程序运行结束，返回到加载者</code></pre>
+<p><strong><em>使用不同段定义数据，代码，栈</em></strong></p>
+<p>（1）可以将数据段，代码段，栈段分为不同段，但是空间不能超过64KB</p>
+<p>（2）段地址的引用</p>
+<pre class="wp-block-code"><code>assume cs:code,ds:data,ss:stack
+data segment
+dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+data ends
+stack segment
+dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+stack ends
+code segment
+start:mov ax,stack
+mov ss,ax
+mov sp,20h
+mov ax,data
+mov ds,ax
+mov bx,0
+mov cx,8
+s:push [bx]
+add bx,2
+loop s
+mov bx,0
+mov cx,8
+s0:pop [bx]
+add bx,2
+loop s0
+mov ax,4c00h
+int 21h
+code ends
+end start</code></pre>
+<p>若要访问数据段中的数据，就要通过地址，地址又分为段地址和偏移地址，在程序中，段名相当于一个标号，它代表一个段地址，如：mov ax,data，将名称为data的段地址送入ax，一个段的数据的段地址可由段名代表，偏移地址就是要看它在段中的位置，程序中data段中的数据0abch的地址就是data:6，要将它送入bx中，则</p>
+<pre class="wp-block-code"><code>mov ax,data
+mov ds,ax
+mov bx,ds:[6]
+不能用以下指令：
+mov ds,data
+mov ds,ds:[6]</code></pre>
+<p>(8086CPU不允许将一个数值直接放入段寄存器中，data是idata，所以要用一个寄存器中转)</p>
+<p>3.实验</p>
+<pre class="wp-block-code"><code>{
+对于如下定义的段：
+name segment
+......
+name ends
+如果段中数据位N个字节，程序加载后，该段实际占据空间为：（N/16的取整数+1）*16个字节
+如果N小于16，那么实际占用16个字节（理解这个小问题）；如果N大于16，那么实际占用（N/16的取整数+1）*16个字节。其实都是这个公式。
+}
+code1:
+{
+assume cs:code,ds:data,ss:stack
+data segment
+dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+data ends
+stack segment
+dw 0,0,0,0,0,0,0,0
+stack ends
+code segment
+start: mov ax,stack
+mov ss,ax
+mov sp,16
+mov ax,data
+mov ds,ax
+push ds:[0]
+push ds:[2]
+pop ds:[2]
+pop ds:[0]
+mov ax,4c00h
+int 21h
+code ends
+end start
+}
+①CPU执行程序，程序返回前，data段中的数据 不变 。
+②CPU执行程序，程序返回前，CS=0B67，SS=0B66，DS=0B65 。（根据自己系统回答）
+314;设程序加载后，CODE段的段地址为X，则DATA段的段地址为 X-2 ，STACK段的段地址为 X-1 。
+
+code 2:{
+assume cs:code,ds:data,ss:stack
+data segment
+dw 0123h,0456h
+data ends
+stack segment
+dw 0,0
+stack ends
+code segment
+start:
+mov ax,stack
+mov ss,ax
+mov sp,16
+mov ax,data
+mov ds,ax
+push ds:[0]
+push ds:[2]
+pop ds:[2]
+pop ds:[0]
+mov ax,4c00h
+int 21h
+code ends
+end start
+}
+首先明确：虽然我们在data段和stack段中只定义初始化了4个字节的内存，但在汇编中，直接给你分配了16个字节的空间，不足的按00补全。
+结论：数据段和栈段在程序加载后实际占据的空间都是以16个字节为单位的。如果不足，以0补全填充。
+（1）CPU执行程序，程序返回前，data段中的数据为多少？
+执行程序后，data段有16个字节空间，前两个字数据不变，其余为00补全了。
+（2）CPU执行程序，程序返回前，CS=0B67, SS=0B66, DS=0B65.
+（3）程序加载后，code段地址设为X，则data段地址为(x-2),stack段的段地址为(X-1).
+
+code 3{
+assume cs:code,ds:data,ss:stack
+code segment
+start:
+mov ax,stack
+mov ss,ax
+mov sp,16
+mov ax,data
+mov ds,ax
+push ds:[0]
+push ds:[2]
+pop ds:[2]
+pop ds:[0]
+mov ax,4c00h
+int 21h
+code ends
+data segment
+dw 0123h,0456h
+data ends
+stack segment
+dw 0,0
+stack ends
+end start
+}
+总结：在汇编源代码中，我们定义的code是程序执行的代码（它存储在一个我们人为规定的段code中，在程序装载时，分配空间，并将机器码写入到这段内存中）；其他的数据段（无论是逻辑上的stack段，data段等）与代码段都相邻。只不过是装载、分配内存前后的问题。
+（1）CPU执行程序，程序返回前，data段中的数据为多少？
+执行程序后，data段有16个字节空间，前两个字数据不变，其余为00补全了。
+（2）CPU执行程序，程序返回前，CS=0B65, SS=0B69, DS=0B68.
+（3）程序加载后，code段地址设为X，则data段地址为(x+3),stack段的段地址为(X+4).?????????????????
+（为什么是这样？怎么计算的？看cx，程序加载时，我们发现cx=0044，含义：此程序所有机器码占用的空间是44H=68字节，data和stack由于定义的都是小于16个字节，一律按照16个字节分配空间，其余补00；剩余的36个字节就是code段真正的可执行的机器码。由于code段不足48个字节（3*16），故程序加载时也补0了）
+四。 如果将(1)、(2)、(3)题中的最后一条伪指令“end start”改为“end”(也就是说不指明程序的入口)，则那个程序仍然可以正确执行？请说明原因。
+答案：如果不指名程序的（code段的）入口，并且使用end替换end start，都能正常运行。但只有（3）题中程序可以正确的执行（因为只有它是在内存中可执行代码在最前面）。
+讲解：因为如果不指名入口，程序会从加载进内存的第一个单元起开始执行，前二个题中，定义的是数据，但CPU还是将数据当做指令代码执行了。只不过程序执行时逻辑上是错误了。但真的能执行的。
+如果指明了程序的入口，CPU会直接从入口处开始执行真正的机器码，直到遇到中断指令返回。此种方式能够确保程序逻辑上的正确。因此有必要为程序来指明入口。</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第五章-bx和loop指令/">
+                  <h3 class="post-title">
+                    第五章-[BX]和loop指令
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

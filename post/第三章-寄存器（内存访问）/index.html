@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第三章-寄存器（内存访问） | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.字单元，即存放一个字型数据（16位）的内存单元，由两个地址连续的内存单元组成。高地址内存单元中存放字型数据的高位字节，低地址内存单元中存放字型数据的低位字节
+
+在内存中存储时，由于内存单元是字节单元（一个字节存放一个单元），那么一个字要..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第三章-寄存器（内存访问）</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.字单元，即存放一个字型数据（16位）的内存单元，由两个地址连续的内存单元组成。高地址内存单元中存放字型数据的高位字节，低地址内存单元中存放字型数据的低位字节</p>
+<ul>
+<li>在内存中存储时，由于内存单元是字节单元（一个字节存放一个单元），那么一个字要用两个地址连续的内存单元来存放，这个字的低位字节存放在低地址单元中，高位字节存放在高地址单元中</li>
+</ul>
+<p>起始地址为N的字单元 可以简称为N地址字单元CPU中，用16位寄存器来存储一个字</p>
+<ul>
+<li>两个连续的内存单元组成一个字型数据</li>
+</ul>
+<p>如：0 20H1 4EH2 12H则，0地址单元中存放的字节型数据是20H0地址字单元存放的字型数据是4E20H1地址字单元存放的字型数据是124EH</p>
+<ul>
+<li>任何两个地址连续的内存单元，N号单元和N+1号单元，可以是两个内存单元，也可以是N地址字单元，的高位字节单元和低位字节单元</li>
+</ul>
+<p>2.mov指令</p>
+<p>一.将数据直接送入寄存器</p>
+<p>二.将一个寄存器中内容送入到另一个寄存器</p>
+<p>三.将一个内存单元中的内容送入到一个寄存器中</p>
+<p>四.将一个寄存器中的数据送入到一个内存单元中</p>
+<p>五.将一个寄存器中的数据送入到一个段寄存器中</p>
+<p>六.将一个段寄存器中的数据送入到一个寄存器中</p>
+<p>(ps:可以看到三四，内存单元和寄存器的数据可以互传的，同理五六也是)</p>
+<p>七.将N地址字单元字型数据，送入到一个段寄存器中</p>
+<p>八.同理</p>
+<p>{例子：</p>
+<p>用10000H处存放的字型数据设置ds段寄存器</p>
+<p>mov ax,1000H</p>
+<p>mov ds,ax</p>
+<p>mov ds,[0]</p>
+<p>}</p>
+<p>（如果操作[number] 对段寄存器或者寄存器操作，则会将ds:number的内存单元和下一个内存单元的字节型数据转移到 寄存器中,因为寄存器（8086）是16位的）</p>
+<p>如：</p>
+<p>mov bx,1000H</p>
+<p>mov ds,bx</p>
+<p>mov al,[0]</p>
+<p>（上面例子即：将物理地址为1000:0的内存单元中的字节型数据，送入寄存器al中）</p>
+<p>[***]表示一个内存单元，里面填0（数字）表示内存单元的偏移地址</p>
+<p>mov 指令中的[]说明操作对象是一个内存单元，[]里面填0说明这个内存单元的偏移地址为0，它的段地址默认放在<strong>ds</strong>中，指令执行时，8086CPU会自动从DS中取出</p>
+<p>上面的例子中为什么不能直接mov ds,1000H呢？</p>
+<p>因为8086CPU不支持将数据直接送入段寄存器中，所以要用一个（一般的）寄存器来进行数据中转为何不支持直接送入？因为这是8086CPU硬件设计“特色”</p>
+<p>从内存单元到寄存器 是mov 寄存器名，内存单元地址 那么从寄存器到内存单元，就是mov 内存单元地址，寄存器名<br>
+（这是要将寄存器数据存入到内存单元中）</p>
+<p>3.8086CPU是16位结构，有16根数据线，所以可以一次性传送16位的数据，也就是一个字</p>
+<p>比如 :</p>
+<p>mov ax,1000H</p>
+<p>mov ds,ax</p>
+<p>mov ax,11316</p>
+<p>mov [0],ax</p>
+<p>将AX寄存器中的数据 11316（十进制） =&gt;2C34H（十六进制） 放入 1000：0开始的内存单元中因为一个内存单元大小是1Byte(8bit), 所以要用两个内存单元来存储这个数据，所以就是 1000:0单元 存储低8位，也就是34H，1000：1单元存储高8位，也就是2CH</p>
+<p>4.数据段(对于8086CPU)</p>
+<p>在编程时，根据需要，将一组内存单元定义为一个段，将长度为N （N&lt;=64KB），地址连续，起始地址为16的倍数的内存单元当做专门存储数据的内存空间，则这段内存空间 称为数据段</p>
+<p>如：将 123B0H~123B9H的内存单元定义为数据段，则现在想要累加前三个单元中的数据（字节型数据）</p>
+<pre class="wp-block-code"><code>mov ax,123BH
+mov ds,ax
+mov al,0
+add al,[0]
+add al,[1]
+add al,[2]
+如若要累加前三个字型数据则：
+mov ax,123BH
+mov ds,ax
+mov ax,0
+add ax,[0]
+add ax,[2]
+add ax,[4]
+(PS:在内存和存储器之间传送字型数据时，高地址单元对应高8位存储器，低地址单元对应低8位存储器)</code></pre>
+<ol start="5">
+<li>8086CPU栈机制</li>
+</ol>
+<p>push ax 将寄存器ax中的数据送入到栈中</p>
+<p>pop ax 从栈顶取出数据送入ax</p>
+<p>(push是先将SP改变，然后再放入数据)</p>
+<p>(pop是先将数据取出，然后再改变SP)</p>
+<p>push和pop不仅可以操作寄存器，还可以操作段寄存器，内存单元</p>
+<p><strong>push的时候sp=sp-2,pop的时候sp=sp+2</strong></p>
+<p>8086CPU的出入栈都是以字为单位进行的</p>
+<p>8086CPU中，有两个段寄存器，SS和SP，栈顶的段地址存放在SS中，偏移地址存放在SP中，那么任何时刻，SS：SP都是指向栈顶元素的，push和pop指令执行时，CPU都会通过SS：SP获取栈顶的地址</p>
+<p>初始状态，栈为空时，SS：SP指向栈空间最高地址单元的下一个单元</p>
+<p>SS用 mov ss,寄存器名 来改变，sp可以直接mov将具体数据送入</p>
+<p>如：10000H~1000FH这段空间为栈，初始状态栈为空，SS=1000H，那么SP则为0010H（PS:出栈后的元素依然在内存单元中，但是缺不在栈中，因为栈顶地址已经改变，然后下一次push新的数据进来的时候，上一次出栈的元素所在的内存单元的数据将被新的数据覆盖）</p>
+<p>特别地：当栈满的时候用push，或者栈空的时候用pop，都会发生栈顶越界问题，那么栈顶就指向了栈外的内存单元，这些内存单元很有可能存在其他有用的数据或者指令，这样将会导致一连串的错误</p>
+<p>（ps：对于8086CPU来说，它不能保证我们对栈的操作不会越界，它只会考虑当前栈顶在哪里，当前要执行哪条命令）</p>
+<p>6.清空一个寄存器，可以用sub</p>
+<p>如：</p>
+<p>mov ax,0 与 sub ax,ax的区别</p>
+<p>mov ax,0机器码是3个字节，sub ax,ax机器码是2个字节</p>
+<p>扩展：</p>
+<pre class="wp-block-code"><code>一个栈段最大位64KB=65536个内存单元（Byte）
+若将10000H~1FFFFH这段空间当做栈段，初始化栈为空，则SS=1000H，sp=0
+当栈中还有一个元素时，sp=FFFEH，这个元素出站后，sp=sp+2=10000H=0（因为8086CPU最大栈段是64KB）
+同理，如果栈满了，则sp也是为0，这样，如果再push，栈顶就会环绕，覆盖原来栈中的内容
+</code></pre>
+<p>段地址总结：</p>
+<pre class="wp-block-code"><code>对于数据段，段地址存放在DS，偏移地址用[]，可以用mov，add，sub等访问内存单元的指令时，CPU就将我们定义的数据段中的内容当做数据来访问
+对于代码段，段地址存放在CS，偏移地址存放在IP，目前用jmp操作，CPU就将执行我们定义的代码段中的指令
+对于栈段，段地址存放在SS，栈顶单元的偏移地址存放在SP，这样，用push和pop时。CPU就会将我们定义的栈段当栈来用
+（ps：一段内存，既可以是代码存储空间，又可以是数据存储空间，也可以是栈空间，也可以什么都不是，关键在于CPU中段寄存器CS，IP，SS，SP，DS的设置）</code></pre>
+<p>7.debug的T命令在执行 修改寄存器ss的指令时，下一条指令也紧接着被执行（前面不深究中断机制）</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第二章-寄存器/">
+                  <h3 class="post-title">
+                    第二章-寄存器
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

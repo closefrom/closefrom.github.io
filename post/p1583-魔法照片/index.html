@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1583 魔法照片 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="#include &lt;cstdio>
+
+#include &lt;iostream>
+
+#include &lt;cmath>
+
+#include &lt;string>
+
+#include &lt;algorithm>
+
+using ..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1583 魔法照片</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <pre class="wp-block-code"><code>#include &lt;cstdio>
+
+#include &lt;iostream>
+
+#include &lt;cmath>
+
+#include &lt;string>
+
+#include &lt;algorithm>
+
+using namespace std;
+
+int n,k,E[11];
+
+//定义变量，需要获取的人数n，以及k个人会获得照片
+struct qvq{
+
+    int bh;
+
+    int w;
+
+    int lx;
+
+}np[20005];
+
+//结构体qvq存储每个人信息，qh表示编号（默认的初始化编号），w表示权值，lx表示类别（十种）
+int qtq(qvq a,qvq b){
+
+    if(a.w!=b.w)return a.w>b.w;
+
+    return a.bh&lt;b.bh;
+
+}
+
+//结构体排序规则，如果权值不相同，则按照权值从大到小排序，如果权值相同，则按照编号从小到大排序
+
+int main(){
+
+    scanf("%d%d",&n,&k);
+
+    for(int i=0;i&lt;10;i++){scanf("%d",&E[i]);}
+
+    for(int i=0;i&lt;n;i++){
+
+        scanf("%d",&np[i].w);
+
+        np[i].bh=i+1;
+    
+	}
+
+//获取n,k，以及十种类别对应的权值，获取1-n个学生对应的权值，以及学生对应的编号
+    sort(np,np+n,qtq);
+
+//排序np数组
+
+    for(int i=0;i&lt;n;i++){
+
+        np[i].lx=i%10;
+
+        np[i].w+=E[np[i].lx];
+
+    }
+
+//计算重新排序好的np数组中的类别，并且将计算的类别对应的权值加到相应位置上
+    sort(np,np+n,qtq);
+
+//再次排序
+    for(int i=0;i&lt;k;i++)printf("%d ",np[i]);
+
+//输出前k个人的初始编号
+    return 0;
+
+} </code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1736-创意吃鱼法/">
+                  <h3 class="post-title">
+                    P1736 创意吃鱼法
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

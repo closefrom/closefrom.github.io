@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P2871 [USACO07DEC]手链Charm Bracelet | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+题目:有N件物品和一个容量为V的背包。第i件物品的重量是c[i]，价值是w[i]。求解将哪些物品装入背包可使这些物品的重量总和不超过背包容量，且价值总和最大。
+【算法标签】01背包
+【数据范围】1 ≤ N ≤ 3402，1 ≤ M ..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P2871 [USACO07DEC]手链Charm Bracelet</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>题目:有N件物品和一个容量为V的背包。第i件物品的重量是c[i]，价值是w[i]。求解将哪些物品装入背包可使这些物品的重量总和不超过背包容量，且价值总和最大。</p>
+<p>【算法标签】01背包</p>
+<p>【数据范围】1 ≤ N ≤ 3402，1 ≤ M ≤ 12880，1 ≤ Di ≤ 100，1 ≤ Wi ≤ 400</p>
+<p>【思路1】看见楼下的大牛们的题解都很厉害，但鲜少有对01背包的公式进行详细地解释，蒟蒻我就来给后来的初学者讲解一下01背包的动态转移方程的含义。</p>
+<p>01背包二维数组的动态转移方程为f[i][v] = max{f[i-1][v-w[i]]+c[i],f[i-1][v]}</p>
+<p>其中，f[i][v]意为前i件，总重量小于等于v的最大价值（最优解），f[i-1][v-w[i]]+c[i]表示第i件物品放入背包中的最大价值，那么当前重量v就要减去第i件物品的重量（v-w[i]），再加上通过放入第i件物品所产生的价值c[i]；f[i-1][v]表示若第i件物品不放入背包内，那么自然当前的重量就不用减去第i件物品的重量，相应的价值也就不发生改变。取两者中的最大值，那么前i-1个物品的最大价值就是</p>
+<p>max(f[i-1][v-w[i]]+c[i],f[i-1][v])。</p>
+<p>【思路2】</p>
+<p>如果你尝试用思路1来解决这道题，显然是不可行的，因为数组要开到f[3403][12881]，而这将意味着要开设43834043+3403+3403=43840849个变量！如果你将思路1的C++代码交付评测，你会发现要么是WC（Wrong Answer，错误的答案），要么是MLE（memory limit error，内存空间超出限制），有没有办法能将思路1压缩到一维数组呢？当然有。</p>
+<p>一维数组的动态转移方程f[v] = max{f[v],f[v-w[i]]+c[i]}</p>
+<p>意义和思路中的差不多，f[v]表示总重量小于等于v的最大价值，与思路1所不同的是，它省略了i这一参数，使方程更加简洁。</p>
+<pre class="wp-block-code"><code>//My AC Code
+#include &lt;cstdio>
+#include &lt;algorithm>
+using namespace std;
+int n,m,fm[13000];
+struct node{
+    int c,w;
+}nm[3500];
+bool cp(node a,node b){
+    if(a.w!=b.w)return a.w>b.w;
+    else return a.c&lt;b.c;
+}
+int max(int a,int b){return a>b?a:b;}
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1;i&lt;=n;i++)scanf("%d%d",&nm[i].c,&nm[i].w);
+    sort(nm+1,nm+n+1,cp);
+    //for(int i=1;i&lt;=n;i++)printf("%d %d\n",nm[i].c,nm[i].w);
+    for(int i=1;i&lt;=n;i++){
+        for(int j=m;j>=nm[i].c;j--){
+            fm[j]=max(fm[j],fm[j-nm[i].c]+nm[i].w);
+        }
+    }
+    printf("%d",fm[m]);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1378-油滴扩展/">
+                  <h3 class="post-title">
+                    P1378 油滴扩展
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

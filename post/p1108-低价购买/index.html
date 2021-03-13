@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1108 低价购买 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="题目要求是“它们构成的价格队列不一样”，那么我准备拿一个数组存下这个最长下降子序列，但是这不现实，检查是否匹配是在最坏的情况下可能达到Θ(N^3)Θ(N
+3
+)。
+于是有了现在的解法，让我来简单证明说明一下
+在dpdp过程中，ff数组存的是..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1108 低价购买</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>题目要求是“它们构成的价格队列不一样”，那么我准备拿一个数组存下这个最长下降子序列，但是这不现实，检查是否匹配是在最坏的情况下可能达到Θ(N^3)Θ(N</p>
+<p>3</p>
+<p>)。</p>
+<p>于是有了现在的解法，让我来简单证明说明一下</p>
+<p>在dpdp过程中，ff数组存的是最长下降子序列的长度，ff数组的下标ii是以ii结尾的意思，所以最长下降子序列（除了最后一位外）的数据已经丢失，因此不能在方案数相加时再判断是否能加。</p>
+<p>我们从头来看，</p>
+<p>如果一个数列的第一个数与另一个数列的第一个数相同，那么现在可以判断它们相等，即可以把其中一个删掉（在代码中的处理是t[i]=0t[i]=0）。当不同的数接在它的后面时，又可以将它们判断为两个数列，这是不互相影响的。因为两个数列都可以由这个相等的数列转移而来<br>
+如果一个数列的第一个数与另一个数列的第一个数不同，那么它们不等，且无论后面添加什么，都不相等，即不删去，则按照普通的判断继续做。<br>
+由上面的两点，我们已经把重复的删掉，这样可以防止重复计数。</p>
+<pre class="wp-block-code"><code>//My AC Code：
+#include &lt;cstdio>
+using namespace std;
+int n,mxx;
+int f[5005],w[5005],nn[5005];
+int max(int a,int b){return a>b?a:b;}
+int main(){
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;i++)scanf("%d",&nn[i]);
+    
+    for(int i=1;i&lt;=n;i++){
+        for(int j=1;j&lt;i;j++)
+            if(nn[j]>nn[i])f[i]=max(f[i],f[j]+1);
+        if(f[i]==0)f[i]=1;//如果当前的数是目前为止最大的，则最长下降子序列是自己
+        mxx=max(mxx,f[i]);//在f数组更新完毕后，存下最长下降子序列的长度
+        for(int k=1;k&lt;i;k++)
+            if(f[i]==f[k]&&nn[i]==nn[k])//如果前i 和 前k 的最长下降序列长度 一样且 i位置和k位置的数一样  则舍弃前面那个数  t[j]=0
+                w[k]=0;
+            else if(f[i]==f[k]+1&&nn[k]>nn[i])w[i]+=w[k];//如果可以接上前面的数列，就继承其方案数
+        if(!w[i])w[i]=1;////如果当前的数是目前为止最大的，则是初始方案
+    }
+    int ans=0;//ans用来计算  最长下降子序列长度为mxx ，以不同数结尾的方案
+    for(int i=1;i&lt;=n;i++)
+        if(f[i]==mxx)ans+=w[i];
+    printf("%d %d",mxx,ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1063-能量项链/">
+                  <h3 class="post-title">
+                    P1063 能量项链
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

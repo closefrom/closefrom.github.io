@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P2704 [NOI2001]炮兵阵地 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="那么首先，dp 方程可以很快推出来，dp[L][S][i]表示当前状态是 S，上一行的状态是 L，当前考虑到了第 i 行：
+dp[L][S][i]=max(dp[L][S][i],dp[FL][L][i-1]+Sum[S]); 这里 FL ..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P2704 [NOI2001]炮兵阵地</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>那么首先，dp 方程可以很快推出来，dp[L][S][i]表示当前状态是 S，上一行的状态是 L，当前考虑到了第 i 行：</p>
+<p>dp[L][S][i]=max(dp[L][S][i],dp[FL][L][i-1]+Sum[S]); 这里 FL 表示上上行的状态，Sum[S] 表示当前状态 S 里面包含几个 1。</p>
+<p>那么有了这个 dp 方程后，就可以愉快的递推了，不过这道题有几个细节需要注意一下：</p>
+<p>1.判断每个位置是不是山丘</p>
+<p>这个很好解决，只要把每一行的输入都转成一个二进制数(平原是 0，山丘是1)，然后直接跟待判断的状态做一次位运算即可，就是 S&amp;a[i]，如果位运算结果不是零，说明有些位置放在了山丘上，也就是说当前状态不合法。</p>
+<p>2.判断每个状态有没有两个炮兵左右距离在两格之内</p>
+<p>这个需要动脑想一下，我们发现一个神奇的结论，如果把表示当前状态的二进制数位运算左移一位，那么用这个结果与原状态做一次位运算与操作，如果结果不是 0，那么就一定存在两个炮兵左右距离在一格之内。同理，左移两位就可以判断左右距离在两格之内。这个过程也就是 S&amp;(S&lt;&lt;1)，S&amp;(S&lt;&lt;2)。</p>
+<p>3.判断每一列之前两行有没有炮兵</p>
+<p>这个就直接用当前状态分别与之前的两行即可，就是 S&amp;L，S&amp;FL，如果与操作结果不为零，说明有若干列前两行有炮兵，也就是说当前状态不合法。</p>
+<p>最后说一句，一定要用滚动数组(因为只用到每一行和前两行，所以只用滚动三行)</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;iostream>
+#define maxn 1024
+using namespace std;
+int n,m,dp[2][maxn][maxn],ans,f[105],sum[maxn];
+char tc;
+/* 
+n m 表示有多少行列  
+dp[i][j][k] 表示 当前考虑第i行，
+第i行的炮兵摆放状态为j，上一行炮兵摆放的状态是k ，一共最多用了多少炮兵
+f[i] 表示第i行的 炮兵可摆放状况
+
+滚动数组是DP中的一种编程思想。
+简单的理解就是让数组滚动起来，
+每次都使用固定的几个存储空间，来达到压缩，
+节省存储空间的作用。起到优化空间，
+主要应用在递推或动态规划中（如01背包问题）。
+因为DP题目是一个自底向上的扩展过程，
+我们常常需要用到的是连续的解，
+前面的解往往可以舍去。
+所以用滚动数组优化是很有效的。
+利用滚动数组的话在N很大的情况下
+可以达到压缩存储的作用。
+当然是用时间去换空间的
+*/
+int max(int a,int b){return a>b?a:b;}
+int get(int a){
+    int qwq=0;
+    while(a){
+        if(a&1)qwq++;
+        a>>=1;
+    }
+    return qwq;
+}
+/*计算a以二进制表示，有多少个1*/
+int main(){
+    cin >> n >> m;
+    for(int i=0;i&lt;n;i++)
+        for(int j=0;j&lt;m;j++)
+            cin >> tc,f[i]&lt;&lt;=1,f[i]+=(tc=='H'?1:0);
+    /*H用1表示，表示当前位置不能摆放炮兵，P用0表示，表示可以摆放*/
+    /*!!!!(1&lt;&lt;m) 范围是这个，所以，不能填maxn！！！！！！！！！*/
+    for(int i=0;i&lt;(1&lt;&lt;m);i++)sum[i]=get(i);//初始化当前摆放状态一共用了多少个炮兵
+    for(int pre=0;pre&lt;(1&lt;&lt;m);pre++)
+        for(int now=0;now&lt;(1&lt;&lt;m);now++)
+            if(!(pre&now || pre&f[0] || now&f[1] || (pre&(pre&lt;&lt;1)) || (pre&(pre&lt;&lt;2)) || (now&(now&lt;&lt;1)) || (now&(now&lt;&lt;2)))){
+            dp[1][now][pre]=sum[pre]+sum[now];
+            //printf("%d\n", dp[1][now][pre]);
+            }
+            /*
+            第一个循环是pre，也就是前一行，第二个循环是now，也就是当前行
+            当 当前行和上一行满足以下条件时 才可以初始化：
+            pre&now 就是 当前行的状态 不能跟 上一行的状态 有二进制上1的碰撞 ，如果有，则根据题意 不能放
+            pre&f[0] 上一行跟上一行读入的数据作&运算，如果为真，则表示 当前pre状态，有炮兵放的位置是 山地，也就是不能放炮兵的地方
+            now&f[1] 当前行跟当前行读入的数据作&运算，如果为真，则表示 当前now状态，有炮兵放的位置是 山地，也就是不能放炮兵的地方
+            pre&(pre&lt;&lt;1) pre&(pre&lt;&lt;2) now&(now&lt;&lt;1) now&(now&lt;&lt;2) 按照题意都表示，左右两个格子都能攻击到，所以不能放 如果为真，则 不符合条件
+            初始化dp[1][now][pre],因为如果一直pre和now，则第二行的开始状态是可以确定的
+            */
+    
+    for(int i=2;i&lt;n;i++)
+        for(int pre=0;pre&lt;(1&lt;&lt;m);pre++){//这个循环 遍历 第i行的上一行的 炮兵摆放状态
+            if((pre&f[i-1])||(pre&(pre&lt;&lt;1))||(pre&(pre&lt;&lt;2)))continue;
+            for(int now=0;now&lt;(1&lt;&lt;m);now++){
+                if((now&pre)||(now&(now&lt;&lt;1))||(now&(now&lt;&lt;2))||(now&f[i]))continue;
+                    for(int rd=0;rd&lt;(1&lt;&lt;m);rd++){
+                        if((rd&(rd&lt;&lt;1))||(rd&(rd&lt;&lt;2))||(rd&pre)||(rd&f[i-2])||(rd&now))continue;
+                            dp[i%2][now][pre]=max(dp[i%2][now][pre],dp[(i-1)%2][pre][rd]+sum[now]);
+                            //printf("%d\n",dp[i%2][now][pre]);
+                        
+                    }
+            }
+        }
+        /*
+        第一个状态 从2开始，因为前面两行的状态已知
+        第二个循环 表示 第i行 上一行的状态，
+        为什么要先遍历第i行的上一行呢，
+        因为要通过确定上一行，
+        来确定当前行的状态是否跟上一行 有冲突
+        然后 特判，pre&f[i-1]如果上一行的猜测状态pre 和上一行对应读入的数据 作&运算，为真，则表示当前pre状态， 有的炮兵 放的位置是山地 即 不能放炮兵的地方
+        pre&(pre&lt;&lt;1) pre&(pre&lt;&lt;2) 表示pre状态 左右两格是否有炮兵，如果有，则返回真
+        上述条件如果有一个为真则，进入 跳出当前循环，继续运行
+        
+        第三个循环 表示当前第i行的状态若为now，
+        则 需要特判，因为 第二个循环已经 假定出了pre 所以，直接可以用来判断当前行 的这个状态 ，相对于上一行来说，是否有冲突
+        (now&pre) 如果为真，则表示上一行和当前行 有炮兵 冲突，也就是上下冲突
+        now&(now&lt;&lt;1) now&(now&lt;&lt;2) 如果为真，则表示 当前行，左右两个格子有炮兵，有冲突 
+        now&f[i] 如果为真，则表示 now 与当前行的读入数据 冲突，也就是now状态 ，有的炮兵 放的对应位置是山地 即 不能放炮兵的地方
+        以上条件如果有一个为真，则跳出当前，继续运行
+        
+        第四个循环 在当前行 和上一行的状态假设已经确定的情况之下，找 上上一行的状态，
+        rd&(rd&lt;&lt;1) rd&(rd&lt;&lt;2) 若为真，则表示当前rd状态 左右两格 有炮兵
+        rd&pre 若为真，则表示上上行的rd摆放状态与上一行的摆放状态pre有上下冲突
+        rd&now 若为真，则表示上上行的rd摆放状态和当前行的摆放状态now有上下冲突
+        rd&f[i-2] 如果上上行的猜测状态rd 和上上行读入的数据作&运算，为真，则表示 当前rd状态，有的炮兵， 放的对应f[i-2]数组上是山地，也就是1，即 不能放炮兵的地方
+        以上条件如果有一个条件为真，则跳出当前，继续运行
+        然后就进行dp数组状态转移
+        dp[i%2][now][pre]=max(dp[i%2][now][pre],dp[(i-1)%2][pre][rd]+sum[now]);
+        为什么要i%2呢，因为当前行是上一行的状态转移过来的，所以开数组的时候只需要开2  ：：：：滚动数组QwP
+        当前状态 通过dp[(i-1)%2][pre][rd]+sum[now]转移过来，也就是上一行和上上行的最大棋子数，和当前行的状态now的棋子数
+        */
+                            
+    for(int i=0;i&lt;(1&lt;&lt;m);i++)
+        for(int j=0;j&lt;(1&lt;&lt;m);j++)
+            ans=max(dp[(n-1)%2][j][i],ans);
+    /*
+    从定义上来看
+    dp[i][j][k] 表示 当前考虑第i行，
+    第i行的炮兵摆放状态为j，上一行炮兵摆放的状态是k ，一共最多用了多少炮兵
+    答案肯定在最后一行，的1~(1&lt;&lt;m)前一行状态，和1~(1&lt;&lt;m)当前行状态 中的最大值
+    */
+    printf("%d",ans);
+            
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p2216-haoi2007理想的正方形/">
+                  <h3 class="post-title">
+                    P2216 [HAOI2007]理想的正方形
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>悬线法O(nm) | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="时间复杂度O(NM) 空间复杂度O(NM)
+定义
+有效竖线：
+除了两个端点外，不覆盖任何一个障碍点的竖直线段。
+悬线：上端覆盖了一个障碍点或者到达整个矩形上边界的有效线段。
+每个悬线都与它底部的点一一对应，矩形中的每一个点（矩形顶部的点除外..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">悬线法O(nm)</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>时间复杂度O(NM) 空间复杂度O(NM)</p>
+<p>定义</p>
+<p>有效竖线：</p>
+<p>除了两个端点外，不覆盖任何一个障碍点的竖直线段。</p>
+<p>悬线：上端覆盖了一个障碍点或者到达整个矩形上边界的有效线段。</p>
+<p>每个悬线都与它底部的点一一对应，矩形中的每一个点（矩形顶部的点除外）都对应了一个悬线。</p>
+<p>悬线的个数=(N-1)*M；</p>
+<p>如果把一个极大子矩形按照横坐标的不同切割成多个与y轴平行的线段，</p>
+<p>那么其中至少有一个悬线。</p>
+<p>如果把一个悬线向左右两个方向尽可能的移动，</p>
+<p>那么就得到了一个矩形，我们称它为悬线对应的矩形。</p>
+<p>悬线对应的矩形不一定是极大子矩形，因为下边界可能还可以向下扩展。</p>
+<p>设计算法：</p>
+<p>原理：所有悬线对应矩形的集合一定包含了极大子矩形的集合。</p>
+<p>通过枚举所有的悬线，找出所有的极大子矩形。</p>
+<p>算法规模：</p>
+<p>悬线个数＝(N－1)×M</p>
+<p>极大子矩形个数≤悬线个数</p>
+<p>具体方法：</p>
+<p>设 H[i,j]为点(i,j)对应的悬线的长度。</p>
+<p>L[i,j]为点(i,j)对应的悬线向左最多能够移动到的位置。</p>
+<p>R[i,j]为点(i,j)对应的悬线向右最多能够移动到的位置。</p>
+<p>！考虑点(i,j)对应的悬线与点(i-1,j)对应的悬线的关系</p>
+<p>（递推思想）：</p>
+<p>如果(i－1,j)为障碍点，那么，如图所示，(i,j)对应的悬线长度1，</p>
+<p>左右能移动到的位置是整个矩形的左右边界。</p>
+<p>即 H[i,j]＝1,</p>
+<p>?? L[i,j]=0,R[i,j]=m</p>
+<p>如果(i－1,j)不是障碍点，</p>
+<p>那么，如图所示，(i,j)对应的悬线长度为(i-1,j)对应的悬线长度＋1。</p>
+<p>即 H[i,j]＝H[i-1,j]+1</p>
+<p>如果(i－1,j)不是障碍点，</p>
+<p>那么，如图所示，(i,j)对应的悬线左右能移动的位置要在(i-1,j)的基础上变化。</p>
+<p>L[i,j]=max（L[i-1,j],L[i][j]）</p>
+<p>即(i-1,j)左边第一个障碍点的位置同理，也可以得到R[i,j]的递推式</p>
+<p>R[i,j]=min(R[i][j],R[i-1,j]) 即(i-1,j)右边第一个障碍点的位置</p>
+<p>P4147 玉蟾宫</p>
+<p>洛谷链接： https://www.luogu.org/problemnew/show/P4147</p>
+<p>My AC Code:</p>
+<h1 id="include">include</h1>
+<p>using namespace std;</p>
+<p>const int maxn = 1005;</p>
+<p>int map[maxn][maxn];</p>
+<p>//map数组，0表示当前位置不能用，1表示当前位置可以用</p>
+<p>int l[maxn][maxn],r[maxn][maxn],up[maxn][maxn];</p>
+<p>//l[i][j],r[i][j]分别表示(i,j)坐标的点，左，右能到达的最远的点的纵坐标 也就是j</p>
+<p>//up[i][j] 表示当前点(i,j) 距离上界的距离</p>
+<p>//l和r数组一开始初始化为l[i][j]=r[i][j]=j; 因为 一开始最远只能到达 自己当前位置</p>
+<p>//然后up数组一开始初始化为1，代表仅仅是当前位置的高度</p>
+<p>int n,m,ans;</p>
+<p>char c;</p>
+<p>int max(int a,int b){return a&gt;b?a:b;}</p>
+<p>int min(int a,int b){return a&gt;b?b:a;}</p>
+<p>int main(){</p>
+<p>scanf(“%d%d”,&amp;n,&amp;m);</p>
+<p>for(int i=1;i&lt;=n;i++){</p>
+<p>for(int j=1;j&lt;=m;j++){</p>
+<p>scanf(” %c”,&amp;c);</p>
+<p>if(c==’F’)map[i][j]=1;</p>
+<p>else map[i][j]=0;</p>
+<p>l[i][j]=r[i][j]=j;</p>
+<p>up[i][j]=1;</p>
+<p>}</p>
+<p>}</p>
+<pre class="wp-block-code"><code>for(int i=1;i&lt;=n;i++)
+    for(int j=2;j&lt;=n;j++)
+        if(map[i][j]&&map[i][j-1])l[i][j]=l[i][j-1];
+/*处理l数组，从左往右推*/
+
+for(int i=1;i&lt;=n;i++)
+    for(int j=m-1;j>=1;j--)
+        if(map[i][j]&&map[i][j+1])r[i][j]=r[i][j+1];
+/*处理r数组，从右往左推*/
+
+for(int i=1;i&lt;=n;i++){
+    for(int j=1;j&lt;=m;j++){
+        if(i>1&&map[i][j]&&map[i-1][j]){
+            l[i][j]=max(l[i][j],l[i-1][j]);
+            r[i][j]=min(r[i][j],r[i-1][j]);
+            up[i][j]=up[i-1][j]+1;
+            }
+        ans=max(ans,(r[i][j]-l[i][j]+1)*up[i][j]);
+        /*一定要r[i][j]-l[i][j]+1,不+1的话，会错误，因为这样会少计算1的距离，具体可以举例子*/
+    }
+}
+printf("%d",3*ans);
+
+return 0;</code></pre>
+<p>}</p>
+<p>P1169 [ZJOI2007]棋盘制作</p>
+<p>洛谷链接：https://www.luogu.org/problemnew/show/P1169</p>
+<p>My AC Code:</p>
+<p>/<em>题目要求01交错,所以”!=”即可</em>/</p>
+<h1 id="include-2">include</h1>
+<h1 id="include-3">include</h1>
+<p>using namespace std;</p>
+<p>const int maxn = 2005;</p>
+<p>int n,m,ans,an2,x,mm[maxn][maxn];</p>
+<p>int l[maxn][maxn],r[maxn][maxn],up[maxn][maxn];</p>
+<p>int min(int a,int b){return a&gt;b?b:a;}</p>
+<p>int max(int a,int b){return a&gt;b?a:b;}</p>
+<p>int main(){</p>
+<p>scanf(“%d%d”,&amp;n,&amp;m);</p>
+<pre class="wp-block-code"><code>for(int i=1;i&lt;=n;i++)
+    for(int j=1;j&lt;=m;j++){
+        scanf("%d",&mm[i][j]);
+        l[i][j]=r[i][j]=j;up[i][j]=1;
+    }
+
+//预处理左边界
+for(int i=1;i&lt;=n;i++)
+    for(int j=2;j&lt;=m;j++)
+        if(mm[i][j]!=mm[i][j-1])l[i][j]=l[i][j-1];
+
+//预处理右边界
+for(int i=1;i&lt;=n;i++)
+    for(int j=m-1;j>=1;j--)
+        if(mm[i][j+1]!=mm[i][j])r[i][j]=r[i][j+1];
+
+for(int i=1;i&lt;=n;i++){
+    for(int j=1;j&lt;=m;j++){
+        if(i>1&&mm[i][j]!=mm[i-1][j]){
+            l[i][j]=max(l[i][j],l[i-1][j]);
+            r[i][j]=min(r[i][j],r[i-1][j]);
+            up[i][j]=up[i-1][j]+1;
+        }
+
+        int x=(r[i][j]-l[i][j]+1);//横向长度
+        int xx=min(x,up[i][j]);//竖向长度
+        ans=max(ans,x*up[i][j]);//长方形
+        an2=max(an2,xx*xx);//正方形
+
+    }
+}
+printf("%d\n%d",an2,ans);
+return 0;</code></pre>
+<p>}</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1223-排队接水/">
+                  <h3 class="post-title">
+                    P1223 排队接水
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

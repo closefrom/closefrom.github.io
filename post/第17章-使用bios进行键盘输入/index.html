@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第17章-使用BIOS进行键盘输入 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.int 16h中断例程的0号功能，工作:
+（1）检测键盘缓冲区是否有数据
+（2）没有则继续做第1步
+（3）读取缓冲区第一个字单元中的键盘输入
+（4）将读取的扫描码送入ah，ascii码送入al
+（5）将已读取的键盘输入从缓冲区中删除
+B..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第17章-使用BIOS进行键盘输入</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.int 16h中断例程的0号功能，工作:</p>
+<pre class="wp-block-code"><code>（1）检测键盘缓冲区是否有数据
+（2）没有则继续做第1步
+（3）读取缓冲区第一个字单元中的键盘输入
+（4）将读取的扫描码送入ah，ascii码送入al
+（5）将已读取的键盘输入从缓冲区中删除
+BIOS的int 9中断例程和int 16的中断例程是一对相互配合的程序，int 9中断例程向键盘缓冲区中写入，int 16中断例程从缓冲区中读出</code></pre>
+<p>2.BIOS提供的访问磁盘的中断例程为int 13h，读取0面0道1扇区的内容到0:200</p>
+<pre class="wp-block-code"><code>mov ax,0
+mov es,ax
+mov al,1
+mov ch,0
+mov cl,1
+mov dl,0
+mov dh,0
+mov ah,2
+int 13h
+参数：
+（ah）=int 13h的功能号，2表示读扇区
+（al）=读取的扇区数
+（ch）=磁道号
+（cl）=扇区号
+（dh）=磁头号（对于软盘即面号，因为一个面用一个磁头来读写）
+（dl）=驱动器号
+
+返回参数：
+操作成功：（ah）=0，（al）=读入的扇区数
+操作失败：（ah）=出错代码</code></pre>
+<pre class="wp-block-code"><code>将0:200中的内容写入0面0道1扇区
+mov ax,0
+mov es,ax
+mov bx,200h
+mov al,1
+mov ch,0
+mov cl,1
+mov dl,0
+mov dh,0
+mov ah,3
+int 13h
+参数：
+（ah）=int 13h（3表示写扇区）
+（al）=写入的扇区数
+（ch）=磁道号
+（cl）=扇区号
+（dh）=磁头号
+（dl）=驱动器号
+软驱从0开始，0：软驱A，1：软驱B
+硬盘从80H开始，80h：硬盘C，81h：硬盘D</code></pre>
+<pre class="wp-block-code"><code>扩：{
+3.5英寸软盘：有上下两面，每面有80个磁道，每个磁道分为18扇区，每个扇区大小为512个字节
+2*80*18*521=1440KB约为1.44MB
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第16章-直接定址表/">
+                  <h3 class="post-title">
+                    第16章-直接定址表
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

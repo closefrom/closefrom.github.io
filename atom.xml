@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://closefrom.github.io</id>
+    <title>closefrom</title>
+    <updated>2021-03-13T15:24:39.962Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://closefrom.github.io"/>
+    <link rel="self" href="https://closefrom.github.io/atom.xml"/>
+    <subtitle>The deeper you explore, the more you close from the truth</subtitle>
+    <logo>https://closefrom.github.io/images/avatar.png</logo>
+    <icon>https://closefrom.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2021, closefrom</rights>
+    <entry>
+        <title type="html"><![CDATA[对微鲤看看登录算法进行简单分析]]></title>
+        <id>https://closefrom.github.io/post/微鲤看看app_sign分析/</id>
+        <link href="https://closefrom.github.io/post/微鲤看看app_sign分析/">
+        </link>
+        <updated>2021-03-12T22:01:54.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[分析一款android三层锁机勒索病毒app]]></title>
+        <id>https://closefrom.github.io/post/android锁机软件分析/</id>
+        <link href="https://closefrom.github.io/post/android锁机软件分析/">
+        </link>
+        <updated>2021-03-12T21:52:17.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[bilibili请求头明文分析]]></title>
+        <id>https://closefrom.github.io/post/bilibili请求头明文分析/</id>
+        <link href="https://closefrom.github.io/post/bilibili请求头明文分析/">
+        </link>
+        <updated>2021-03-12T21:21:29.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[对破解版moba手游商业化辅助简单分析(java层)]]></title>
+        <id>https://closefrom.github.io/post/手游辅助分析/</id>
+        <link href="https://closefrom.github.io/post/手游辅助分析/">
+        </link>
+        <updated>2021-03-12T20:24:31.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[linux pwn ret2dl-resolve]]></title>
+        <id>https://closefrom.github.io/post/linux-pwn-ret2dl-resolve/</id>
+        <link href="https://closefrom.github.io/post/linux-pwn-ret2dl-resolve/">
+        </link>
+        <updated>2021-03-12T20:20:33.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[32C3 CTF pwn readme]]></title>
+        <id>https://closefrom.github.io/post/32c3-ctf-pwn-readme/</id>
+        <link href="https://closefrom.github.io/post/32c3-ctf-pwn-readme/">
+        </link>
+        <updated>2021-03-12T20:17:24.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[0ctf 2015 flaggenerator]]></title>
+        <id>https://closefrom.github.io/post/0ctf-2015-flaggenerator/</id>
+        <link href="https://closefrom.github.io/post/0ctf-2015-flaggenerator/">
+        </link>
+        <updated>2021-03-12T20:14:47.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[RedHat 2017-pwn5]]></title>
+        <id>https://closefrom.github.io/post/redhat-2017-pwn5/</id>
+        <link href="https://closefrom.github.io/post/redhat-2017-pwn5/">
+        </link>
+        <updated>2021-03-12T20:12:43.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[NSCTF 2017-pwn2]]></title>
+        <id>https://closefrom.github.io/post/nsctf-2017-pwn2/</id>
+        <link href="https://closefrom.github.io/post/nsctf-2017-pwn2/">
+        </link>
+        <updated>2021-03-12T20:09:04.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CSAW Quals CTF 2017 pwn scv]]></title>
+        <id>https://closefrom.github.io/post/csaw-quals-ctf-2017-pwn-scv/</id>
+        <link href="https://closefrom.github.io/post/csaw-quals-ctf-2017-pwn-scv/">
+        </link>
+        <updated>2021-03-12T20:06:30.000Z</updated>
+    </entry>
+</feed>

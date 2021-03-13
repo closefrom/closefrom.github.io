@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1006 传纸条 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本体思路解析：首先看到题目的数据范围，就知道应该可以使用多维的动态规划了。
+这里第一点想说的就是，这题可以等价于两个人一起从左上往下走，
+而且这样更方便判断（用心感受一下），
+那么这里有两个选择1：四维2：三维 你选哪个？很明显选三维。。。..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1006 传纸条</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>本体思路解析：首先看到题目的数据范围，就知道应该可以使用多维的动态规划了。<br>
+这里第一点想说的就是，这题可以等价于两个人一起从左上往下走，<br>
+而且这样更方便判断（用心感受一下），<br>
+那么这里有两个选择1：四维2：三维 你选哪个？很明显选三维。。。<br>
+毕竟是n^3的空间和时间。不过四维的思路还是讲一下：<br>
+dp[a][b][c][d]表示去到（a,b）和(c,d)两对点时的最大好心度，<br>
+说白了就是枚举坐标，然后通过上一个点状态转移过来，<br>
+上一个点：(a-1,b)或(a,b-1)，c,d同理。<br>
+那么这里我们遇到了本题的难点了，<br>
+如果使用4维的话，那么你很好判断点是否是重复的，<br>
+直接在状态转移的时候加一个if判断就好了，<br>
+判断上一个状态合不合法，（两个人经过相同点显然是不合法的）。<br>
+那么介绍一下这道题目前我掌握的最优解，就是一个3维的做法了。<br>
+我们可以看出，每次移动都是让两个人的x或y加一那么从起点开始两个人的x+y是一个定值，<br>
+也就是你四维枚举的那些不存在的情况已经被消灭了，比如四维[1][1][100][100]这显然是不可能的嘛，<br>
+怎么可能你走了那么远我还在原地啊。所以三维的优化就是在这里，你可别小看这一维哦。<br>
+好，那么老问题，怎么判断合法呢？这就更好判断了，三维的思路是枚举一个点的x,y坐标和另一个点的x坐标<br>
+，只要两个x坐标不一样就好啦（已经证明了x+y是一个定值），<br>
+最后只要算出终点左边和上面的最大好心值之和就行了，因为最后一个点可能会被“吃</p>
+<pre class="wp-block-code"><code>//AC Code:
+#include &lt;cstdio>
+using namespace std;
+int n,m,nm[55][55],dp[55][55][55];
+int max(int a,int b){
+    return a>b?a:b;
+}
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1;i&lt;=n;i++)for(int j=1;j&lt;=m;j++)scanf("%d",&nm[i][j]);
+    for(int i=1;i&lt;=n;i++)
+        for(int j=1;j&lt;=m;j++)
+            for(int k=1;k&lt;=n;k++){
+                if(i!=k){
+                    int a=max(dp[i-1][j][k-1],dp[i-1][j][k])+nm[i][j]+nm[k][i+j-k];
+                    int b=max(dp[i][j-1][k-1],dp[i][j-1][k])+nm[i][j]+nm[k][i+j-k];
+                    dp[i][j][k]=max(a,b);
+                }
+            }
+            
+    /*for(int i=n;i>=1;i--){
+        for(int j=m;j>=1;j--){
+            d2[i][j]=max(dp[i+1][j],dp[i][j+1],i,j)+nm[i][j];
+        }
+    }*/
+    printf("%d",dp[n][m-1][n-1]);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1242-新汉诺塔/">
+                  <h3 class="post-title">
+                    P1242 新汉诺塔
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

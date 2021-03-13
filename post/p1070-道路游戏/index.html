@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1070 道路游戏 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="题解：
+这题还是很难的
+用一维数组f储存第i秒能获得的最大钱数
+因为最多同时存在1个机器人
+第i秒时第j个机器人走k次(1&lt;=k&lt;=p)
+f[i]=max(f[i],f[i-k]-pay[last]+sum)
+这里是从当前点倒推..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1070 道路游戏</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>题解：<br>
+这题还是很难的<br>
+用一维数组f储存第i秒能获得的最大钱数<br>
+因为最多同时存在1个机器人<br>
+第i秒时第j个机器人走k次(1&lt;=k&lt;=p)<br>
+f[i]=max(f[i],f[i-k]-pay[last]+sum)<br>
+这里是从当前点倒推<br>
+last是上一个点<br>
+当last=0,last=n<br>
+sum要一遍遍加上钱k秒第last路上的金币数<br>
+每次减去第last条道路（即第last个工厂机器人）的价格<br>
+如果i-k&lt;0<br>
+直接退出k循环，时间不为负<br>
+因为结果可能是负的<br>
+初始化为-99999999<br>
+f[0]=0，即第0秒金币数为0<br>
+输出第m秒的值</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;cstring>
+using namespace std;
+const int maxn = 1005;
+int n,m,p;
+int dp[maxn],gg[maxn][maxn],cost[maxn];
+//gg[i][j] 表示 第i个工厂的第j时刻 路上会出现多少金币
+int max(int a,int b){return a>b?a:b;}
+int main(){
+    memset(dp,-127,sizeof(dp));
+    scanf("%d%d%d",&n,&m,&p);
+    for(int i=1;i&lt;=n;i++)
+        for(int j=1;j&lt;=m;j++)
+            scanf("%d",&gg[i][j]);
+    for(int i=1;i&lt;=n;i++)scanf("%d",&cost[i]);
+    dp[0]=0;//一定要初始化dp[0]=0哦，不然 ε=(′ο｀*)))
+    for(int i=1;i&lt;=m;i++){
+        for(int j=1;j&lt;=n;j++){
+            int begin = j-1;
+            if(!begin)begin=n;
+            int sum = gg[begin][i];
+            for(int k=1;k&lt;=p;k++){
+                if(i-k&lt;0)break;
+                dp[i]=max(dp[i],dp[i-k]+sum-cost[begin]);
+                begin--;
+                if(!begin)begin=n;
+                sum+=gg[begin][i-k]; //sum 即 从 begin工厂开始 走了k步之后在一路上的金币收益总和（倒推）
+                
+            }
+        }
+    }
+     /*
+        具体意思
+        在第i 时刻
+        到达了 第j工厂
+        从begin工厂出发的
+        为什么begin=j-1呢，因为k也就是倒推的第一步就是1，也就是走了一步即倒推 当前时刻的上k=1 步
+        begin到j工厂 赚了begin到j工厂路上的金币
+        然后就是倒推
+        因为每个机器人 在开始都给出了只能走多少步
+        所以，在 i时间时，可以由i-k 时刻的最优解 加上，当前在begin工厂买了机器人  走了k步之后 在路上获得的金币
+        比如： 工厂 1 2 3 4
+        在1时刻，走到2工厂，就是从1工厂花1时刻走过来，加上1工厂到2工厂路上的金币，减去在1工厂 买机器人的金币 
+        */
+    printf("%d",dp[m]);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1880-noi1995石子合并/">
+                  <h3 class="post-title">
+                    P1880 [NOI1995]石子合并
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第12章-内中断 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.任何一个通用CPU，如8086，都有一种能力，在执行完当前指令后，检测CPU外部发送过来或内部产生的一种特殊信息，并对接收到的信息进行处理，这种特殊信息称为中断信息，中断的意思是CPU不再接着向下执行，而是转到处理这个特殊信息。
+特殊信..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第12章-内中断</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.任何一个通用CPU，如8086，都有一种能力，在执行完当前指令后，检测CPU外部发送过来或内部产生的一种特殊信息，并对接收到的信息进行处理，这种特殊信息称为中断信息，中断的意思是CPU不再接着向下执行，而是转到处理这个特殊信息。</p>
+<p>特殊信息（中断信息）可来自CPU内部或外部</p>
+<p>2.对于8086CPU来说，CPU内部出现以下情况，将产生对应的中断信息：</p>
+<pre class="wp-block-code"><code>（1）除法错误，如：div指令产生的除法溢出
+（2）单步执行
+（3）执行into指令
+（4）执行int指令</code></pre>
+<p>若要进行不同处理，CPU要知道收到中断信息的来源，so中断信息必然包含识别来源的编码，8086CPU用称为中断类型码，的数据来标识中断信息的来源，中断类型码位一个字节型数据，可表示256种中断信息的来源，产生中断信息的事件，中断信息的来源可称为中断源，</p>
+<p>以下为8086CPU中断类型码（中断类型码的作用是用来定位中断处理程序）</p>
+<pre class="wp-block-code"><code>（1）除法错误，0
+（2）单步执行，1
+（3）执行into，4
+（4）执行int，int指令的格式是int n，这个n为字节型立即数，是提供给CPU的中断类型码</code></pre>
+<p>3.CPU用8位中断类型码，通过中断向量表，找到相应的中断处理程序的入口地址</p>
+<pre class="wp-block-code"><code>（1）中断向量表：中断向量的列表
+（2）中断向量：中断处理程序的入口地址
+（3）中断向量表在内存中保存，其中存放着255个中断源所对应的中断处理程序入口
+（4）只要CPU知道中断类型码，通过查找中断向量表，可以找到中断处理程序的入口地址
+（5）在8086PC机中，中断向量表在内存中，它指定放在内存地址0处，从内存0000:0000到0000:03FF，并且只能放在这里
+（6）中断向量表中，一个表项存放一个中断向量，就是一个中断处理程序的入口地址，入口地址分为段地址和偏移地址，也就是两个字单元，所以一个表项有两个字单元大小，高地址字存放段地址，低地址字存放偏移地址</code></pre>
+<p>4.用中断类型码找到中断向量，并用它设置CS和IP，这个工作由CPU的硬件自动完成，CPU硬件完成这个工作的过程被称为中断过程</p>
+<p>CPU收到中断信息后，对中断信息处理，首先引发中断过程，硬件完成中断过程后，CS：IP将指向中断处理程序入口，CPU开始执行中断处理程序，处理完后，要改变CS：IP，指向中断信息发生的那条指令的下一条指令的地方，所以，要用call来保存CS和IP的值，然后等中断过程执行完后，再还原CS和IP</p>
+<p>5.8086CPU收到中断信息后的中断过程：</p>
+<pre class="wp-block-code"><code>（1）（从中断信息中）取得中断类型码
+（2）标志寄存器的值入栈，（因为在中断过程中要改变标志寄存器的值，所以要将其保存在栈中）
+（3）设置标志寄存器的第8位和第九位，tf和if的值为0
+（4）CS的内容入栈
+（5）IP的内容入栈
+（6）从内存地址为中断类型码*4和中断类型码*4+2的两个字单元中读取中断处理程序的入口地址设置CS和IP</code></pre>
+<p>用汇编语法描述：</p>
+<pre class="wp-block-code"><code>（1）取中断类型码N
+（2）pushf
+（3）TF=0，IF=0
+（4）push CS
+（5）push IP
+（6）（IP）=（N*4），（CS）=（N*4+2）
+然后CPU将开始执行中断处理指令</code></pre>
+<p>6.中断处理程序的编写方法和子程序很相似：</p>
+<pre class="wp-block-code"><code>（1）保存用到的寄存器
+（2）处理中断
+（3）恢复用到的寄存器
+（4）用iret指令返回                      
+iret指令的功能：
+pop IP
+pop CS
+popf</code></pre>
+<p>特别地：中断过程中，寄存器入栈的顺序是标志寄存器，CS，IP，而iret的出栈顺序是IP，CS，标志寄存器，刚好对应</p>
+<p>7.除法错误中断处理，0号中断处理程序</p>
+<p>CPU工作如下：</p>
+<pre class="wp-block-code"><code>（1）取中断类型码0
+（2）标志寄存器入栈，TF，IF设置为0
+（3）CS，IP入栈
+（4）（IP）=（0*4），（CS）=（0*4+2）</code></pre>
+<p>程序要做的：</p>
+<pre class="wp-block-code"><code>（1）编写可以显示“overflow!”的中断处理程序：do0
+（2）将do0送入内存0000:0200处
+（3）将do0的入口地址0000:0200存放在中断向量表0号表项中</code></pre>
+<p>程序实例（编写一个0号中断处理程序，它的功能是在屏幕中间显示“overflow!”，然后返回操作系统）： .</p>
+<pre class="wp-block-code"><code>assume cs:code
+code segment
+start:mov ax,cs
+mov ds,ax
+mov si,offset do0   ;设置ds：si指向源地址
+mov ax,0
+mov es,ax
+mov di,200H   		;设置es：di指向目的地址
+mov cx,offset do0end-offset do0 ；设置cx为传输长度
+cld ；设置传输方向为正
+rep movsb
+
+；设置中断向量表
+mov ax,0
+mov es,ax
+mov word ptr es:[0*4],200H
+mov word ptr es:[0*4+2].0
+
+；程序返回
+mov ax,4c00H
+int 21H
+do0:jmp short do0start
+db "overflow!"
+do0start:mov ax,cs
+mov ds,ax
+mov si,202H ；设置ds：si指向字符串
+mov ax,0b800H
+mov es,ax
+mov di,12*160+36*2 ；设置es：di指向显存空间的中间位置
+mov cx,9
+s:mov al,[si]
+   mov es:[di],al
+   inc si
+   add di,2
+   loop s
+mov ax,4c00H
+int 21
+do0end:nop
+code ends
+end start</code></pre>
+<p>特别地：不能讲要显示的字符串overflow！放在另一个段中，因为要将这个中断程序加载到一段内存单元中，所以要显示的字符串要在这个中断处理程序中</p>
+<ol start="8">
+<li></li>
+</ol>
+<p>单步中断，CPU若执行完一条指令后，检测到标志寄存器中的TF位为1，则产生单步中断，发生中断过程，单步中断的中断类型码是1</p>
+<p>由于标志寄存器的TF位的存在，所以，CPU在进入中断处理程序之前，要将TF位设置为0</p>
+<ol start="9">
+<li></li>
+</ol>
+<p>一般情况，CPU执行完当前指令，若检测到中断信息，就相应中断，引发中断过程，不过有一些情况，即使CPU执行完当前指令后，发生了中断，也不会响应中断</p>
+<p>如：执行完向ss寄存器传送数据的指令后，即使发生了中断，CPU也不会响应，而是继续设置sp，也就是ss下面的一条指令，不然ss：sp指向的栈顶不正确，会引发错误</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第十一章-标志寄存器/">
+                  <h3 class="post-title">
+                    第十一章-标志寄存器
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

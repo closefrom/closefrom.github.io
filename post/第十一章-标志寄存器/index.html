@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第十一章-标志寄存器 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="`1.特殊的寄存器，作用：
+（1）用作存储相关指令的某些执行结果
+（2）用来为CPU执行相关指令提供行为依据
+（3）用来控制CPU的相关工作方式
+在8086CPU的标志寄存器有16位，存储的信息通常被称为程序状态字（PSW），标志寄存器简称..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第十一章-标志寄存器</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>`1.特殊的寄存器，作用：</p>
+<pre class="wp-block-code"><code>（1）用作存储相关指令的某些执行结果
+（2）用来为CPU执行相关指令提供行为依据
+（3）用来控制CPU的相关工作方式</code></pre>
+<p>在8086CPU的标志寄存器有16位，存储的信息通常被称为程序状态字（PSW），标志寄存器简称flag</p>
+<p>flag寄存器是按位起作用的，每个位都有专门的含义，记录特定信息</p>
+<p>flag的1,3,5,12,13,14,15位在8086CPU中没有使用，</p>
+<p>0,2,4,6,7,8,9,10,11对应的是cf,pf,zf,sf,of,df标志位</p>
+<ol start="2">
+<li></li>
+</ol>
+<ul>
+<li>zf，是flag的第6位标志位，又称0标志位，它记录相关指令执行后，其结果是否为0，若结果为0，则zf=1，若结果不为0，则zf=0</li>
+<li>pf，是flag的第2位标志位，又称奇偶标志位，它记录相关指令执行后，其结果的所有bit位中1的个数是否为偶数，若为偶数，则pf=1，若为奇数，则pf=0</li>
+<li>sf，是flag的第7位标志位，又称符号标志位，它记录相关指令执行后，其结果是否为负，若结果为负，则sf=1，若非负，则sf=0<br>
+such as:<br>
+mov al,10000001B<br>
+add al,1<br>
+执行后结果为10000010B，sf=1，表示若指令进行的是有符号运算，那么结果为负</li>
+<li>cf，是flag的第0位标志位，一般情况，在进行无符号数运算时，它记录了运算结果的最高有效位向更高位的进位值，或从更高位的借位值<br>
+such as：<br>
+mov al,98H<br>
+add al,al<br>
+执行后，（al）=30H，CF=1，CF记录了从最高有效位向更高位的进位值<br>
+再如：<br>
+mov al,97H<br>
+sub al,98H ；此时，执行后，（al）=FFH，CF=1，CF记录了向更高位的借位值<br>
+sub al,al ；此时，执行后，（al）=0，CF=0，CF记录了向更高位的借位值</li>
+<li>of，是flag的第11位标志位，又称溢出标志位，一般情况，OF记录有符号数运算的结果是否溢出，若发生溢出，则OF=1，若没有，则OF=0<br>
+如：<br>
+mov al,98<br>
+mov al,99<br>
+执行后，CF=0，OF=1，CPU在执行add等指令时，有两个含义，无符号数运算和有符号数运算，对于无符号数运算，CPU用CF位来记录是否产生进位，对于有符号数运算，CPU用OF来记录是否产生溢出</li>
+<li>df，是flag的第10位标志位，又称方向标志位，在串处理指令中，控制每次操作后，si和di的增减。<br>
+若df=0，则每次操作后，si和di递增，若df=1，则每次操作后，si和di递减<br>
+如：<br>
+{一个串传送指令，movsb，则这个指令进行了以下操作：<br>
+（1）（（es）*16+（di））=（（ds）*16+（si））<br>
+（2）若df=0，则（si）=（si）+1，（di）=（di）+1<br>
+若df=1，则（si）=（si）-1，（di）=（di）-1<br>
+用汇编语法描述，则是：<br>
+mov es:[di],byte ptr ds:[si]<br>
+若df=0<br>
+inc si<br>
+inc di<br>
+若df=1<br>
+dec si<br>
+dec di<br>
+可以看出，movsb功能是，将ds：si指向的内存单元中的字节送入到es：di中，然后根据df位的值，将si和di递增或递减<br>
+另一个串传送指令，movsw，功能是将ds：si指向的内存字单元中的字，送入es：di中，根据df位的值，将si和di递增或递减<br>
+用汇编语法描述：<br>
+mov es:[di],word ptr ds:[si]<br>
+若df=0<br>
+add si,2<br>
+add di,2<br>
+若df=1<br>
+sub si,2<br>
+sub di,2</li>
+</ul>
+<p>}</p>
+<pre class="wp-block-code"><code>{一般来说，movsb和movsw进行的是串传送操作中的一个步骤，可以和rep配合使用
+如：rep movsb
+可以用汇编语法来描述为：
+s:movsb
+loop s}
+8086CPU提供以下两个指令对df位进行设置，
+cld指令，将标志寄存器中的df位，置0
+std指令，将标志寄存器中的df位，置1
+}</code></pre>
+<pre class="wp-block-code"><code>扩展知识点：{
+无符号数和有符号数
+     在计算器中参与运算的数有两大类：无符号数和有符号数
+     (1)有符号数：
+          对于有符号数而言，符号的正、负机器是无法识别的，但由于“正、负”恰好是两种截然不同的状态，如果用“0”表示“正”，用“1”表示“符”，这样符号也被数字化了，
+          并且规定将它放在有效数字的前面，即组成了有符号数。所以，在二进制中使用最高位（第一位）来表示符号，最高位是0，表示正数；最高位是1，表示负数。
+     (2)无符号数：
+          无符号数是针对二进制来讲的，无符号数的表数范围是非负数。全部二进制均代表数值（所有位都用于表示数的大小），没有符号位。即第一个"0"或"1"不表示
+          正负。
+二进制中的原码、反码、补码
+      对于有符号数而言：
+      (1)二进制的最高位是符号位：0表示正数，1表示负数
+      (2)正数的原码、反码、补码都一样；
+      (3)负数的反码 =  它的原码符号位不变，其他位取反（0 ->1 ; 1->0 ）；
+      (4)负数的补码 = 它的反码 +1；
+      (5)0的反码、补码都是0；
+      (6)在计算机运算的时候，都是以补码的方式来运算的；
+}</code></pre>
+<p>3.adc指令，带进位的加法指令，它利用CF位上记录的进位值</p>
+<p>指令格式：adc 操作对象1，操作对象2</p>
+<p>功能：操作对象1=操作对象1+操作对象2+CF</p>
+<p>如： adc ax,bx == (ax)=(ax)+(bx)+CF</p>
+<p>若CF的值被sub指令设置的，则CF含义为借位值，若被add指令设置的，则CF含义为进位值</p>
+<p>4.sbb指令，带借位的减法指令，它利用CF位上记录的借位值</p>
+<p>指令格式：sbb 操作对象1，操作对象2</p>
+<p>功能：操作对象1=操作对象1-操作对象2-CF</p>
+<p>如：sbb ax,bx == (ax)=(ax)-(bx)-CF</p>
+<p>5.cmp指令，cmp指令相当于减法指令且不保存结果，但是cmp指令执行后，会对标志寄存器产生影响，其他相关指令通过识别这些被影响的标志寄存器位来得知比较结果</p>
+<p>cmp指令格式：cmp 操作对象1，操作对象2</p>
+<pre class="wp-block-code"><code>（1）sf=1,of=0,必然(ah)&lt;(bh)   （寄存器只是打个比喻）
+（2）sf=1.of=1,必然(ah)>(bh)
+（3）sf=0.of=1,必然(ah)&lt;(bh)
+（4）sf=0,of=0,必然(ah)>=(bh)</code></pre>
+<p>（结论：sf^of=1,则必然(ah)&lt;(bh),否则必然(ah)&gt;=(bh),具体(ah)&gt;(bh)还是(ah)&gt;=(bh)还得看sf和of）</p>
+<p>扩：cmp指令可以同时进行两种比较，无符号数比较和有符号数比较，根据cmp指令的比较结果进行转移的指令也分两种：即根据无符号数的比较结果进行转移的条件转移指令(zf,cf)，和根据有符号数的比较结果进行转移的条件转移指令（sf,of,zf）<br>
+<img src="https://closefrom.github.io/post-images/C8X51MTKUP26TSZHM.png" alt="" loading="lazy"></p>
+<p>6.pushf指令是将标志寄存器的值进行压栈操作</p>
+<p>popf指令是从栈中弹出数据，送入到标志寄存器中</p>
+<p>popf和pushf为直接访问标志寄存器提供了一种方法</p>
+<ol>
+<li>下面列出，debug对于已知的标志位的表示<br>
+<img src="https://closefrom.github.io/post-images/T6HX3PHLU0_N0DP6EE@G2.png" alt="" loading="lazy"></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第十章-call和ret指令/">
+                  <h3 class="post-title">
+                    第十章-CALL和RET指令
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

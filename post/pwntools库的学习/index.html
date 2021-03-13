@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>pwntools库的学习 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="（1）
+remote(“一个域名或者ip地址”, 端口) 会连接到我们指定的地址及端口。 然后该函数会返回remote对象 (这里，我们将该对象保存到了变量 c)。remote对象主要用来进行对远程主机的输入输出，它有如下几个方法：
+
+se..." />
+    <meta name="keywords" content="知识点总结" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">pwntools库的学习</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>（1）</p>
+<p>remote(“一个域名或者ip地址”, 端口) 会连接到我们指定的地址及端口。 然后该函数会返回remote对象 (这里，我们将该对象保存到了变量 c)。remote对象主要用来进行对远程主机的输入输出，它有如下几个方法：</p>
+<ul>
+<li>send(payload)发送payload；</li>
+<li>sendline(payload) 发送payload，并进行换行（末尾**\n**）；</li>
+<li>sendafter(some_string, payload)接收到 some_string 后，发送你的 payload；</li>
+<li>recvn(N) 接受 N(数字) 字符；</li>
+<li>recvline() 接收一行输出；</li>
+<li>recvlines(N)接收 N(数字) 行输出；</li>
+<li>recvuntil(some_string)接收到 some_string 为止。</li>
+</ul>
+<p>（2）</p>
+<p>p32() 可以让我们转换整数到32位地址一样的表达方式（shellcode），p32转换4字节，p64和p16 则分别转换** 8 bit <strong>和</strong> 2 bit **数字</p>
+<p>如：如0x400010表示为\x10\x00\x40一样</p>
+<p>（3）</p>
+<p>from pwn import *用来导入pwntools模块</p>
+<p>context(arch = ‘i386’, os = ‘linux’) 设置目标机的信息</p>
+<p>r = remote(‘exploitme.example.com’, 31337) 用来建立一个远程连接，url或者ip作为地址，然后指明端口</p>
+<p>这里也可以仅仅使用本地文件,调试时方便:<br>
+r = process(“./test”)<br>
+test即为文件名,这使得改变远程和本地十分方便.</p>
+<p>asm(shellcraft.sh())asm()函数接收一个字符串作为参数，得到汇编码的机器代码。</p>
+<p>shellcraft模块是shellcode的模块，包含一些生成shellcode的函数。其中的子模块声明架构，比如shellcraft.arm 是ARM架构的，shellcraft.amd64是AMD64架构，shellcraft.i386是Intel 80386架构的，以及有一个shellcraft.common是所有架构通用的。而这里的shellcraft.sh()则是执行/bin/sh的shellcode了</p>
+<p>r.send()将shellcode发送到远程连接</p>
+<p>r.interactive()将控制权交给用户，这样就可以使用打开的shell了</p>
+<p>（4）</p>
+<p><strong>Context设置</strong></p>
+<p>context是pwntools用来设置环境的功能。在很多时候，由于二进制文件的情况不同，我们可能需要进行一些环境设置才能够正常运行exp，比如有一些需要进行汇编，但是32的汇编和64的汇编不同，如果不设置context会导致一些问题。</p>
+<p>一般来说我们设置context只需要简单的一句话:</p>
+<p>context(os=’linux’, arch=’amd64′, log_level=’debug’)</p>
+<p>这句话的意思是：</p>
+<pre class="wp-block-code"><code>1. os设置系统为linux系统，在完成ctf题目的时候，大多数pwn题目的系统都是linux 
+2. arch设置架构为amd64，可以简单的认为设置为64位的模式，对应的32位模式是’i386’ 
+3. log_level设置日志输出的等级为debug，这句话在调试的时候一般会设置，这样pwntools会将完整的io过程都打印下来，使得调试更加方便，可以避免在完成CTF题目时出现一些和IO相关的错误。</code></pre>
+<p>（5）</p>
+<p>数据打包</p>
+<p>数据打包,即将整数值转换为32位或者64位地址一样的表示方式,比如0x400010表示为\x10\x00\x40一样,这使得我们构造payload变得很方便</p>
+<p>用法:</p>
+<pre class="wp-block-code"><code>* p32/p64: 打包一个整数,分别打包为32或64位 
+* u32/u64: 解包一个字符串,得到整数
+p对应pack,打包,u对应unpack,解包,简单好记
+payload = p32(0xdeadbeef) # pack 32 bits number</code></pre>
+<p>（6）</p>
+<p>数据输出</p>
+<p>如果需要输出一些信息,最好使用pwntools自带的,因为和pwntools本来的格式吻合,看起来也比较舒服,用法:</p>
+<pre class="wp-block-code"><code>some_str = "hello, world"
+log.info(some_str)
+其中的info代表是log等级，也可以使用其他log等级。</code></pre>
+<p>（7）</p>
+<p>Cyclic Pattern</p>
+<p>Cyclic pattern是一个很强大的功能，大概意思就是，使用pwntools生成一个pattern，pattern就是指一个字符串，可以通过其中的一部分数据去定位到他在一个字符串中的位置。</p>
+<p>在我们完成栈溢出题目的时候，使用pattern可以大大的减少计算溢出点的时间。</p>
+<p>用法：</p>
+<pre class="wp-block-code"><code>cyclic(0x100) # 生成一个0x100大小的pattern，即一个特殊的字符串
+cyclic_find(0x61616161) # 找到该数据在pattern中的位置
+cyclic_find('aaaa') # 查找位置也可以使用字符串去定位</code></pre>
+<p>比如，我们在栈溢出的时候，首先构造cyclic(0x100)，或者更长长度的pattern，进行输入，输入后pc的值变为了0x61616161，那么我们通过cyclic_find(0x61616161)就可以得到从哪一个字节开始会控制PC寄存器了，避免了很多没必要的计算。</p>
+<p>（8）汇编与shellcode</p>
+<p>有的时候我们需要在写exp的时候用到简单的shellcode，pwntools提供了对简单的shellcode的支持。</p>
+<p>首先，常用的，也是最简单的shellcode，即调用/bin/sh可以通过shellcraft得到：注意，由于各个平台，特别是32位和64位的shellcode不一样，所以最好先设置context。</p>
+<p>print(shellcraft.sh()) # 打印出shellcode</p>
+<p>不过，现在我们看到的shellcode还是汇编代码，不是能用的机器码，所以还需要进行一次汇编</p>
+<p>print(asm(shellcraft.sh())) # 打印出汇编后的shellcode</p>
+<p>asm可以对汇编代码进行汇编，不过pwntools目前的asm实现还有一些缺陷，比如不能支持相对跳转等等，只可以进行简单的汇编操作。如果需要更复杂一些的汇编功能，可以使用keystone-engine项目，这里就不再赘述了。</p>
+<p>asm也是架构相关，所以一定要先设置context，避免一些意想不到的错误。</p>
+<p>（9）</p>
+<p><strong>IO模块</strong></p>
+<p>下面给出了PwnTools中的主要IO函数。这个比较容易跟zio搞混，记住zio是read、write，pwn是recv、send就可以了。</p>
+<pre class="wp-block-code"><code>send(data) : 发送数据
+sendline(data) : 发送一行数据，相当于在末尾加\n
+
+recv(numb=4096, timeout=default) : 给出接收字节数,timeout指定超时
+recvuntil(delims, drop=False) : 接收到delims的pattern
+（以下可以看作until的特例）
+recvline(keepends=True) : 接收到\n，keepends指定保留\n
+recvall() : 接收到EOF
+recvrepeat(timeout=default) : 接收到EOF或timeout
+
+interactive() : 与shell交互</code></pre>
+<p>（10）</p>
+<p><strong>ELF模块</strong></p>
+<pre class="wp-block-code"><code>ELF模块用于获取ELF文件的信息，首先使用ELF()获取这个文件的句柄，然后使用这个句柄调用函数，和IO模块很相似。
+下面演示了：获取基地址、获取函数地址（基于符号）、获取函数got地址、获取函数plt地址
+>>> e = ELF('/bin/cat')
+>>> print hex(e.address)  # 文件装载的基地址
+0x400000
+>>> print hex(e.symbols['write']) # 函数地址
+0x401680
+>>> print hex(e.got['write']) # GOT表的地址
+0x60b070
+>>> print hex(e.plt['write']) # PLT的地址
+0x401680</code></pre>
+<p>（11）</p>
+<p><strong>DynELF</strong></p>
+<p>DynELF是leak信息的神器。前提条件是要提供一个输入地址，输出此地址最少1byte数的函数。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/EpFCy9P6n/" class="tag">
+                    知识点总结
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第17章-使用bios进行键盘输入/">
+                  <h3 class="post-title">
+                    第17章-使用BIOS进行键盘输入
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

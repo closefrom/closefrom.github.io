@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>最长（上升、下降、不升、不降）子序列 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="以下模版全是n^2，方便理解 差别细微
+最长升/降/不升/不降子序列这四种类型，
+都可以概括成一句话。就是对于这个被选出的子序列中的每一个元素，都大于/小于/不小于/不大于子序列中的前一个元素。
+最长上升子序列模版：
+#include&lt..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">最长（上升、下降、不升、不降）子序列</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>以下模版全是n^2，方便理解 差别细微</p>
+<p>最长升/降/不升/不降子序列这四种类型，</p>
+<h2 id="都可以概括成一句话-就是对于这个被选出的子序列中的每一个元素都大于小于不小于不大于子序列中的前一个元素">都可以概括成一句话。就是对于这个被选出的子序列中的每一个元素，都大于/小于/不小于/不大于子序列中的前一个元素。</h2>
+<p>最长上升子序列模版：</p>
+<pre class="wp-block-code"><code>#include&lt;iostream>
+#include&lt;cstdio>
+using namespace std;
+int n;
+int a[1100];
+int f[1100];
+int main()
+{
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;++i)scanf("%d",&a[i]);
+    for(int i=1;i&lt;=n;++i)
+    {
+        f[i]=1;
+        for(int j=1;j&lt;i;++j)
+            if(a[i]>a[j]&&f[j]+1>f[i])f[i]=f[j]+1;
+    }
+    int ans=0;
+    for(int i=1;i&lt;=n;++i)
+        ans=max(ans,f[i]);
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+<hr class="wp-block-separator" />
+<pre class="wp-block-code"><code>//最长下降子序列模版：
+#include&lt;iostream>
+#include&lt;cstdio>
+using namespace std;
+int n;
+int a[1100];
+int f[1100];
+int main()
+{
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;++i)scanf("%d",&a[i]);
+    for(int i=1;i&lt;=n;++i)
+    {
+        f[i]=1;
+        for(int j=1;j&lt;i;++j)
+            if(a[i]&lt;a[j]&&f[j]>f[i]-1)f[i]=f[j]+1;
+    }
+    int ans=0;
+    for(int i=1;i&lt;=n;++i)
+        ans=max(ans,f[i]);
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+<p>-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;最长下降子序列&amp;&amp;最长上升子序列 不同在于：a[i]a[j] 一个是前面数比后面数大，一个是反之</p>
+<pre class="wp-block-code"><code>//最长不升子序列：
+#include&lt;iostream>
+#include&lt;cstdio>
+using namespace std;
+int n;
+int a[1100];
+int f[1100];
+int main()
+{
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;++i)scanf("%d",&a[i]);
+    for(int i=1;i&lt;=n;++i)
+    {
+        f[i]=1;
+        for(int j=1;j&lt;i;++j)
+            if(a[i]&lt;=a[j]&&f[j]>f[i]-1)f[i]=f[j]+1;
+    }
+    int ans=0;
+    for(int i=1;i&lt;=n;++i)
+        ans=max(ans,f[i]);
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+<hr class="wp-block-separator" />
+<pre class="wp-block-code"><code>//最长不降子序列：
+#include&lt;iostream>
+#include&lt;cstdio>
+using namespace std;
+int n;
+int a[1100];
+int f[1100];
+int main()
+{
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;++i)scanf("%d",&a[i]);
+    for(int i=1;i&lt;=n;++i)
+    {
+        f[i]=1;
+        for(int j=1;j&lt;i;++j)
+            if(a[i]>=a[j]&&f[j]>f[i]-1)f[i]=f[j]+1;
+    }
+    int ans=0;
+    for(int i=1;i&lt;=n;++i)
+        ans=max(ans,f[i]);
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+<p>-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;-&gt;最长不降子序列&amp;&amp;最长不升子序列 不同在于：a[i]&lt;=a[j] a[i]&gt;=a[j] 不降即：前面一个数大于等于后面一个数，不升即：前面一个数小于等于后面一个数</p>
+<p>先来说一下nlogn的求解思想，令f[i]代表长度为i的最长不下降子序列的长度的最后一位最小是多少。为什么要记录最小是多少那？因为我们想要这个序列最长，那么只有末尾最小才能有更多的数接到它的后面构成一个更长的序列。这时我们就能得到一个性质：f数组是递增的。证明：f[i]代表的是长度为i的最长不下降子序列的结尾最小的数，如果它后面来了一个比它大的数，那么这个数一定能构成至少长度为i+1的最长不下降子序列，所以在f数组里一定不会比它的位置靠前。</p>
+<p>所以开一个变量len来记当前找到的最长不下降子序列有多长了，如果a[i]&gt;=f[len]，那么直接放到f[len]后面,并且len++,但是如果a[i]&lt;len,就要a[i]放到f数组里，这是我们用到二分，在f数组里找出大于a[i]的第一个数并且用i把它替换掉。原理：假设f[x]是大于a[i]的第一个数，那么x之前的所有数都不必a[i]大，那么把a[i]一定可以构成一个长度为x的最长不下降子序列，并且由于a[i]比f[x]更小，所以a[i]一定不会比f[x]不优。</p>
+<p>有一个值得说明的点是f数组只是用来记录结尾的数的，f数组连起来并不是一个最长不下降子序列</p>
+<p>最长上升子序列也是一样的道理，只不过由于要求严格递增，所以要替换的是大于等于它的第一个数</p>
+<p>唔，二分用的2个stl分别是lower_bound和upper_bound，第一个是求大于等于一个数的第一个数的位置，第二个是求大于一个数的第一个数的位置。</p>
+<pre class="wp-block-code"><code>//最长上升子序列nlogn算法 模版：
+#include&lt;algorithm>
+#include&lt;iostream>
+#include&lt;Cstdio>
+using namespace std;
+int n;
+int a[100005],f[100005];
+int main()
+{
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;++i)scanf("%d",&a[i]);
+    f[1]=a[1];int len=1;
+    for(int i=2;i&lt;=n;++i)
+    {
+        if(a[i]>f[len])f[++len]=a[i];
+        else {
+            int tmp=lower_bound(f+1,f+len+1,a[i])-f;
+            f[tmp]=a[i];
+        }
+    }
+    cout&lt;&lt;len;
+    return 0;
+}</code></pre>
+<pre class="wp-block-code"><code>//最长不下降子序列nlogn算法 模版：
+#include&lt;algorithm>
+#include&lt;iostream>
+#include&lt;Cstdio>
+using namespace std;
+int n;
+int a[100005],f[100005];
+int main()
+{
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;++i)scanf("%d",&a[i]);
+    f[1]=a[1];int len=1;
+    for(int i=2;i&lt;=n;++i)
+    {
+        if(a[i]>=f[len])f[++len]=a[i];
+        else {
+            int tmp=upper_bound(f+1,f+len+1,a[i])-f;
+            f[tmp]=a[i];
+        }
+    }
+    cout&lt;&lt;len;
+    return 0;
+}
+//lower_bound()：找到大于等于某值的第一次出现 
+//upper_bound()：找到大于某值的第一次出现 
+//必须从小到大排序后才能用 </code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1387-最大正方形/">
+                  <h3 class="post-title">
+                    P1387 最大正方形
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

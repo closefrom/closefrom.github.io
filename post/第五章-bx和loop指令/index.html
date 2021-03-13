@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第五章-[BX]和loop指令 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.要想完整的描述一个内存单元，需要两种信息：①内存单元的地址 ②内存单元的长度
+如：
+(1)mov ax,[bx]
+将一个内存单元的内容送入ax，这个内存单元的长度是2字节（1字单元），存放一个字，偏移地址在bx中，段地址在ds
+(2)m..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第五章-[BX]和loop指令</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.要想完整的描述一个内存单元，需要两种信息：①内存单元的地址 ②内存单元的长度</p>
+<pre class="wp-block-code"><code>如：
+(1)mov ax,[bx]
+将一个内存单元的内容送入ax，这个内存单元的长度是2字节（1字单元），存放一个字，偏移地址在bx中，段地址在ds
+(2)mov al,[bx]
+将一个内存单元的内容送入到al，这个内存单元的长度为1字节（字节单元），存放一个字节，偏移地址在bx，段地址在ds</code></pre>
+<p>2.（）描述性符号，表示一个寄存器或者一个内存单元的内容，有两种类型①字节 ②字</p>
+<pre class="wp-block-code"><code>如：(ax)表示ax中的内容
+（al）表示al中的内容</code></pre>
+<p>3.idata 符号为常量</p>
+<p>如 mov ax,[1]==mov ax[idata]</p>
+<p>4.inc 寄存器，将寄存器中的内容+1</p>
+<p>5.[bx]</p>
+<pre class="wp-block-code"><code>如：
+(1)mov ax,[bx]
+将bx存放的数据作为偏移地址EA，段地址SA默认在ds中，将SA：EA处的数据送入到ax中，即（ax）=((ds)*16+(bx))
+(2)mov [bx],ax
+将bx存放的数据作为偏移地址EA，段地址SA默认在ds中，将ax数据送入到内存SA：EA处，即（(ds)*16+(bx)）=(ax)</code></pre>
+<p>6.loop指令 loop指令的格式：loop 标号</p>
+<pre class="wp-block-code"><code>CPU执行loop指令的时候，要进行两步操作
+①(cx)=(cx)-1  ②判断cx中的值，不为零则转至标号处执行程序，若为零则向下执行
+{ps：
+（1）cx中存放循环次数
+（2）loop指令中的标号所标识地址要在前面
+（3）要循环执行的程序段，要写在标号和loop指令中间
+框架：
+mov cx,循环次数
+s:
+循环执行的程序段
+loop s
+}</code></pre>
+<p>若执行loop s,cx减一不为0，则将IP设置为标号地址，从而使CS：IP指向标号地址执行指令</p>
+<p>7.要进行运算，如加减乘除之类，要考虑好范围，</p>
+<pre class="wp-block-code"><code>如：将ffff:0006单元中的数乘以3，结果存储在dx中
+ffff:0006单元中的数时一个字节型数据，范围在0~255之间，用它乘以3，结果不会超过65536，所以可以存放在dx中</code></pre>
+<p>8.在汇编程序中，数据不能以字母开头</p>
+<pre class="wp-block-code"><code>如:mov ax,0ffffH
+若数据大于9FFFH的十六进制数据，则是A000H,.......
+要改写成0A000H.........</code></pre>
+<ol start="9">
+<li>
+<p>int 21要用p命令执行</p>
+</li>
+<li></li>
+</ol>
+<pre class="wp-block-code"><code>（1）在用debug调试程序时，不想跟踪循环过程，则可以用g命令跳过
+如： g 0012
+它表示执行程序到当前代码段（段地址在CS中）的0012H处，也就是说 g 0012将使debug从当前CS：IP指向的指令执行，一直到(IP)=0012H处
+（2）遇到循环，希望将循环一次执行完，则可以用p命令，再次遇到loop命令时，用p命令执行，就会跳到循环过后的下一条指令</code></pre>
+<p>11.编译器和debug对指令的不同处理</p>
+<pre class="wp-block-code"><code>同样的命令 mov al,[0]   mov bl,[1]   mov cl,[2]   mov dl,[3]
+但是debug和编译器对这些指令中的[idata]有不同的解释，debug将它解释为[idata]是一个内存单元，idata是内存单元的偏移地址，而编译器将[idata]解释为idata
+(1)在汇编程序中，若用指令访问一个内存单元，则在指令中必须用[]来表示内存单元，若在[]中用idata常量，直接给出内存单元的偏移地址，就要在[]前面显式地给出段地址所在的段寄存器
+(2)若在[]中用寄存器，则间接给出内存单元的偏移地址，则段地址默认在ds中，当前也可以显式地给出段地址所在的段寄存器
+(ps:显式地给出内存单元的段地址，ds，cs，ss，es，在汇编程序中称为段前缀)</code></pre>
+<p>12.不能用任意地址指向内存单元，来写入或修改内容，否则可能会发生系统错误所以有一段安全空间0:200~0:2ff的256个字节的空间</p>
+<p>13.可以用段前缀，来减少对默认段寄存器ds的修改，以及减少代码量</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第四章-第一个程序/">
+                  <h3 class="post-title">
+                    第四章-第一个程序
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

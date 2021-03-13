@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1030 求先序排列 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="/*
+such as：
+中序遍历：4 3 2 5 1 7 8 6
+后序遍历：4 3 5 2 8 7 6 1
+一开始根节点为 1
+中序遍历对应的位置是 4
+即后序遍历要截的
+左子树是从0到，在中序遍历找到根节点的位置 4
+右子树是从4到，中序..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1030 求先序排列</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>/*<br>
+such as：<br>
+中序遍历：4 3 2 5 1 7 8 6<br>
+后序遍历：4 3 5 2 8 7 6 1<br>
+一开始根节点为 1<br>
+中序遍历对应的位置是 4<br>
+即后序遍历要截的<br>
+左子树是从0到，在中序遍历找到根节点的位置 4<br>
+右子树是从4到，中序遍历的长度减去找到根节点的位置，即减去左子树的数量，位置从0开始，so 减1<br>
+*/<br>
+引用：</p>
+<p>首先，一点基本常识，给你一个后序遍历，那么最后一个就是根（如ABCD，则根为D）。</p>
+<p>因为题目求先序，意味着要不断找根。</p>
+<p>那么我们来看这道题方法：（示例）</p>
+<p>中序ACGDBHZKX，后序CDGAHXKZB，首先可找到主根B；</p>
+<p>那么我们找到中序遍历中的B，由这种遍历的性质，可将中序遍历分为ACGD和HZKX两棵子树，</p>
+<p>那么对应可找到后序遍历CDGA和HXKZ（从头找即可）</p>
+<p>从而问题就变成求1.中序遍历ACGD，后序遍历CDGA的树 2.中序遍历HZKX，后序遍历HXKZ的树；</p>
+<p>接着递归，按照原先方法，找到1.子根A，再分为两棵子树2.子根Z，再分为两棵子树。</p>
+<p>就按这样一直做下去（先输出根，再递归）；</p>
+<p>模板概括为step1:找到根并输出</p>
+<p>step2:将中序，后序各分为左右两棵子树；</p>
+<p>step3:递归，重复step1,2；</p>
+<pre class="wp-block-code"><code>#include&lt;cstdio>
+#include&lt;iostream>
+#include&lt;cstring>
+using namespace std;
+void beford(string in,string after){
+    if (in.size()>0){
+        char ch=after[after.size()-1];
+        cout&lt;&lt;ch;//找根输出
+        int k=in.find(ch);
+        beford(in.substr(0,k),after.substr(0,k));
+        beford(in.substr(k+1),after.substr(k,in.size()-k-1));//递归左右子树；
+    }
+}
+int main(){
+    string inord,aftord;
+    cin>>inord;cin>>aftord;//读入
+    beford(inord,aftord);cout&lt;&lt;endl;
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1278-单词游戏/">
+                  <h3 class="post-title">
+                    P1278 单词游戏
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>（悬线法n^2）P1578 奶牛浴场 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+悬线法 题目 n^2
+高为n，宽为m
+一开始加上 上下左右的点，然后，先按照点的x从小到大 排序依次，也就是定义一个结构体排序
+然后从上到下扫一次，得到宽为m ，
+(由于 等会还要从左往右扫和 从右往左扫，所以，从上往下扫，就不需要..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">（悬线法n^2）P1578 奶牛浴场</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>悬线法 题目 n^2</p>
+<p>高为n，宽为m</p>
+<p>一开始加上 上下左右的点，然后，先按照点的x从小到大 排序依次，也就是定义一个结构体排序</p>
+<p>然后从上到下扫一次，得到宽为m ，</p>
+<p>(由于 等会还要从左往右扫和 从右往左扫，所以，从上往下扫，就不需要改变上下边界，因为 如果从上往下扫 改变边界，</p>
+<p>从左往右和从右往左扫 也改变上下边界，重复计算了)</p>
+<p>然后，再按照点的y从小到大排序，也是结构体排序，然后 排序完 就 从左往右扫</p>
+<p>扫完 ，再按照点的y从大到小排序，也是结构体排序，然后 排序完 就 是从右到左扫</p>
+<p>找出最优解，结束</p>
+<p>悬线法 题目 n^2 论文大意<br>
+在此说句不太好听的话，其实楼下两位的代码都是错误的，只是没有数据把其检测出来。<br>
+如（换行可能被删，请根据题意自行脑补）：10 10<br>
+3 3 0 8 2 3 9 正确答案应该是72，而他们的都是56.<br>
+其实还有：10 10<br>
+2 8 1 3 9 正确答案应该是80，而他们都是72.<br>
+这个题目很出名，可以在百度搜索王知昆国家队dalao的论文，<br>
+其中说的非常详细，但是可惜的是在他本人的代码中也有两个bug，<br>
+我上面的两组数据他的代码也出现的错误。可能是由于本题数据较水，所以很多有bug的代码水过去了。<br>
+我来简单的说一下：<br>
+先枚举极大子矩形的左边界，然后从左到右依次扫描每一个障碍点，<br>
+并不断修改可行的上下边界，从而枚举出所有以这个定点为左边界的极大子矩形。<br>
+考虑如图2中的三个点，现在我们要确定所有以1号点为左边界的极大矩形。<br>
+先将1号点右边的点按横坐标排序。然后按从左到右的顺序依次扫描1号点右边的点，同时记录下当前的可行的上下边界。<br>
+开始时令当前的上下边界分别为整个矩形的上下边界。然后开始扫描。<br>
+第一次遇到2号点，以2号点作为右边界，结合当前的上下边界，就得到一个极大子矩形（如图3）。<br>
+同时，由于所求矩形不能包含2号点，且2号点在1号点的下方，所以需要修改当前的下边界，<br>
+即以2号点的纵坐标作为新的下边界。第二次遇到3号点，这时以3号点的横坐标作为右边界又可以得到一个满足性质1的矩形（如图4）。<br>
+类似的，需要相应地修改上边界。以此类推，如果这个点是在当前点（确定左边界的点）上方，则修改上边界；<br>
+如果在下方，则修改下边界；如果处在同一行，则可中止搜索（因为后面的矩形面积都是0了）。<br>
+由于已经在障碍点集合中增加了整个矩形右上角和右下角的两个点，所以不会遗漏右边界与整个矩形的右边重合的极大子矩形（如图5）。<br>
+需要注意的是，如果扫描到的点不在当前的上下边界内，那么就不需要对这个点进行处理。<br>
+这样做是否将所有的极大子矩形都枚举过了呢？<br>
+可以发现，这样做只考虑到了左边界覆盖一个点的矩形，<br>
+因此我们还需要枚举左边界与整个矩形的左边界重合的情况。<br>
+这还可以分为两类情况。一种是左边界与整个举行的左边界重合，而右边界覆盖了一个障碍点的情况，<br>
+对于这种情况，可以用类似的方法从右到左扫描每一个点作为右边界的情况。这就是上面第一个数据楼下二位错在哪里。<br>
+另一种是左右边界均与整个矩形的左右边界重合的情况，<br>
+对于这类情况我们可以在预处理中完成：先将所有点按纵坐标排序，<br>
+然后可以得到以相邻两个点的纵坐标为上下边界，左右边界与整个矩形的左右边界重合的矩形，<br>
+显然这样的矩形也是极大子矩形，因此也需要被枚举到。这就是上面第二个数据楼下两位错在哪里。<br>
+对于开始预处理，需要人为添加0,0;0，l；w，0；l，w四个点，这时王知昆dalao错的第一个地方。</p>
+<pre class="wp-block-code"><code>My AC Code：
+#include &lt;cstdio>
+#include &lt;algorithm>
+using namespace std;
+int l,w,n,ans;
+struct node{
+    int x,y;
+}nd[5010];
+int max(int a,int b){return a>b?a:b;}
+bool cp1(node a,node b){
+    return a.y&lt;b.y;
+}
+bool cp2(node a,node b){
+    return a.x&lt;b.x;
+}
+bool cp3(node a,node b){
+    return a.x>b.x;
+}
+void work(){
+    for(int i=1;i&lt;=n;i++){
+        int mi=0;int ma=w;
+         int v=l-nd[i].x;
+        for(int j=i+1;j&lt;=n;j++){
+            if(v*(ma-mi)&lt;=ans)break;
+            if(nd[j].y&lt;mi||nd[j].y>ma)continue;
+            ans=max(ans,(ma-mi)*(nd[j].x-nd[i].x));
+            if(nd[j].y>nd[i].y)ma=nd[j].y;else mi=nd[j].y;
+            //如果当前扫描到的点， 与以i点为左边界的 x坐标不在同一个地方
+            //则 如果当前j点大于i点，则下边界改为j点的x坐标，否则 上边界改为j点的x坐标
+            if(mi==ma)break;
+            //也就是修改之后，上下边界相等，则不能往后扫了，因为同行，没有面积
+        }
+        ans=max(ans,(ma-mi)*(l-nd[i].x));
+    }
+}
+void work2(){
+    for(int i=1;i&lt;=n;i++){
+        int mi=0;int ma=w;
+        int v=l-nd[i].x;
+        for(int j=i+1;j&lt;=n;j++){
+            if(v*(ma-mi)&lt;=ans)break;
+            if(nd[j].y&lt;mi||nd[j].y>ma)continue;
+            ans=max(ans,(ma-mi)*(nd[i].x-nd[j].x));
+            if(nd[j].y>nd[i].y)ma=nd[j].y;else mi=nd[j].y;
+            if(mi==ma)break;
+        }
+        ans=max(ans,(ma-mi)*(nd[i].x));
+    }
+}
+/*
+if(v*(ma-mi)&lt;=ans)break;
+这句话 如果不在work和work2中加，则会多500ms
+v 在work中表示 右边界到当前点的距离  如果 这个距离 乘上一开始的最大上下边界， 都小于ans 也就是答案，
+则  后面的点 也不可能产生 比ans大的答案所以要break
+work2同理
+*/
+/*
+ans=max(ans,(ma-mi)*(l-nd[i].x));
+ans=max(ans,(ma-mi)*(nd[i].x));
+work 和work2 之间 这句话的区别
+因为 work 是从 x坐标 从小到大排序的时候 从左到右扫描的
+然后 work2 是从 x坐标从大到小排序的时候 从左到右扫描的
+两个扫描 的方向是相反的，所以 一个l-nd[i].x 和另一个 nd[i].x 互补的，
+比如 l=10  nd[i].x=3 
+左边界到nd[i].x 的距离是3 也就是nd[i].x
+右边界到nd[i].x的距离是7 也就是l-nd[i].x 
+
+*/
+int main(){
+    scanf("%d%d%d",&l,&w,&n);
+    for(int i=1;i&lt;=n;i++)scanf("%d%d",&nd[i].x,&nd[i].y);
+    nd[++n].x=0;nd[n].y=0;
+    nd[++n].x=l;nd[n].y=0;
+    nd[++n].x=0;nd[n].y=w;
+    nd[++n].x=l;nd[n].y=w;
+    sort(nd+1,nd+n+1,cp1);
+    for(int i=2;i&lt;=n;i++)ans=max(ans,l*(nd[i].y-nd[i-1].y));
+    sort(nd+1,nd+n+1,cp2);work();
+    sort(nd+1,nd+n+1,cp3);work2();
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1338-末日的传说/">
+                  <h3 class="post-title">
+                    P1338 末日的传说
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

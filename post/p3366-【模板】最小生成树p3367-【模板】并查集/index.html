@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P3366 【模板】最小生成树&amp;P3367 【模板】并查集 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="两题都是用并查集
+最小生成树用的是kruskal算法
+//并查集AC Code：
+#include &lt;cstdio>
+using namespace std;
+int n,m;
+int zi,xi,yi;
+int fd[10005];..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P3366 【模板】最小生成树&amp;P3367 【模板】并查集</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>两题都是用并查集<br>
+最小生成树用的是kruskal算法</p>
+<pre class="wp-block-code"><code>//并查集AC Code：
+#include &lt;cstdio>
+using namespace std;
+int n,m;
+int zi,xi,yi;
+int fd[10005];
+int findfd(int x){
+    while(x!=fd[x])x=fd[x]=fd[fd[x]];
+    return x;
+}
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1;i&lt;=n;i++)fd[i]=i;
+    for(int i=1;i&lt;=m;i++){
+        scanf("%d%d%d",&zi,&xi,&yi);
+        int fx=findfd(xi);int fy=findfd(yi);
+        if(zi==1)fd[fy]=fx;
+        else if(zi==2){
+            if(fx==fy)printf("Y\n");
+            else printf("N\n");
+        }
+    }
+    return 0;
+}</code></pre>
+<pre class="wp-block-code"><code>//最小生成树 AC Code：
+#include &lt;cstdio>
+#include &lt;algorithm>
+using namespace std;
+int n,m,ans=0,cnt=0;
+struct node{
+    int x,y,z;
+}nm[200005];
+int fd[5005];
+int findfather(int ft){
+    while(ft!=fd[ft])ft=fd[ft]=fd[fd[ft]];
+    return ft;
+}
+bool cp(node a,node k){return a.z&lt;k.z;}
+void kruskal(){
+    for(int i=1;i&lt;=m;i++){
+        int fx=findfather(nm[i].x);int fy=findfather(nm[i].y);
+        if(fx==fy)continue;
+        ans+=nm[i].z;
+        fd[fy]=fx;
+        if(++cnt==n-1)break;
+    }
+}
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1;i&lt;=m;i++)scanf("%d%d%d",&nm[i].x,&nm[i].y,&nm[i].z);
+    for(int i=1;i&lt;=n;i++)fd[i]=i;
+    sort(nm+1,nm+m+1,cp);
+    kruskal();
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1433-吃奶酪/">
+                  <h3 class="post-title">
+                    P1433 吃奶酪
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

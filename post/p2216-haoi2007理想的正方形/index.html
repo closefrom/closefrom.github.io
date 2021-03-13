@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P2216 [HAOI2007]理想的正方形 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="单调队列分别维护行与列
+具体实现方法:是先用单调队列对每一行的值维护，并将a[][]每个区间的最大值，最小值分别存在X[][]和x[][]中。
+那么X[][]与x[][]所存储的分别是1×n的长方形内的最大值，最小值。X[i][j]存储第i..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P2216 [HAOI2007]理想的正方形</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>单调队列分别维护行与列</p>
+<p>具体实现方法:是先用单调队列对每一行的值维护，并将a[][]每个区间的最大值，最小值分别存在X[][]和x[][]中。</p>
+<p>那么X[][]与x[][]所存储的分别是1×n的长方形内的最大值，最小值。X[i][j]存储第i行第j<sub>j+n-1列的长方形中的最大值。同理，x[i][j]存储第i行第j</sub>j+n-1列的长方形中的最小值。</p>
+<p>这时再对这两个数组的每一列上的值进行维护，将X[][]中每个区间的的最大值用Y[][]维护，将x[][]中的每个区间的最小值用y[][]维护。那么Y[i][j]存储X[][]中第i<sub>i+n-1行第j列的长方形的最大值。同理y[i][j]存储x[][]中第i</sub>i+n-1行第j列的长方形的最小值。</p>
+<p>故Y[i][j]存储的实为以a[i<sub>i+n-1][j</sub>j+n-1]中的最大，即以i,j为左上角，边长为n的正方形中的最大值。同理，y[i][j]存储的即以i,j为左上角，边长为n的正方形中的最小值。</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+using namespace std;
+int a,b,n;
+int s[1001][1001];//存放矩阵数组
+int Sa[1001][1001],sa[1001][1001];//Sa[i][j]表示第i行，第j到j+n-1个数的最大值，sa[i][j]表示第i行，第j到j+n-1个数的最小值
+int Sb[1001][1001],sb[1001][1001];//Sb[i][j]表示第j列，第i到i+n-1行的数的最大值，sb[i][j]表示第j列，第i到i+n-1行的数的最小值
+int QmQ[1001],QnQ[1001];
+int BQ,bq,FQ,fq,ans;
+//QmQ数组 单调队列，维护最大值，最大值在队首
+//相对的QnQ数组 单调队列，维护最小值，最小值在队首
+int min(int c,int d){return c>d?d:c;}
+int main(){
+    scanf("%d%d%d",&a,&b,&n);
+    for(int i=1;i&lt;=a;i++)
+        for(int j=1;j&lt;=b;j++)
+            scanf("%d",&s[i][j]);
+    
+    
+    for(int i=1;i&lt;=a;i++){
+        BQ=bq=FQ=fq=QmQ[1]=QnQ[1]=1;//初始化指向队首和队尾的位置，以及队首的位置对应的数的位置
+        for(int j=2;j&lt;=b;j++){
+            while(s[i][j]>=s[i][QmQ[BQ]]&&FQ&lt;=BQ)BQ--;
+            while(s[i][j]&lt;=s[i][QnQ[bq]]&&fq&lt;=bq)bq--;
+            /*
+            为第i行第j个数在队列中找位置，从队尾的位置开始往前找，
+            如第一个while，是为当前这个数找位置，以维护当前的 单调队列 的最大值
+            如果当前数比队尾的数大，则BQ--。也就是让当前数排在，队列中比他大的数的后面
+            相对的，第二个while循环同理
+            */
+            BQ++;bq++;QmQ[BQ]=j;QnQ[bq]=j;
+            //找到了相应的位置，将当前数的下标，放在队列的相应位置
+            while(j-QmQ[FQ]>=n)FQ++;
+            while(j-QnQ[fq]>=n)fq++;
+            //上面这两个while循环为了调整QmQ[FQ]，QnQ[fq]相对于j的位置， 也就是最大值和最小值的位置与j 相对位置 不能超过n
+            //如j=5,QmQ[FQ]=2,也就是当前最大值的单调队列的队首，位置是2， 而要求的是j-n+1到j的最大值，所以要缩小距离，要在队列的后面找合适的数的位置
+            if(j>=n)Sa[i][j-n+1]=s[i][QmQ[FQ]],sa[i][j-n+1]=s[i][QnQ[fq]];
+            //这里一定要是j>=n，因为只有这样，j-n+1 才不为负数！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+        }
+    }
+    
+    for(int i=1;i&lt;=(b-n+1);i++){//第一个循环与Sa数组的定义有关
+        BQ=bq=FQ=fq=QmQ[1]=QnQ[1]=1;
+        for(int j=2;j&lt;=a;j++){
+            while(Sa[j][i]>=Sa[QmQ[BQ]][i]&&FQ&lt;=BQ)BQ--;
+            while(sa[j][i]&lt;=sa[QnQ[bq]][i]&&fq&lt;=bq)bq--;
+            BQ++;bq++;QmQ[BQ]=j;QnQ[bq]=j;
+            while(j-QmQ[FQ]>=n)FQ++;
+            while(j-QnQ[fq]>=n)fq++;
+            if(j>=n)Sb[j-n+1][i]=Sa[QmQ[FQ]][i],sb[j-n+1][i]=sa[QnQ[fq]][i];
+        }
+    }
+    
+    ans=0x3f3f3f3f;
+    for(int i=1;i&lt;=(a-n+1);i++)
+        for(int j=1;j&lt;=(b-n+1);j++)
+            ans=min(ans,Sb[i][j]-sb[i][j]);
+            
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p2331-scoi2005最大子矩阵/">
+                  <h3 class="post-title">
+                    P2331 [SCOI2005]最大子矩阵
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

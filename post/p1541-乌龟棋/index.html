@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1541 乌龟棋 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+这个题可以说运用了背包的思想:
+开的主要变量：
+1.F[a][b][c][d]:表示你出了a张爬行牌1，b张爬行牌2，c张爬行牌3，d张爬行牌4时的得分
+2.g[x]:表示牌x一共有多少张
+题干中说如何出牌,那我们就不妨DP一下每一..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1541 乌龟棋</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>这个题可以说运用了背包的思想:</p>
+<p>开的主要变量：</p>
+<p>1.F[a][b][c][d]:表示你出了a张爬行牌1，b张爬行牌2，c张爬行牌3，d张爬行牌4时的得分</p>
+<p>2.g[x]:表示牌x一共有多少张</p>
+<p>题干中说如何出牌,那我们就不妨DP一下每一种牌的出牌张数</p>
+<p>初始化：</p>
+<p>F[0][0][0][0]=num[1];</p>
+<p>显然,乌龟开始时在num[1],题中说乌龟棋子自动获得起点格子的分数,故未出牌时（F[0][0][0][0]）分数为num[1]</p>
+<p>之后边输入边存每一种牌的张数（输入数据第3行:M个整数，b1b2……bM，表示M张爬行卡片上的数字,故卡1~卡4张数一定）:</p>
+<p>for(int i=1;i&lt;=m;i++) { cin&gt;&gt;x;</p>
+<p>g[x]++;</p>
+<p>}</p>
+<p>之后便可以开始DP了:</p>
+<p>起始状态F[0][0][0][0]=num[1]，即不出任何爬行卡;之后对于每一张卡片，我都可以选择放与不放， E:设当前放的卡1数量为a，卡2数量为b，卡3数量为c，卡4数量为d（以下出现a~d均为这个意思），则对于卡一:</p>
+<p>比较卡一的放与不放,只需决策卡一的放与不放，即取F[a][b][c][d],F[a-1][b][c][d]+num[r]的最大值。又由于a有一定数量,所以我们可以得出关于a的转移方程:</p>
+<pre class="wp-block-code"><code>F[a][b][c][d]=max(F[a][b][c][d],F[a-1][b][c][d]+num[r])</code></pre>
+<p>其中r=1+a+b2+c3+d4(至于r在a+b2+c3+d4加一原因见后)</p>
+<p>DP 数量a：</p>
+<p>for(int a=0;a&lt;=g[1];a++)</p>
+<p>{</p>
+<p>int r=1+a+b_2+c_3+d_4; if(a!=0) F[a][b][c][d]=max(F[a][b][c][d],F[a-1][b][c][d]+num[a+b_2+c_3+d_4])</p>
+<p>}</p>
+<p>这不就是个“物品占的空间”为1，“价值”为num[r]的多重背包嘛！！</p>
+<p>至于这个(a!=0)，显然，你要是调用F[a-1][b][c][d]，肯定得保证a-1&gt;=0吧。a显然作为卡1个数不可能&lt;0,故取(a!=0)即可</p>
+<p>根据多维背包的思想，背包DP几个“价值”（即爬行牌种类）开几维即可,故 转移方程为:</p>
+<pre class="wp-block-code"><code>    F[a][b][c][d]=max(F[a-1][b][c][d],F[a][b-1][c][d],F[a][b][c-1][d],F[a][b][c][d-1])+num[1*a+2*b+3*c+4*d]</code></pre>
+<p>最后DP出来的F[g[1]][g[2]][g[3]][g[4]]即为答案。</p>
+<p>DP代码如下：</p>
+<pre class="wp-block-code"><code>for(int a=0;a&lt;=g[1];a++)
+    for(int b=0;b&lt;=g[2];b++)
+        for(int c=0;c&lt;=g[3];c++)
+            for(int d=0;d&lt;=g[4];d++)
+            {
+                int r=1+a+b*2+c*3+d*4;//千万千万别忘了加一,因为乌龟从num[1]出发,设前进i步，则到达num[i+1],我就是因为这调了一个小时死活没找出毛病 
+                if(a!=0)    F[a][b][c][d]=max(F[a][b][c][d],F[a-1][b][c][d]+num[r]); //a!=0原因见上
+                if(b!=0)    F[a][b][c][d]=max(F[a][b][c][d],F[a][b-1][c][d]+num[r]);
+                if(c!=0)    F[a][b][c][d]=max(F[a][b][c][d],F[a][b][c-1][d]+num[r]);
+                if(d!=0)    F[a][b][c][d]=max(F[a][b][c][d],F[a][b][c][d-1]+num[r]);
+            }   </code></pre>
+<p>在for循环中将F[a][b][c][d]与F[a-1][b][c][d]+num[1a+2b+3c+4d],F[a][b-1][c][d]+num[1a+2b+3c+4d],F[a][b][c-1][d]+num[1a+2b+3c+4d],F[a][b][c][d-1]+num[1a+2b+3c+4d]逐个比较，实现了转移方程的更新(c++中max函数貌似只能比较两个数)</p>
+<pre class="wp-block-code"><code>//My AC Code:
+#include &lt;cstdio>
+using namespace std;
+int dp[45][45][45][45],n,m,nm[355],p[5],x;
+int max(int a,int b){return a>b?a:b;}
+int min(int a,int b){return a>b?b:a;}
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1;i&lt;=n;i++)scanf("%d",&nm[i]);
+    for(int i=1;i&lt;=m;i++){scanf("%d",&x);p[x]++;}
+    dp[0][0][0][0]=nm[1];
+    for(int a=0;a&lt;=p[1];a++)
+        for(int b=0;b&lt;=p[2];b++)
+            for(int c=0;c&lt;=p[3];c++)
+                for(int d=0;d&lt;=p[4];d++){
+                    int r=1+a+b*2+c*3+d*4;//1表示，原本就有的第一步的值，后面是a张 走一步牌，b张走两步的牌如此类推，r最终为acbd+1 步的值
+                    if(a!=0)dp[a][b][c][d]=max(dp[a][b][c][d],dp[a-1][b][c][d]+nm[r]);//当 a!=0，因为牌数不可能是负数，所以一定要大于0， 如此类推
+                    if(b!=0)dp[a][b][c][d]=max(dp[a][b][c][d],dp[a][b-1][c][d]+nm[r]);
+                    if(c!=0)dp[a][b][c][d]=max(dp[a][b][c][d],dp[a][b][c-1][d]+nm[r]);
+                    if(d!=0)dp[a][b][c][d]=max(dp[a][b][c][d],dp[a][b][c][d-1]+nm[r]);
+/*
+dp[a-1][b][c][d],dp[a][b-1][c][d],dp[a][b][c-1][d],dp[a][b][c][d-1],
+看少走几步，得到的值最大，也就是abcd张牌当前的位置，退后一步的a-1,b,c,d的值是否大于,abcd的值，
+之后还要跟退后两步，退后三部，退后四步的值比较，
+即选择性，当前位置选择，少多少步的值最大，哪个大加哪个
+*/
+                }
+    printf("%d",dp[p[1]][p[2]][p[3]][p[4]]);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1057-传球游戏/">
+                  <h3 class="post-title">
+                    P1057 传球游戏
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

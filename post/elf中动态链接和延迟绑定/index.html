@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>动态链接和延迟绑定 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="现在的程序几乎都是动态链接了 + 延迟绑定了. 这样可以节省宝贵的内存空间还能提升运行时的效率. 之前也零零散散地看了很多相关的文章. 今天就系统地总结一遍吧.
+got表和plt表
+首先从got表和plt表讲起. 以一个调用libc中wri..." />
+    <meta name="keywords" content="pwn知识点,知识点总结" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">动态链接和延迟绑定</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>现在的程序几乎都是动态链接了 + 延迟绑定了. 这样可以节省宝贵的内存空间还能提升运行时的效率. 之前也零零散散地看了很多相关的文章. 今天就系统地总结一遍吧.<br>
+got表和plt表<br>
+首先从got表和plt表讲起. 以一个调用libc中write()函数为例. 来分析一下流程:<br>
+基础知识<br>
+got表属于数据段, 是可写的. 表中存储的是指针. plt属于代码段, 其中每一项都存储了三个汇编指令.<br>
+当系统根据一个文件创建一个进程的时候, dynamic linker会把got表的第二项和第三项初始化为特殊的值, 具体是什么后面会解释.<br>
+对于每个重定位的函数, 其在got表和plt表中分别有一项存储该函数动态链接时需要使用的程序. 我们假设 PLT[2], 和GOT[4]存储libc 中 write 的对应信息<br>
+动态链接流程<br>
+当这个程序里面调用write()的时候就会跳到plt表中write对应的项.这儿就是PLT[2], 其中有三行汇编码<br>
+jmpq *GOT[4] # write 函数在got表中对应的项<br>
+pushq $0x01 # write()对应的编号, 记为reloc_arg.程序中的每个重定位函数都有一个独一无二的编号, 根据这个编号可以计算这个函数对应的got表的偏移, 动态链接需要的信息等等.<br>
+jmpq  4005a # PLT[0]</p>
+<p>而GOT[4]表中初始值都是指向PLT[2]的第二行代码, 当程序刚加载完毕的时候, 每个重定位函数对应的got表中的地址都指向对应的plt表的第二个指令.<br>
+进入 PLT[0], 其中代码如下:<br>
+pushq *GOT[1] #一个特殊的地址, 指向动态链接所需要的信息, 后面会解释, 记为 link_map<br>
+jmpq *GOT[2] # dynamic linker 的地址</p>
+<p>GOT[2] 中存储的就是_dl_runtime_resolve函数的地址了.<br>
+就相当于执行了_dl_runtime_resolve(link_map, reloc_arg).<br>
+_dl_runtime_resolve()会根据reloc_arg计算出got表地址, 需要重定位函数的名称等信息, 然后根据这些信息找到函数的真实运行地址. 最后把got表中这个函数对应的项got[4]修改为真实地址.<br>
+dynamic linker()执行结束之后就会跳转到write()函数里面.<br>
+之后在调用write()的时候仍然先跳到plt[2], 然后跳到<em>got[4], 此时got[4]中的地址就是write()函数的真实地址了. 因为只在第一次执行的时候才绑定真实的地址, 所以叫做延迟绑定(lazy binding)<br>
+dynmic linker工作流程<br>
+看完前面的内容, 对动态链接的过程已经大致了解了. 接下来我们深入分析一下最关键的一步:调用dynmic linker修改got表内容.<br>
+我画了如下示意图来更直观地表达动态链接的过程, 具体过程后面解释.<br>
+.dynamic是elf文件中的一个section, 其中包含了动态链接所需要的信息. 比如一些指向其它section的指针. 可以参考这个文档<br>
+.dynstr是elf文件中的一个section. 其包含的需要重定位的函数的名称. dynamic linker可以根据这些名称找到真实的运行时地址进而修改got表<br>
+.dynsym section是一个结构体数组, 结构体定义如下:<br>
+typedef struct<br>
+{<br>
+Elf32_Word    st_name;   /</em> Symbol name (index in .synstr) <em>/<br>
+Elf32_Addr    st_value;  /</em> Symbol value <em>/<br>
+Elf32_Word    st_size;   /</em> Symbol size <em>/<br>
+unsigned char st_info;   /</em> Symbol type and binding <em>/<br>
+unsigned char st_other;  /</em> Symbol visibility under glibc&gt;=2.2 <em>/<br>
+Elf32_Section st_shndx;  /</em> Section index */<br>
+} Elf32_Sym;</p>
+<p>每个重定位函数在其中有一项, 可以根据这个找到重定位函数的名称.<br>
+.rel.plt section也是一个结构体数组, 结构体定义如下:<br>
+typedef uint32_t Elf32_Addr;<br>
+typedef uint32_t Elf32_Word;<br>
+typedef struct<br>
+{<br>
+Elf32_Addr    r_offset;               /* 该项对应的got表的项的地址 <em>/<br>
+Elf32_Word    r_info;                 /</em> Relocation type and symbol index */<br>
+} Elf32_Rel;<br>
+#define ELF32_R_SYM(val) ((val) &gt;&gt; 8)   //计算该项在.dynsym中的index<br>
+#define ELF32_R_TYPE(val) ((val) &amp; 0xff)</p>
+<p>.dynmic                                                    .dynstr<br>
++-------&gt; +-----------------+        +-------------------------------&gt; +------------+<br>
+| ................|        |                                 |  ........  |<br>
+|                 |        |                                 +------------+<br>
+|                 |        |                      +----------&gt;  &quot;read&quot;    |<br>
++-----------------+        |                      |          +------------+<br>
+|    STRTAB       +--------+    .dynsym           |          | .........  |<br>
++-----------------+           +--------------+    |          +------------+<br>
+|    SYSTAB       +---------&gt; |  .........   |    |<br>
++-----------------+           +--------------+    |<br>
+|   PLTRELSZ      |           |  name_index  +----+<br>
++-----------------+           +--------------+<br>
+|    PLTREL       |           |              | index = Elf32_R_SYM(r_info)<br>
++-----------------+           +--------------+ &lt;-------------------+<br>
+|    RELENT       |           |              |                     |<br>
++-----------------+           +--------------+                     |<br>
+|    JMPREL       +---+       |  .........   |                     |<br>
++-----------------+   |       +--------------+                     |<br>
+|                 |   |               .rel.plt                     |<br>
+|                 |   +-----------------------&gt; +--------------+   |<br>
+|                 |                        +----+    r_offset  |   |<br>
+|                 |         .got.plt       |    +--------------+   |<br>
+|                 |       +-------------+  |    |    r_info    +---+<br>
+|                 |       |    ......   |  |    +--------------+<br>
+|                 |       +-------------+  |    | ...........  |<br>
+|                 |       | read@got    | &lt;+    |              |<br>
+|                 |       +-------------+       |              |<br>
++-----------------+       |  .......    |       |              |<br>
+|             |       +--------------+<br>
+|             |<br>
+|             |<br>
++-------------+</p>
+<p>最后结合动态链接器的源码分析具体链接过程(源码可见: glibc/elf/dl-runtime.c: _dl_fixup 函数)<br>
+_dl_fixup(struct link_map *l, ElfW(Word) reloc_arg)<br>
+{<br>
+// 首先通过参数reloc_arg计算重定位入口，这里的JMPREL即.rel.plt，reloc_offset即reloc_arg<br>
+const PLTREL *const reloc = (const void *) (D_PTR (l, l_info[DT_JMPREL]) + reloc_offset);<br>
+// 然后通过reloc-&gt;r_info找到.dynsym中对应的条目<br>
+const ElfW(Sym) *sym = &amp;symtab[ELFW(R_SYM) (reloc-&gt;r_info)];<br>
+// 这里还会检查reloc-&gt;r_info的最低位是不是R_386_JUMP_SLOT=7<br>
+assert (ELFW(R_TYPE)(reloc-&gt;r_info) == ELF_MACHINE_JMP_SLOT);<br>
+// 接着通过strtab+sym-&gt;st_name找到符号表字符串，result为libc基地址<br>
+result = _dl_lookup_symbol_x (strtab + sym-&gt;st_name, l, &amp;sym, l-&gt;l_scope, version, ELF_RTYPE_CLASS_PLT, flags, NULL);<br>
+// value为libc基址加上要解析函数的偏移地址，也即实际地址<br>
+value = DL_FIXUP_MAKE_VALUE (result, sym ? (LOOKUP_VALUE_ADDRESS (result) + sym-&gt;st_value) : 0);<br>
+// 最后把value写入相应的GOT表条目中<br>
+return elf_machine_fixup_plt (l, result, reloc, rel_addr, value);<br>
+}</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/gpDrmX3H7/" class="tag">
+                    pwn知识点
+                  </a>
+                
+                  <a href="https://closefrom.github.io/tag/EpFCy9P6n/" class="tag">
+                    知识点总结
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/jarvisoj-pwn-level2x64-wp/">
+                  <h3 class="post-title">
+                    jarvisoj pwn level2x64 wp
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

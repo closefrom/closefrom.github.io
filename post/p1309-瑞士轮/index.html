@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1309 瑞士轮 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="#include &lt;cstdio>
+#include &lt;iostream>
+#include &lt;algorithm>
+using namespace std;
+int n,r,q,a[200500],win[200500]..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1309 瑞士轮</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;iostream>
+#include &lt;algorithm>
+using namespace std;
+int n,r,q,a[200500],win[200500],lose[200500],s[200500],w[200500];
+bool cmd(int a,int b){
+	if(s[a]==s[b])return a&lt;b;
+	else return s[a]>s[b];
+}//排序辅助数组，如果两个选手的分数一样，则按照编号从小到大排序。若不同，则按照分数从大到小排序
+void marge(){
+	int i=1;int j=1;int begin=1;
+	while(i&lt;=win[0]&&j&lt;=lose[0]){
+		if(cmd(win[i],lose[j]))a[begin++]=win[i++];
+		else a[begin++]=lose[j++];
+	}
+	while(i&lt;=win[0]){
+		a[begin++]=win[i++];
+	}
+	while(j&lt;=lose[0]){
+		a[begin++]=lose[j++];
+	}
+	
+}
+/*
+marge是对a数组重新赋值
+定义变量i，j指向win和lose数组的第1个元素，
+第一个while，若i和j都小于win和lose中的元素个数则执行
+判断win的第i位和lose的第j位对应的选手的编号，在s数组中找到选手编号对应的分数，
+若第i位的win选手对应的编号的分数与第j位的lose选手对应的编号的分数相同，则判断编号谁大谁小
+x&lt;y,若返回true则x小，则取win，win的第i位的选手编号赋给a的第begin位，begin指针++，i指针++
+若false则y小，取lose，lose的第j位的选手编号赋给a位置的第begin位，begin指针++，j指针++
+若分数不相同，则按照分数来从大到小排序,
+若s[win[i]]>s[lose[j]]，则a的begin位置赋win[i],否则a的begin位置赋lose[j]
+第一个循环结束，进入第二个和第三个，把win数组或者lose数组剩下的元素依次赋给a数组
+函数结束
+*/
+int main(){
+	scanf("%d%d%d",&n,&r,&q);n*=2;
+	for(int i=1;i&lt;=n;i++)a[i]=i;//初始化编号1-n
+	for(int i=1;i&lt;=n;i++)scanf("%d",&s[i]);//获取1-n选手对应的初始化分数
+	for(int i=1;i&lt;=n;i++)scanf("%d",&w[i]);//获取1-n选手的能力值
+//因为题目要求是求第r轮后第q名选手编号，所以，排序的对象是编号，a数组变化，s数组不变！
+	sort(a+1,a+n+1,cmd);
+	for(int i=1;i&lt;=r;i++){
+		win[0]=lose[0]=0;  
+		for(int j=1;j&lt;=n;j+=2){
+			if(w[a[j]]>w[a[j+1]]){
+				s[a[j]]++;
+				win[++win[0]]=a[j];
+				lose[++lose[0]]=a[j+1];
+				}else{
+					s[a[j+1]]++;
+					win[++win[0]]=a[j+1];
+					lose[++lose[0]]=a[j];
+				}
+		}
+		marge();
+	}
+/*
+第一层循环表示r轮，第二重循环表示一轮1-n个选手
+每轮初始化win[0]=lose[0]=0;
+win和lose的第0位置计算各个数组中一共有多少个元素，
+win[++win[0]],lose[++lose[0]]为从第一位开始记录win和lose选手编号
+排好序的a数组，从1-n，两两选手比赛，1-n位置放置着已经排好序的选手编号
+从a数组获取选手编号,a[j],a[j+1],再在w数组找到对应的能力值进行比较，
+能力大者获胜，在选手1-n对应分数存放的数组s中找到获胜的选手编号对应的分数++
+将每次赢方选手编号放在一个win数组，败方选手编号放在一个lose数组
+通过归并排序的方法，将相对有序的数组排序。
+即：
+*/
+	printf("%d", a[q]);
+	return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p2051-ahoi2009中国象棋/">
+                  <h3 class="post-title">
+                    P2051 [AHOI2009]中国象棋
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

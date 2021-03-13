@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>分析一款android三层锁机勒索病毒app | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="样本文件链接：https://pan.baidu.com/s/1cJoRRi8-yCTvm4fmIpiKUQ
+提取码：um0q
+安装yry-1.0.apk的环境是逍遥模拟器android5。
+1.打开此apk，就会发现音量设置了最大，并且一..." />
+    <meta name="keywords" content="安卓逆向" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">分析一款android三层锁机勒索病毒app</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>样本文件链接：https://pan.baidu.com/s/1cJoRRi8-yCTvm4fmIpiKUQ<br>
+提取码：um0q</p>
+<p>安装yry-1.0.apk的环境是逍遥模拟器android5。<br>
+1.打开此apk，就会发现音量设置了最大，并且一直循环播放不可描述声音。</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+一。AudioManager即音频管理器，
+用于管理android系统各种音频类型
+（包括系统声音，通话，铃声，音乐，闹铃）的音量设置。
+还可以使用它来设置“耳机插入时”的广播接收器
+（action:android.intent.action.MEDIABUTTON）。
+
+二。MediaPlayer用于播放音频，
+android api中提供了该工具，
+播放过程中可以控制音频的各种状态，
+具体使用比较简单。
+可以从资源文件中播放，从文件系统播放，从网络播放等方式。
+具体包名：android.media.AudioManager
+</code></pre>
+<p>可以通过objection连接app，hook此类，看看是否有调用此类方法。<br>
+<img src="https://closefrom.github.io/post-images/1615586219223.png" alt="" loading="lazy"><br>
+可以看到，app一直重复调用这三个方法，证明确实有在使用AudioManager。</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+setStreamVolume (int streamType, int index, int flags)  
+第一个参数（需要调整音量的类型），可以是：
+STREAM_ALARM 警报  
+STREAM_MUSIC 音乐回放即媒体音量  
+STREAM_NOTIFICATION 窗口顶部状态栏Notification
+STREAM_RING 铃声  
+STREAM_SYSTEM 系统  
+STREAM_VOICE_CALL 通话  
+STREAM_DTMF 双音多频
+
+第二个参数就是音量的int值
+
+第三个参数是一些附加参数，常用有：
+FLAG_PLAY_SOUND 调整音量时播放声音  
+FLAG_SHOW_UI 调整时显示音量条,就是按音量键出现的那个  
+0 表示什么也没有  
+
+//现在只需要hook android.media.AudioManager的setStreamVolume
+//将此函数中的第二个参数置0即可
+//hook 代码如下：
+function hook_audio(){
+    Java.perform(function(){
+        console.log("Inside java perform");
+        Java.use("android.media.AudioManager").setStreamVolume.implementation = function(int1,int2,int3){
+            var res = this.setStreamVolume(int1,0,int3);
+            return res;
+        }
+    });
+}
+</code></pre>
+<p>2.在app页面中的唯一输入框随便输入写东西，按解除锁定，可以获取到一些信息：很抱歉！密码错误解锁请假QQ群。。。。<br>
+在jadx中以此来搜索定位到关键类com.shimeng.qq2693533893.MyServiceOne中的位于sm方法中的onClick方法。</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+/*当前目的是将当前页面移出，所以注意点在com.shimeng.qq2693533893.MyServiceOne类
+中的onClick方法中的第一个if中的第一个if中的第一个if中的removeView()方法，
+只需要调用这个方法就能把当前页面移出。
+*/
+//hook方法如下：
+function remove_now_view(){
+    Java.perform(function(){
+        Java.choose("com.shimeng.qq2693533893.FloatViewUtil",{
+            onMatch:function(instance){
+                instance.removeView();
+            },onComplete:function(){}
+        });
+    });
+}
+</code></pre>
+<p>效果图如下：<br>
+<img src="https://closefrom.github.io/post-images/1615586321206.png" alt="" loading="lazy"></p>
+<ol start="3">
+<li>不主动调用removeView()方法，去研究com.shimeng.qq2693533893.MyServiceOne类中sm方法中的onClick方法中的判断逻辑。发现看smali代码找不到指定类中的某些方法。这时可用objeciton进去app应用中看看此类中的所有方法：<br>
+android hooking list class_method com.shimeng.qq2693533893.MyServiceOne。<br>
+（也可以在smali代码中寻找）<br>
+然后根据jadx中此函数的类型和参数以及动静态方法，在打印出的信息中查找此函数原型</li>
+</ol>
+<p>4.此app的第一层锁屏，位于com.shimeng.qq2693533893.MyServiceOne类的sm方法</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+sm方法的重要逻辑：
+一。生成一个四位随机数（Math.random()返回0到1之间的小数乘上double类型的9876还是四位数）
+此四位随机数 暂命名为random1
+
+二。用random1来调用com.shimeng.颜如玉.颜如玉QQ2693533893类的get方法，
+(可用objection看看有没com.shimeng.颜如玉.颜如玉QQ2693533893类)
+生成并在app页面显示识别码。
+
+三。将random1^1288，结果暂命名为random2
+用random2调用com.shimeng.颜如玉.颜如玉QQ2693533893类的getSaltMD5方法，结果暂命名salt1
+用salt1调用com.shimeng.qq2693533893.MyServiceOne类的"颜如玉"方法，结果暂命名salt2
+将salt2进行replaceAll("\\D+", "")操作。然后再substring(0,9)。结果暂命名为final_salt。
+
+四。输入内容前三位，暂命名为input1。4-12位暂命名为input2
+用input1，调用com.shimeng.qq2693533893.MyServiceOne类的"颜如玉"方法，结果暂命名为salt3。
+用salt3调用com.shimeng.颜如玉.颜如玉QQ2693533893类的getSaltMD5方法，结果暂命名为final_salt2
+将final_salt2+input2的结果暂命名为final_salt3
+将全局变量f3MD5的值+final_salt的结果暂命名为final_salt4
+
+五。最后：只有final_salt3和final_salt4相等，才能解锁当前页面，并进入下一个页面。
+
+解决方法：
+（ps：根据调用的函数参数类型，要对参数进行转型）
+一。js枚举获得一个salt_get1，
+（枚举范围是100-999，假设构造结果的字符串不为000,001或者是字符串等，若失败才重新考虑此问题）
+用salt_get1调用com.shimeng.qq2693533893.MyServiceOne类的"颜如玉"方法，
+结果暂命名salt_get2。
+用salt_get2调用com.shimeng.颜如玉.颜如玉QQ2693533893类的getSaltMD5方法，
+结果暂命名salt_get3
+若salt_get3等于全局变量f3MD5，则前半段爆破完成。
+得到正确的要输入的前三位salt_get1
+
+二。js枚举获得一个random_get1，
+（枚举范围是0-9999，其实只需要到9876即可）
+用random_get1来调用com.shimeng.颜如玉.颜如玉QQ2693533893类的get方法，
+返回结果若与屏幕中识别码一栏内容相同。则使用这个值。暂命名为random_compare
+然后用random_get1^1288，生成结果暂命名random_get2。
+用random_get2调用com.shimeng.颜如玉.颜如玉QQ2693533893类的getSaltMD5方法，
+结果暂命名random_get3。
+用random_get3调用com.shimeng.qq2693533893.MyServiceOne类的"颜如玉"方法，
+结果暂命名random_get4。
+将random_get4进行replaceAll("\\D+", "")再substring(0, 9)。
+结果命名为random_final。此时后半段爆破完成。
+
+三。将salt_get1+random_final输入到app框中即可进入下一层。
+</code></pre>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//第一层解锁，完整的js脚本
+function first_floor(){
+    Java.perform(function(){
+        console.log("Inside java perform");
+        var string_class = Java.use("java.lang.String");
+        for(var salt_get1 = 100 ; salt_get1 < 1000 ; salt_get1++){
+            //console.log("salt_get1:"+salt_get1);
+            var salt_get2 = Java.use("com.shimeng.qq2693533893.MyServiceOne").颜如玉(String(salt_get1));
+            var salt_get3 = Java.use("com.shimeng.颜如玉.颜如玉QQ2693533893").getSaltMD5(string_class.$new(salt_get2));
+            if(salt_get3 == "9DDEB743E935CE399F1DFAF080775366"){
+                console.log("right salt_get1:"+salt_get1);
+                break;
+            }
+        }
+        for(var random_get1 = 0 ; random_get1 < 9999 ; random_get1++){
+            var random_compare = Java.use("com.shimeng.颜如玉.颜如玉QQ2693533893").get(String(random_get1));
+            //console.log(random_compare)
+            if(random_compare == "●∷★※"){
+                //random_compare的具体值需要查看app页面确定
+                var random_get2 = random_get1^1288;
+                var random_get3 = Java.use("com.shimeng.颜如玉.颜如玉QQ2693533893").getSaltMD5(String(random_get2));
+                var random_get4 = Java.use("com.shimeng.qq2693533893.MyServiceOne").颜如玉(random_get3);
+                var random_final = string_class.$new(random_get4).replaceAll("\\D+", "").substring(0, 9);
+                console.log("random_final:"+random_final);
+                break;
+            }
+        }
+    });
+}
+</code></pre>
+<ol start="5">
+<li></li>
+</ol>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//第二层与第一层在代码逻辑上大同小异
+解决方法：
+一。js枚举一个变量random_s1，
+（范围100-999,假设构造结果的字符串不为000,001或者是字符串等，若失败才重新考虑此问题）
+用random_s1调用com.shimeng.颜如玉.颜如玉QQ2693533893类的hex_sha1方法。
+返回结果暂命名为random_s2。
+用random_s2调用com.shimeng.颜如玉.颜如玉QQ2693533893类的getTwiceMD5ofString方法，
+返回结果暂命名为random_s3。
+若random_s3与全局变量f0相等，则前半段爆破完成。
+
+
+二。js枚举一个变量random_ss1,范围（0-99999）
+用random_ss1调用调用com.shimeng.颜如玉.颜如玉QQ2693533893类的get方法，
+返回结果若与屏幕中识别码一栏内容相同。则使用这个值。暂命名为random_ss2
+用random_ss1调用com.shimeng.颜如玉.颜如玉QQ2693533893类的getTwiceMD5ofString方法，
+返回结果暂命名为random_ss3。
+用random_ss3调用com.shimeng.颜如玉.颜如玉QQ2693533893类的hex_sha1方法，
+返回结果暂命名为random_ss4
+将random_ss4进行replaceAll("\\D+", "")再substring(0, 9)，结果暂命名random_ss5。后半段爆破完成。
+
+三。将random_s3+random_ss5填到第二层锁屏的输入框，解锁并进入下一层。
+</code></pre>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//第二层解锁，完整的js脚本
+function second_floor(){
+    Java.perform(function(){
+        console.log("Inside java perform");
+        var string_class = Java.use("java.lang.String");
+        var getTwiceMD5ofString_handle = null;
+        Java.choose("com.shimeng.颜如玉.颜如玉QQ2693533893",{
+            onMatch:function(instance){
+                getTwiceMD5ofString_handle = instance;
+            },onComplete:function(){}
+        });
+        for(var random_s1 = 100 ; random_s1 < 1000 ; random_s1++){
+            var random_s2 = Java.use("com.shimeng.颜如玉.颜如玉QQ2693533893").hex_sha1(String(random_s1));
+            var random_s3 = getTwiceMD5ofString_handle.getTwiceMD5ofString(string_class.$new(random_s2));
+            if(random_s3 == "8D4FF507DCDA63C201EB8B99D4170900"){
+                console.log("right random_s1:"+random_s1);
+            }
+        }
+        //嘻❥÷∷●©额★※/
+        for(var random_ss1 = 0 ; random_ss1 < 99999 ; random_ss1++){
+            var random_ss2 = Java.use("com.shimeng.颜如玉.颜如玉QQ2693533893").get(String(random_ss1));
+            if(random_ss2 == "●/★÷❥"){
+                //random_ss2的具体值需要查看app页面确定
+                var random_ss3 = getTwiceMD5ofString_handle.getTwiceMD5ofString(String(random_ss1));
+                var random_ss4 = Java.use("com.shimeng.颜如玉.颜如玉QQ2693533893").hex_sha1(string_class.$new(random_ss3));
+                var random_ss5 = string_class.$new(random_ss4).replaceAll("\\D+", "").substring(0,9);
+                console.log("right random_ss5:"+random_ss5);
+            }
+        }
+    });
+}
+</code></pre>
+<p>6.进入第三层，也就是<br>
+com.shimeng.qq2693533893.MyServiceOne类的m2方法（仅在反编译后的java代码中方法名为m2，真实方法名：诗梦。真实方法名可用objection或在smali中寻找，最好使用前者）<br>
+主要逻辑是访问一个网站获取密码，然后与输入的内容进行对比。<br>
+解决方法：先然后调用com.shimeng.颜如玉.颜如玉QQ2693533893类的hex_sha1对666666进行计算，用计算出来的结果去修改全局变量。然后在app的对应页面上输入666666即可解锁最后一层。</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+//第三层锁机，完整js脚本
+function third_floor(){
+    Java.perform(function(){
+        console.log("Inside java perform");
+        var val = "666666";
+        var string_class = Java.use("java.lang.String");
+        var final_str_sha1 = Java.use("com.shimeng.颜如玉.颜如玉QQ2693533893").hex_sha1(string_class.$new(val));
+        Java.choose("com.shimeng.qq2693533893.MyServiceOne",{
+            onMatch:function(instance){
+                instance.坐等前往世界的尽头的小船.value = final_str_sha1;
+                //类中的真实全局变量名可在smali中找到
+            },onComplete:function(){}
+        })
+        console.log("final_str:"+final_str_sha1);
+    });
+}
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/pw0pUZKsb/" class="tag">
+                    安卓逆向
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/bilibili请求头明文分析/">
+                  <h3 class="post-title">
+                    bilibili请求头明文分析
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

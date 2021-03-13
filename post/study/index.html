@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>栈指针和帧指针总结 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="栈帧：每一个函数都有属于自己的栈帧，若在一个函数a中调用b，则a的栈帧将会被压到下面，然后进入到b，在运行b函数之前，有一段保存a栈帧的操作即保存属于函数a的ebp，然后才到b的栈帧空间
+栈指针：每个函数的调用都有一个栈区，都有栈指针
+帧指..." />
+    <meta name="keywords" content="汇编知识点,知识点总结" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">栈指针和帧指针总结</h2>
+            <div class="post-date">2019-05-11</div>
+            
+            <div class="post-content" v-pre>
+              <p>栈帧：每一个函数都有属于自己的栈帧，若在一个函数a中调用b，则a的栈帧将会被压到下面，然后进入到b，在运行b函数之前，有一段保存a栈帧的操作即保存属于函数a的ebp，然后才到b的栈帧空间</p>
+<p>栈指针：每个函数的调用都有一个栈区，都有栈指针</p>
+<p>帧指针：（主要是运用在函数的回溯，栈底地址也叫帧指针）每个栈帧对应着一个未运行完的函数。栈帧中保存了该函数的返回地址和局部变量。</p>
+<p>如：</p>
+<p>主函数1，子函数2那么主函数调用子函数后，子函数先将原本存放主函数1的帧首地址入栈，然后将主函数1入栈后，改变的esp值作为子函数本身的帧首地址（先esp改变然后再入栈的）</p>
+<p>总的来说：esp 又称栈指针 ebp又称为帧指针</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/bJWb4T-KY/" class="tag">
+                    汇编知识点
+                  </a>
+                
+                  <a href="https://closefrom.github.io/tag/EpFCy9P6n/" class="tag">
+                    知识点总结
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/jarvisoj-pwn-level1-wp/">
+                  <h3 class="post-title">
+                    jarvisoj pwn level1 wp
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

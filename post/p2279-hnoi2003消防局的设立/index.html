@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P2279 [HNOI2003]消防局的设立 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+贪心思想就是找最低没被覆盖到的点，并在它的祖父处设一个消防站。考虑到这个点的所有子孙后代都已经被覆盖了，因此这时覆盖祖父能盖到更多额外的点，并保证结果不会更差。
+很多思路是用dfs或堆求取最低节点，实际上没必要，只要预处理出深度（边..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P2279 [HNOI2003]消防局的设立</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>贪心思想就是找最低没被覆盖到的点，并在它的祖父处设一个消防站。考虑到这个点的所有子孙后代都已经被覆盖了，因此这时覆盖祖父能盖到更多额外的点，并保证结果不会更差。</p>
+<p>很多思路是用dfs或堆求取最低节点，实际上没必要，只要预处理出深度（边输入边处理）并排序，碰到已覆盖就跳过，未覆盖就在祖父处设消防站，ans++。</p>
+<p>问题在于怎样才能判断这个点覆盖到了没有。对于儿子或孙子覆盖他，可以在在儿子处设站时就标记它；而对于父亲和祖父覆盖他，可以用儿子对父亲的映射f来解决；问题在于兄弟。其实，可以用o数组维护“离i最近的消防站到i的距离”，当o[父亲]==1时，就能确定它是否被覆盖。</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;algorithm>
+using namespace std;
+const int ma = 1005;
+int n,a[1005],b[1005],sd[1005],jl[1005],ans=0;
+/*
+ a[v] 表示为 编号为v的基地 与编号为a[v]的基地之间有一条道路 即 建立树关系
+b[aa] 表示 当前 为编号为aa的基地
+sd[e] 表示 编号为e的基地，在整棵树的深度 
+jl[x]  表示 编号为x的基地，距离其最近的消防局 的 距离长度
+*/
+bool cp(int a,int b){
+    return sd[a]>sd[b];
+}
+int main(){
+    scanf("%d",&n);
+    b[1]=1;
+    jl[1]=jl[0]=ma;
+/*
+jl[0]=ma;一定要加！！！！  
+因为-> jl[a1]=min(jl[a1],min(jl[a2]+1,jl[a3]+2)); 
+如果 编号为a1的基地 是一棵树的根，则没有祖先，
+因此，jl[a2] = jl[a3] =ma,即 a2=a3=0编号的基地不存在，
+所以不可能有消防局这种东西。。。
+*/
+    for(int i=2;i&lt;=n;i++){scanf("%d",&a[i]);sd[i]=sd[a[i]]+1;b[i]=i;jl[i]=ma;}
+    sort(b+1,b+n+1,cp);
+    //按照每个基地，对应树的深度，来从大到小排序 b数组
+    //sd数组表示 每个树节点的深度
+    for(int i=1;i&lt;=n;i++){
+        int a1=b[i];int a2=a[a1];int a3=a[a2];
+        //a1表示 编号为b[i]的节点 a2表示 b[i]的子节点 （连接b[i]的节点） a3表示a2的子节点
+        jl[a1]=min(jl[a1],min(jl[a2]+1,jl[a3]+2));
+        /*
+        a[b[i]] 表示为 编号为b[i]的基地 与编号为a[b[i]]的基地之间有一条道路
+        o[v]表示  离编号为v的基地的最近的消防局的距离
+        看看 当前节点的 下面的节点 和下面的下面的节点 有没有消防局
+        有消防局，则可以用取 最小值，也就是离当前基地最近的消防局的距离
+        如 数据： 6 1 2 3 4 5
+        到了最小深度 也就是 b[n]的时候，由于 b[n]=1,也就是深度最小的（根树），也就是说没有基地再通向它 所以他没有 上级 或者上上级 
+        */
+        if(jl[a1]>2){
+            jl[a3]=0;ans++;
+            printf("");
+            //将当前基地 a3 设置 消防局 则 下面 两个节点（基地）则 比较一下 距离自己当前基地的最近的消防局 是否小于等于 1 或2
+            jl[a[a3]]=min(jl[a[a3]],1);jl[a[a[a3]]]=min(jl[a[a[a3]]],2);
+        }
+    }
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1216-usaco1-5数字三角形-number-triangles/">
+                  <h3 class="post-title">
+                    P1216 [USACO1.5]数字三角形 Number Triangles
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

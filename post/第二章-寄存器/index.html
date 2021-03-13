@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第二章-寄存器 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="PS:对于一个汇编程序员来说,CPU的主要部件是寄存器
+寄存器是存储器的子集
+1.在CPU中
+
+
+运算器进行信息处理
+
+
+寄存器进行信息处理
+
+
+控制器控制各种器件进行工作
+
+
+内部总线连接各种器件,在它们之间进行数据传送
+
+
+
+8086C..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第二章-寄存器</h2>
+            <div class="post-date">2019-05-11</div>
+            
+            <div class="post-content" v-pre>
+              <p>PS:对于一个汇编程序员来说,CPU的主要部件是寄存器</p>
+<p>寄存器是存储器的子集</p>
+<p>1.在CPU中</p>
+<ul>
+<li>
+<p>运算器进行信息处理</p>
+</li>
+<li>
+<p>寄存器进行信息处理</p>
+</li>
+<li>
+<p>控制器控制各种器件进行工作</p>
+</li>
+<li>
+<p>内部总线连接各种器件,在它们之间进行数据传送</p>
+</li>
+</ul>
+<ol start="2">
+<li>8086CPU的所有寄存器都是16位的</li>
+</ol>
+<ul>
+<li>AX,BX,CX,DX是存放一般性的数据,也成为通用寄存器<br>
+如:AX存储器可以分为两个可以独立使用的2个存储器,AH和AL,也就是高位字节和低位字节</li>
+<li>一个16位寄存器可以存储一个16位的数据</li>
+</ul>
+<p>3.汇编指令</p>
+<ul>
+<li>mov ax,18 将18送入寄存器AX</li>
+<li>mov ah,78 将78送入寄存器AH</li>
+<li>add ax,8 将8累加到寄存器AX中</li>
+<li>mov ax,bx 将寄存器BX的数据送入到寄存器AX中</li>
+<li>add ax,bx 将寄存器BX中的数据累加到寄存器AX中</li>
+</ul>
+<p>(ps:写一条汇编指令或寄存器的名称时,不区分大小写)</p>
+<p>扩展:</p>
+<p>mov ax,8226H</p>
+<p>add ax,8226H</p>
+<p>两个十六进制的数8226,相加之后的值是1044CH, AX是16位的存储器,只能放4位16进制的数据,最后最高位的1不能在AX中保存,此时AX中的数据为:044CH</p>
+<p>补充:</p>
+<p>在进行数据传送或者运算的时候,要注意指令的两个操作对象的位数,应该一致</p>
+<p>如:</p>
+<p>mov ax,bx</p>
+<p>mov ax,18H</p>
+<p>add ax,20000</p>
+<p>而,下面指令都是错误的:</p>
+<p>如:</p>
+<p>mov ax,bl ==&gt; 8位寄存器和16位寄存器之间不能传送数据 mov bh,ax 也是同理</p>
+<p>mov al,20000 ==&gt;8位的寄存器最大只能存放的值是255的数据,超过了就会报错</p>
+<p>add al,100H ==&gt; 高于8位的数据不能加入到8位寄存器中</p>
+<ol start="4">
+<li>当CPU要访问内存单元的时候,都要 说明(给出)内存单元的地址, 所有的内存单元都在一个一维的线性空间,每个内存单元都在这个空间中有一个唯一的地址叫做物理地址所以说,CPU要读写,通过地址总线传输的一定是内存单元的物理地址</li>
+</ol>
+<p>在CPU向地址总线发出内存单元的物理地址之前,必须要在内部先形成这个物理地址</p>
+<p>前置知识:</p>
+<p>8086CPU是16位结构的CPU,有如下结构特性:</p>
+<ul>
+<li>运算器一次最多可以处理16位的数据</li>
+<li>寄存器最大宽度是16位</li>
+<li>寄存器和运算器之间的通路是16位</li>
+<li>在8086内部,能一次性处理,传输,暂时存储的信息最大长度是16位</li>
+<li>(内存单元的地址在送上地址总线之前,必须在CPU中处理,传输,暂时存放)</li>
+</ul>
+<p>8086CPU在内部如何形成内存单元的物理地址 ：</p>
+<p>8086CPU有20根地址总线,可传输20位地址,寻址能力1MB</p>
+<p>从CPU内部结构来看,若将地址从内部简单发出,那它只能发送16位地址,寻址能力是2^16=65536B=64KB</p>
+<p><strong>当8086CPU要读写内存的时候:</strong></p>
+<p>一.CPU相关部件提供2个16位地址,一个是段地址,另一个是偏移地址</p>
+<p>二.两个地址通过内部总线送入 地址加法器</p>
+<p>三.地址加法器将两个16位地址合为1个20位物理地址,然后通过内部总线送入输入输出控制电路</p>
+<p>四.输入输出控制电路 将20位物理地址送上地址总线</p>
+<p>五.20位物理地址被地址总线传送到存储器</p>
+<p>补:</p>
+<p>地址加法器 用 物理地址=段地址*16+偏移地址 这种方式合成物理地址</p>
+<p>物理地址=段地址*16+偏移地址 本质含义是 CPU在访问内存时,用一个基础地址(段地址*16)和一个相对于基础地址的偏移地址相加,给出内存单元的物理地址</p>
+<p>8086CPU这种寻址能力是”基础地址+偏移地址=物理地址” 寻址模式的一种具体实现方案 (ps:基础地址可以理解成,本来所在的位置地址,加上偏移地址就可以访问到一个内存单元的物理地址)</p>
+<p>小结:</p>
+<p>CPU访问内存单元时,必须向内存提供内存单元的物理地址,8086CPU在内部通过段地址和偏移地址移位相加的方法形成最终的物理地址</p>
+<p>CPU还可以通过不同的段地址和偏移地址形成同一个物理地址</p>
+<p>若给定一个段地址,只通过变化偏移地址来寻址,最多可定位65536个内存单元<br>
+如:给定段地址,1000H,用偏移地址寻址,则,CPU寻址范围为:10000H-1FFFFH<br>
+(ps:在8086CPU中,存储单元用两个元素来表示,就是段地址和偏移地址)</p>
+<p>例子:</p>
+<p>“数据在21F60H内存单元中” 在8086PC机中,有两种说法</p>
+<p>①数据存在内存2000:1F60单元中</p>
+<p>②数据存在内存的2000H段的1F60H单元中可以根据需要,将地址连续和初始地址为16的倍数的一组内存单元定义为一个段</p>
+<p>5.在上面，当8086CPU要读写内存时，是相关部件提供内存单元的段地址和偏移地址到底是什么部件提供了段地址？</p>
+<p>一.在8086CPU要访问内存时，由CS,DS,SS,ES这四个段寄存器提供内存单元的段地址</p>
+<p>二.CS和IP是8086CPU中两个最关键的寄存器，CS是代码段寄存器，IP是指令指针寄存器</p>
+<p>三.在8086PC机中，任何时刻，若CS中内容为M,IP中内容为N，则8086CPU将从内存M*16+n单元开始，读取一条指令并执行</p>
+<p>四.8086CPU读取和执行指令的工作原理：</p>
+<p>(1)从CS：IP只想的内存单元读取指令，读取的指令进入指令缓冲器</p>
+<p>(2)IP=IP+所读取指令的长度,从而得到指向下一条指令的IP</p>
+<p>(3)执行指令，然后转到步骤(1) 重复这个过程</p>
+<p>五.8086CPU加电启动或复位后（CPU刚刚开始工作），CS和IP都分别被设为FFFFH,0000H</p>
+<p>即：FFFF0H单元的指令是8086PC机开机后执行的第一条指令</p>
+<p>扩展：CPU将CS：IP指向的内存单元中的内容看做指令，因为CPU将CS，IP中的内容当做指令的段地址和偏移地址，用它们来合成物理地址，用来到内存中读取相应指令 来执行若内存中一段信息曾被CPU执行过，那么一定被CS：IP指向过</p>
+<p>6.修改CS和IP的最简单指令：jmp指令</p>
+<p>jmp 段地址：偏移地址 =&gt; 表示 用指令中给出的段地址修改CS，偏移地址修改IP<br>
+如：jmp 2AE3:3 ,执行后 CS=2AE3H,IP=0003H CPU从2AE33H处开始读取指令</p>
+<p>如果只想修改IP，可以jmp 某个合法寄存器<br>
+如：jmp ax ，指令执行前：AX=1000H，CS=2000H，IP=0003H<br>
+指令执行后：AX=1000H，CS=2000H，IP=1000H<br>
+jmp 某个合法寄存器 =&gt;表示 用寄存器中的值来修改IP<br>
+jmp ax在含义上于 mov IP,ax 类似(但不能这么用)<br>
+(即：jmp修改完CS和IP之后，CPU将按照CSL:IP的位置读取指令)</p>
+<p>7.CPU只认被CS：IP指向的内存单元中的内容为指令</p>
+<p>8.debug 是 实模式程序的调试工具，可用来 看CPU各种寄存器中的内容，内存情况，和在机器码级跟踪程序的运行</p>
+<p>（下面是常用的debug命令：）</p>
+<ul>
+<li>R，查看改变CPU寄存器的内容</li>
+<li>D，查看内存中的内容</li>
+<li>E，改写内存中的内容</li>
+<li>U，将内存中的机器指令指令翻译成汇编指令</li>
+<li>T，执行一条机器指令</li>
+<li>A，以汇编指令的格式在内存中写入一条机器指令</li>
+</ul>
+<p>R D U 为读 （D U 使用都要段地址：偏移地址）<br>
+E为改（可以是内存中的某个具体地址，改的是机器指令，最好用A），A为写，<br>
+T为执行</p>
+<p>9.十六进制的数据，若有对应的ASCII码，就显示，没有就显示.</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第一章-基础知识/">
+                  <h3 class="post-title">
+                    第一章-基础知识
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

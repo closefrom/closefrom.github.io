@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第13章-int指令 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.int指令，重要的一种内中断
+CPU执行int n指令后，执行过程如下：
+（1）取中断类型码n
+（2）标志寄存器入栈，TF=0，IF=0
+（3）CS，IP入栈
+（4）（IP）=（n*4），（CS）=（n*4+2）
+2.对int iret..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第13章-int指令</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.int指令，重要的一种内中断</p>
+<p>CPU执行int n指令后，执行过程如下：</p>
+<pre class="wp-block-code"><code>（1）取中断类型码n
+（2）标志寄存器入栈，TF=0，IF=0
+（3）CS，IP入栈
+（4）（IP）=（n*4），（CS）=（n*4+2）</code></pre>
+<p>2.对int iret深入理解</p>
+<p>问题：用7ch中断例程完成loop指令</p>
+<p>loop s的执行需要两个信息，循环次数和s的位移，用cx存放循环次数，bx存放位移应用：在屏幕中间显示80个！</p>
+<pre class="wp-block-code"><code>assume cs:code
+code segment
+start:mov ax,0b800H
+mov es,ax
+mov di,160*12
+mov bx,offset s-offset se
+mov cx,80
+s:mov byte ptr es:[di],'!'
+add di,2
+int 7ch
+se:nop
+7ch中断例程：
+lp:push bp
+mov bp,sp
+dec cx
+jcxz lpret
+add [bp+2],bx
+lpret:pop bp
+iret</code></pre>
+<pre class="wp-block-code"><code>总结：{
+要模拟loop指令，7ch中断例程应该具备下面功能：
+（1）dec cx
+（2）若（cx）！=0，转至s标号执行，否则，继续执行
+显然要转到s标号，就好改变CS和IP，那么怎么获取s的段地址和偏移地址呢？
+在中断过程中，CS和IP和当前标志寄存器都要入栈，那么入栈的CS就是跟s标号同一个段地址的，int 7ch后的一条指令的偏移地址，即se的偏移地址，
+得知这两个后，还知道了bx存放位移，所以，s的偏移地址就知道了，即se的偏移地址加上bx中的转移位移（即修改栈中的数据就可以了，因为中断程序结束后，会iret进行相应出栈操作，然后跳转到s标号）
+}</code></pre>
+<p>3.系统板的ROM上有一套BIOS程序，主要包含以下内容：</p>
+<pre class="wp-block-code"><code>（1）硬件系统的检测和初始化程序
+（2）外部中断和内部中断的中断例程
+（3）用于对硬件设备进行I/O操作的中断例程
+（4）其他和硬件系统相关的中断例程</code></pre>
+<p>4.BIOS和DOS中断例程的安装过程</p>
+<pre class="wp-block-code"><code>（1）开机后，CPU加电，初始化（CS）=0FFFFH，（IP）=0，FFFF：0处有一条跳转指令，转到执行BIOS中的硬件系统检测和初始化程序：BIOS提供的中断例程的入口地址将要登记到中断向量表中
+（2）硬件系统检测和初始化完之后，调用int 19h进行操作系统引导，从此将计算机交给操作系统控制
+（3）DOS启动后，除了完成其他工作外，还将它所提供的中断例程装入内存，并建立相应的中断向量</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第12章-内中断/">
+                  <h3 class="post-title">
+                    第12章-内中断
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P2467 [SDOI2010]地精部落 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+题意，求波动数列
+首先我们必须要搞清楚3个性质
+First: 在一个波动数列中，若两个 i 与 i+1 不相邻，那么我们直接交换这两个数字就可以组成一个新的波动数列； 举个栗子： 5 2 3 1 4
+4 2 3 1 5
+Second..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P2467 [SDOI2010]地精部落</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>题意，求波动数列</p>
+<p>首先我们必须要搞清楚3个性质</p>
+<p>First: 在一个波动数列中，若两个 i 与 i+1 不相邻，那么我们直接交换这两个数字就可以组成一个新的波动数列； 举个栗子： 5 2 3 1 4</p>
+<p>4 2 3 1 5</p>
+<p>Second: 把波动数列中的每个数字Ai 变成 (N+1)-Ai 会得到另一个波动数列，且新数列的山峰与山谷情况相反；</p>
+<p>举个栗子： 1 4 2 5 3 （用 6 – 每个数） 1是山谷，4是山峰，后面类推</p>
+<p>5 2 4 1 3 这个数列也是波动的 ，且 5是山峰，2是山谷；</p>
+<p>Third: 波动序列有对称性。 栗子：1 4 2 5 3 to 3 5 2 1 4</p>
+<p>这样我们的DP方程可以写成是：DP[I][J]表示 选 1 To I 这些数字，第一个数为山峰（山峰山谷比较形象），且第一个数为 J；</p>
+<p>答案就是 ∑ DP[N][j] (j = 1 to N)</p>
+<p>如何转移？这里我先上代码；</p>
+<p>DP[i][j]=DP[i][j-1]+DP[i-1][i-j+1];</p>
+<p>首先，我每次求 j作序列头，且表示山峰</p>
+<p>由性质一可知，当j与j-1不相邻的时候，j作为头所有的方案数与j-1作为头的方案数相同，于是就有DP[I][J]=DP[I][J-1];</p>
+<p>对于DP[i][j]+=DP[i-1][i+j-1];就是当j 与 j-1相邻时的情况；</p>
+<p>我们可以这么想，我第一个数选择了J 并且定义为山峰，那我第二个数j-1必定为山谷，后面的数属于[1,j-1]和[j+1,i]；</p>
+<p>此时问题转化成了求 i-1个数，j-1为头，但是j-1 为山谷的方案数，由性质2可知，j-1作山谷和作山峰的方案数相同；</p>
+<p>现在的问题就是，此时的区间和我DP方程的区间意义不同；</p>
+<p>没关系；因为山峰与山谷是相对位置关系，将[j+1,i]区间的每个数都减一，这样是不改变相对大小关系的，并且此时就符合我们的方程了；</p>
+<p>另外，我DP[i-1][j-1]表示的是J-1为山顶时的个数，为了让其表示J-1为山谷的情况，要改成DP[i-1][(i-1+1)-(j-1)]；</p>
+<p>这样就得到了我们的转移方程，我们可以用滚动数组优化空间；</p>
+<p>滚动数组：</p>
+<h4 id="滚动数组是dp中的一种编程思想-简单的理解就是让数组滚动起来每次都使用固定的几个存储空间来达到压缩节省存储空间的作用-起到优化空间主要应用在递推或动态规划中如01背包问题-因为dp题目是一个自底向上的扩展过程我们常常需要用到的是连续的解前面的解往往可以舍去-所以用滚动数组优化是很有效的-利用滚动数组的话在n很大的情况下可以达到压缩存储的作用">滚动数组是DP中的一种编程思想。简单的理解就是让数组滚动起来，每次都使用固定的几个存储空间，来达到压缩，节省存储空间的作用。起到优化空间，主要应用在递推或动态规划中（如01背包问题）。因为DP题目是一个自底向上的扩展过程，我们常常需要用到的是连续的解，前面的解往往可以舍去。所以用滚动数组优化是很有效的。利用滚动数组的话在N很大的情况下可以达到压缩存储的作用。</h4>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#define max_n 4205
+using namespace std;
+int n,p;
+int dp[2][max_n];//dp[i][j]表示在1和i之间选一个数，作为第一个数j，并且这个数是山峰，的方案数
+int main(){
+    scanf("%d%d",&n,&p);
+    dp[0][2]=1;//这里初始化的0其实是2  2&1=0  也就是1到2个数，取第二个数作为山峰且是第一个数的方案数，只有一种  即21
+    for(int i=3;i&lt;=n;i++)
+        for(int j=2;j&lt;=i;j++){
+            dp[i&1][j]=(dp[i&1][j-1]+dp[(i-1)&1][i-j+1])%p;
+        }
+    /*
+    第一个循环很明显是从3开始，也就是1到3个数
+    第二个循环表示 以j为第一个数，并且是山峰，1不可能做山峰所以就从2开始
+    转移的依据是 j和j-1这两个数是否相邻
+    如果这两个数不相邻，则可以从dp[i][j-1]转移过来，如题目给的样例  2143  2413   与   3142  3412  
+    由此可见，3开头 并且是山峰的，并且与j-1也就是 2 不相邻，两个方案数是相同的所以，可以转移到
+    然后就是 两个数相邻的情况，
+    也就是j-1是山谷，由于数组的定义不可能 通过j-1是山谷来转移，所以要让 去掉j，让j-1作为第一个数，并且为山峰，
+    因为相邻所以j-1是山谷，要让其变成山峰，则 要用到 (i+1)-j   因为要改变j-1，所以i也要-1.即 (i+1-1)-(j-1)
+    dp[(i-1)&1][i-j+1]  因为区间是在1到i-1，根据性质，可以知道   求j-1变成山峰，只需要 (i-1) +1  -(j-1)
+    */
+    int ans=0;
+    for(int i=2;i&lt;=n;i++)
+        ans=(ans+dp[n&1][i])%p;
+    printf("%d",ans*2%p);
+    //由于还具有对称性的特点如：14253   =>   35241  所以要*2
+
+
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p3084-usaco13open照片photo/">
+                  <h3 class="post-title">
+                    P3084 [USACO13OPEN]照片Photo
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

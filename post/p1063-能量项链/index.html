@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1063 能量项链 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="区间dp能解决的问题就是通过小区间更新大区间，最后得出指定区间的最优解
+个人认为，想要用区间dp解决问题，首先要确定一个大问题能够剖分成几个相同较小问题，且小问题很容易组合成大问题，从而从解决小问题逐渐解决大问题，体现的其实是分治的思想，只..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1063 能量项链</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>区间dp能解决的问题就是通过小区间更新大区间，最后得出指定区间的最优解</p>
+<p>个人认为，想要用区间dp解决问题，首先要确定一个大问题能够剖分成几个相同较小问题，且小问题很容易组合成大问题，从而从解决小问题逐渐解决大问题，体现的其实是分治的思想，只不过是通过dp用递推的方式解决了。比如floyd现在看来也属于区间dp 的一种。</p>
+<p>本题应通过演算过程发现最终问题的解决可由两个相同规模较小的问题轻松地转化过来。（一般分治时只分成两个简化程序） 用f[l][r]表示以a[l]开头a[r]结尾的数串的最大和，如k为i,j之间任一节点，有f[l][r]=max(f[l][r],f[l][k]+f[k][r]+a[l]_a[k]_a[r]); 对l,r的定义自己一定要十分清晰，从而确定好循环的边界。</p>
+<p>本题的小技巧：在环形问题中，可以选择(i+1)%n的方式，但也可以将n个元素复制一遍，变成2*n个元素，简化代码。</p>
+<p>但也有问题随之而来，在更新时要将2*n个元素都更新，而不能只更新到前n个，否则访问到n+1~2n时会出错</p>
+<pre class="wp-block-code"><code>//My AC Code:
+#include &lt;cstdio>
+using namespace std;
+int n,dp[205][205],ans=-1,nn[205];
+int max(int a,int b){return a>b?a:b;}
+int main(){
+    scanf("%d",&n);
+    for(int i=1;i&lt;=n;i++){scanf("%d",&nn[i]);nn[i+n]=nn[i];}
+    
+    for(int i=2;i&lt;=n+1;i++){//这一层循环是用来控制 最后边的位置right
+        for(int j=1;j+i-1&lt;=2*n;j++){
+            int r=j+i-1;//r的范围是2-2*n
+            for(int k=j+1;k&lt;=j+i-2;k++)// 如：若有三个数ABC，则 k表示为B这个数
+                dp[j][r]=max(dp[j][r],dp[j][k]+dp[k][r]+nn[j]*nn[k]*nn[r]);
+        }
+        
+    }
+    for(int i=1;i&lt;=n;i++){ans=max(ans,dp[i][n+i]);}//dp完之后从dp[i][n+i]中找，也就是找n个珠子
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/javan皇后位运算总结/">
+                  <h3 class="post-title">
+                    (java)n皇后位运算总结
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

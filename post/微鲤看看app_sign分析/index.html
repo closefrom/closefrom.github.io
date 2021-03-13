@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>对微鲤看看登录算法进行简单分析 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="(分析的apk来源于腾讯应用宝：https://android.myapp.com/myapp/detail.htm?apkName=cn.weli.story&amp;ADTAG=mobile)
+//抓包环境postern+charles..." />
+    <meta name="keywords" content="安卓逆向" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">对微鲤看看登录算法进行简单分析</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>(分析的apk来源于腾讯应用宝：https://android.myapp.com/myapp/detail.htm?apkName=cn.weli.story&amp;ADTAG=mobile)<br>
+//抓包环境postern+charless<br>
+//逆向环境frida12.8.0全套   jadx+gda<br>
+//手机环境android8.1.0_r1+magisk+wifiadb</p>
+<p>1.对app登录进行简单的抓包分析<br>
+（1）打开微鲤看看，用已有账号密码进行登录，并通过postern+charles进行抓包。抓到关键链接为<br>
+：https://cloud-server.weilitoutiao.net/api/coin/common/login<br>
+<img src="https://closefrom.github.io/post-images/1615586606052.png" alt="" loading="lazy"></p>
+<p>（2）由于apk未进行加壳，所以直接拖入gda/jadx直接可以查看源码，可用上面抓包抓取到的链接在apk中进行字符串搜索，定位到唯一方法：<br>
+<img src="https://closefrom.github.io/post-images/1615586618810.png" alt="" loading="lazy"></p>
+<p>（3）通过编写frida脚本来确定登录是否调用此方法，以及打印调用此方法传入的参数和调用栈：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+function hook_weili(){
+    Java.perform(function(){
+        console.log("inside java perform");
+        Java.use("cn.etouch.ecalendar.sync.a.a.f").$init.implementation = function(str1,str2,context1){
+            console.log(Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Throwable").$new()));
+            console.log("str1:",str1);
+            console.log("str2:",str2);
+            console.log("context:",context1);
+            this.$init(str1,str2,context1);
+            return;
+        }
+    });
+}
+setImmediate(hook_weili);
+</code></pre>
+<p>attach上app后，对app进行登录操作，脚本回显内容为：<br>
+<img src="https://closefrom.github.io/post-images/1615586653440.png" alt="" loading="lazy"><br>
+此处str1为登录的账号，str2为登录的密码。</p>
+<p>2.对前面抓包抓到的登录表单中的app_sign算法进行简单分析<br>
+（1）通过gda对app_sign进行搜索：<br>
+<img src="https://closefrom.github.io/post-images/1615586672470.png" alt="" loading="lazy"><br>
+（其实还有很多没搜到）</p>
+<p>（2）通过查看搜索到的类方法，发现都是用hashtable的put方法对&quot;app_sign&quot;这个键进行赋值<br>
+即：hashtable.put(&quot;app_sign&quot;, ah.a(hashtable)); 于是对&quot;app_sign&quot;的值进行分析。</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+app_sign的值，是通过将 创建并插入一些键值对的hashtable为参数，
+调用cn.etouch.ecalendar.manager.ah的a方法
+{
+此类的a方法有多个重载，
+此处调用的a方法的源码：
+public static String ah.a(Hashtable p0)	//method@00ac20
+{
+   String sElement;
+   TreeMap treeMap = new TreeMap();
+   if (p0) {	
+      Enumeration ekeys = p0.keys();
+      while (ekeys.hasMoreElements()) {	
+         sElement = ekeys.nextElement();
+         treeMap.put(sElement, p0.get(sElement));
+      }	
+   }	
+   StringBuffer stringBuffer = new StringBuffer();
+   Iterator iiterator = treeMap.keySet().iterator();
+   while (iiterator.hasNext()) {	
+      sElement = iiterator.next();
+      stringBuffer = stringBuffer.append(sElement).append(treeMap.get(sElement));
+   }	
+   return ah.a(stringBuffer.append("616c4ac6d6fd4eea986041a360f4e7b2").toString().getBytes());
+}
+}
+/*
+此方法的主要逻辑：新建一个TreeMap，将传过来的hashtable复制到自身。
+然后创建字符串变量，将TreeMap中的所有键值对，以此追加到字符串后面，
+最后再加上616c4ac6d6fd4eea986041a360f4e7b2，
+并将这段字符串转为byte类型数组作为参数调用cn.etouch.ecalendar.manager.ah类的
+另一个a方法{ 此a方法原型：public static String ah.a(byte[] p0) }
+*/
+
+---------------------------分-割-线---------------------------
+
+public static String ah.a(byte[] p0)原型的a方法的源码：
+public static String ah.a(byte[] p0)	//method@00ac22
+{
+   return ah.c(ah.d(p0));
+}
+/*
+此方法主要逻辑就是用传入的参数p0调用cn.etouch.ecalendar.manager.ah类的d方法，
+并将d方法的返回结果作为参数调用cn.etouch.ecalendar.manager.ah类的c方法。
+*/
+
+---------------------------分-割-线---------------------------
+
+cn.etouch.ecalendar.manager.ah类的d方法源码：
+private static byte[] ah.d(byte[] p0)	//method@00ac8a
+{
+   byte[] obyteArray;
+   int vint;
+   try{	
+      obyteArray = null;
+      MessageDigest mInstance = MessageDigest.getInstance("MD5");
+   }catch(java.lang.Exception e1){	
+      a.b(e1);
+      vint = obyteArray;
+   }	
+   if (!vint) {	
+      return obyteArray;
+   }	
+   vint.update(p0);
+   return vint.digest();
+}
+/*
+此方法的主要逻辑就是将使用java.security.MessageDigest类的md5摘要算法，
+对传入的参数整体进行md5，将最后的结果返回。
+*/
+
+---------------------------分-割-线---------------------------
+
+cn.etouch.ecalendar.manager.ah类的c方法源码：
+private static String ah.c(byte[] p0)	//method@00ac72
+{
+   int vint;
+   if (!p0) {	
+      return null;
+   }	
+   String str = "0123456789abcdef";
+   StringBuilder stringBuilde = new StringBuilder((p0.length*2));
+   for (vint = 0;vint < p0.length;vint = vint+1) {	
+      stringBuilde = stringBuilde+str.charAt(((p0[vint]>>4)&0x0f))+str.charAt((p0[vint]&0x0f));
+   }	
+   return stringBuilde;
+}
+//此方法主要逻辑是将传入的字节数组进行一系列操作，最后再将结果返回。
+</code></pre>
+<p>（3）从上面简单分析可知，cn.etouch.ecalendar.manager.ah类的d方法将传入的byte数组进行md5操作，返回的byte数组是一串md5。cn.etouch.ecalendar.manager.ah类的c方法返回的string字符串 将成为键&quot;app_sign&quot;的值。</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+/*
+编写frida脚本，
+（1）将cn.etouch.ecalendar.manager.ah类的d方法的byte数组参数
+转为字符串。并将此类的返回结果的byte数组输出出来（即将byte数组参数进行md5后的结果）
+（2）将cn.etouch.ecalendar.manager.ah类的c方法的byte数组参数输出出来，
+并将此方法的返回结果的byte数组输出出来。
+*/
+
+function hook_weili(){
+    Java.perform(function(){
+        console.log("inside java perform");
+        var ByteString = Java.use("com.android.okhttp.okio.ByteString");
+        var String_class = Java.use("java.lang.String");
+        Java.use("cn.etouch.ecalendar.manager.ah").d.overload('[B').implementation = function(byte1){
+            //console.log("bytearray2:",ByteString.of(byte1).hex());
+            //console.log(Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Throwable").$new()));
+            var result = this.d(byte1);
+            console.log("d function byte1 to String:",String_class.$new(byte1));
+            console.log("d function result :",ByteString.of(result).hex());
+            return result;
+        }
+        Java.use("cn.etouch.ecalendar.manager.ah").c.overload('[B').implementation = function(byte1){
+            //console.log(Java.use("android.util.Log").getStackTraceString(Java.use("java.lang.Throwable").$new()));
+            console.log("c function byte1 ",ByteString.of(byte1).hex());
+            var result = this.c(byte1);
+            console.log("c function result:",result);
+            return result;
+        }
+    });
+}
+setImmediate(hook_weili);
+</code></pre>
+<p>（4）将抓包软件启动，将app启动并退出当前账号，用上面的frida脚本attach上app。然后使用账号密码的方式在app中进行登录。抓包软件抓取到的登录表单如下图：<br>
+<img src="https://closefrom.github.io/post-images/1615586850201.png" alt="" loading="lazy"><br>
+app_sign值为9a7a5fe9875c49f21f89a81f43a1b06b。</p>
+<p>另一边，attach上app的frida脚本，回显如下图：<br>
+<img src="https://closefrom.github.io/post-images/1615586862965.png" alt="" loading="lazy"><br>
+cn.etouch.ecalendar.manager.ah类的c方法的返回结果（即键&quot;app_sign&quot;的值）为：9a7a5fe9875c49f21f89a81f43a1b06b。从回显可以知道，cn.etouch.ecalendar.manager.ah类的c方法对传入的byte数组的内容没有任何变化。以及构造此md5的原始数据。</p>
+<p>（ps：最后还可以hook cn.etouch.ecalendar.manager.ah的a方法，方法原型为：public static String ah.a(Hashtable p0)。并且打印调用栈。以追踪其他有app_sign的地方。）</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/pw0pUZKsb/" class="tag">
+                    安卓逆向
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/android锁机软件分析/">
+                  <h3 class="post-title">
+                    分析一款android三层锁机勒索病毒app
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

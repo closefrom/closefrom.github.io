@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1080 国王游戏 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="#include &lt;algorithm>
+
+#include &lt;iostream>
+
+#include &lt;cstdio>
+
+#include &lt;cstring>
+
+using namespace std;
+
+int ..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1080 国王游戏</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <pre class="wp-block-code"><code>#include &lt;algorithm>
+
+#include &lt;iostream>
+
+#include &lt;cstdio>
+
+#include &lt;cstring>
+
+using namespace std;
+
+int n,f[30005];//高精度乘除用到的数组
+
+struct people{
+
+    int left;
+
+    int right;
+
+}p[1005];
+
+bool cmd(people a,people b){
+
+    if(a.left*a.right!=b.left*b.right)return a.left*a.right&lt;b.left*b.right;
+
+    else return a.right&lt;b.right;
+
+}//罗列其中的一种数据比较小的情况，并且由此计算推到，前后两个人的左右手的乘积排序，从小到大
+
+
+int main(){
+
+    scanf("%d",&n);
+
+    for(int i=0;i&lt;=n;i++)scanf("%d%d",&p[i].left,&p[i].right);
+
+    sort(p+1,p+n+1,cmd);
+
+    f[0]=1;f[1]=p[0].left;
+//f[0]存放的是一共有多少位数，f[1]初始化为国王的左手的数值
+    for(int i=1;i&lt;=n-1;i++){
+
+        int t=0;
+
+        for(int j=1;j&lt;=f[0];j++){
+
+            f[j]*=p[i].left;
+
+            f[j]+=t;
+
+            t=f[j]/10000;f[j]%=10000;
+
+        }
+
+        if(t>0){f[++f[0]]=t;}
+
+    }
+/*
+高精乘
+第一重for循环表示为第一个人到倒数第二个人的左手的数
+定义一个临时变量t用来存放压位取整的过渡
+f[i]*=p[i].left,一开始是f[1]*p[1].left，表示国王手上的数值乘上第一个大臣左手上的数值，然后f[j]+=t;表示加上f[j-1]位（j前面的所有人左手上的数值的乘积，压缩一万的进位整数）
+t=f[j]/10000; f[j]上的数值以一万进制，得到的整数赋给t，f[j]%=10000; f[j]位置上以一万进制计算后，剩下的数
+if(t>0)f[++f[0]]=t; 若t>0即t中有一万进制得到的整数，则将其赋值给f[++f[0]]  (即f[0]以万进制计算获得的整数有增加一个单位)
+*/
+
+
+    int t=0;
+
+    for(int i=f[0];i>=1;i--){
+
+        t+=f[i];f[i]=t/p[n].right;
+
+        t%=p[n].right;t*=10000;
+
+    }
+
+/*
+初始化t变量为0，从f[0]位置-1位置的数作高精除
+一开始t+=f[i];t累加i位置上的f，即从后向前，从最高位向个位
+f[i]=t/p[n].right t当前累加的数除最后一位大臣右手上的值，然后赋值给f[i]
+t%=p[n].right;当前累加的t也除最后一个大臣右手上的值
+然后t*=10000; 还原数值原本大小，为下一位f[i]计算作准备
+*/
+
+    for(;f[f[0]]==0&&f[0]>0;f[0]--);
+
+//除去最高位的0项 移动指针
+    if(f[f[0]]==0)printf("1");else printf("%d",f[f[0]]);
+
+//若f[f[0]]还是为0，则输出1，因为是万进制，否则输出最高位的那个数
+    for(int i=f[0]-1;i>=1;i--){
+
+        if(f[i]&lt;10)printf("000");
+
+        if(f[i]&lt;100&&f[i]>=10)printf("00");
+
+        if(f[i]&lt;1000&&f[i]>=100)printf("0");
+
+        printf("%d",f[i]);
+
+    }
+
+//由于上面已经输出了最高位，所以下面只需要判断10 100 1000 ，然后相应地补齐0然后再输出当前位置的数(从最高位-1到1位置上的数)，加上上面那些位，还原万进制的数
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1514-引水入城/">
+                  <h3 class="post-title">
+                    P1514 引水入城
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

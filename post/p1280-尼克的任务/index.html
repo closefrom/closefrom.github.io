@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1280 尼克的任务 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="这题显然是一个线性动规，那么肯定是第一时间想到设f[i]:1i的最大空闲时间，但是，想了一下之后发现，第i时刻的最大空闲时间是和后面i+选择任务的持续时间的时刻有关系的，那么，正着找肯定是不行的，我们来试一下倒着搜,即设f[i]表示in的最..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1280 尼克的任务</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>这题显然是一个线性动规，那么肯定是第一时间想到设f[i]:1<sub>i的最大空闲时间，但是，想了一下之后发现，第i时刻的最大空闲时间是和后面i+选择任务的持续时间的时刻有关系的，那么，正着找肯定是不行的，我们来试一下倒着搜,即设f[i]表示i</sub>n的最大空闲时间，经尝试，发现是完全可行的，可以列出动态转移方程如下</p>
+<p>（本时刻无任务）f[i]=f[i+1]+1;//继承上一个时刻的最大空闲时间后+1</p>
+<p>（本时刻有任务）f[i]=max(f[i],f[i+a[sum])//a[sum]表示在这个时刻的任务的持续时间，找出选择哪一个本时刻任务使空闲时间最大化</p>
+<p>那么既然是倒着搜，从后往前的任务对应的开始时间自然也要反过来，从大到小排序（同时也是为了把相同开始时间的任务放到一起）,当然在进行状态刷新的时候别忘了拿sum不断计一下已经到哪一个任务了</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;algorithm>
+using namespace std;
+int n,k,f[10005],sum[10005],ls=1;
+struct node{
+    int p,t;
+}nk[10005];
+bool cp(node a,node b){return a.p>b.p;}
+int main(){
+    scanf("%d%d",&n,&k);
+    for(int i=1;i&lt;=k;i++){
+        scanf("%d%d",&nk[i].p,&nk[i].t);
+        sum[nk[i].p]++;
+    }
+    sort(nk+1,nk+k+1,cp);
+    for(int i=n;i>=1;i--){
+        if(sum[i]==0)f[i]=f[i+1]+1;
+        else for(int j=1;j&lt;=sum[i];j++){
+            if(f[i+nk[ls].t]>f[i])f[i]=f[i+nk[ls].t];
+            ls++;
+        }
+    }
+    printf("%d",f[1]);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1156-垃圾陷阱/">
+                  <h3 class="post-title">
+                    P1156 垃圾陷阱
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

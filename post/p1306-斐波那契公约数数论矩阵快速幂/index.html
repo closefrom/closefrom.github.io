@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1306 斐波那契公约数(数论+矩阵快速幂) | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+
+
+
+//答案在2*2矩阵的左下角
+#include &lt;cstdio>
+#include &lt;cstring>
+#define ll long long
+#define mod 100000000
+using namespace..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1306 斐波那契公约数(数论+矩阵快速幂)</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p><img src="https://closefrom.github.io/post-images/%E5%9B%BE%E7%89%871-1.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/%E5%9B%BE%E7%89%871-1-300x162.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/%E5%9B%BE%E7%89%872-1.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/%E5%9B%BE%E7%89%872-1-300x217.png" alt="" loading="lazy"></p>
+<pre class="wp-block-code"><code>//答案在2*2矩阵的左下角
+#include &lt;cstdio>
+#include &lt;cstring>
+#define ll long long
+#define mod 100000000
+using namespace std;
+int n,m;
+int gcd(int a,int b){return b?gcd(b,a%b):a;}
+struct node{
+    ll a[2][2];
+    node(){memset(a,0,sizeof(a));}
+};
+node mul(node a,node b){
+    node c;
+    for(int i=0;i&lt;2;i++){
+        for(int j=0;j&lt;2;j++){
+            for(int k=0;k&lt;2;k++){
+                c.a[i][j]+=a.a[i][k]*b.a[k][j];
+                c.a[i][j]%=mod;
+                
+            }
+        }
+    }
+    return c;
+}
+node jzjc(node a,int x){
+    node ans;
+    for(int i=0;i&lt;2;i++)ans.a[i][i]=1;
+    while(x){
+        if(x&1)ans=mul(ans,a);
+        a=mul(a,a);
+        x>>=1;
+    }
+    return ans;
+}
+int main(){
+    scanf("%d%d",&n,&m);
+    int sm=gcd(n,m);
+    //printf("%d\n",sm);
+    node fbi;
+    fbi.a[0][0]=fbi.a[0][1]=fbi.a[1][0]=1;
+    node as=jzjc(fbi,sm);
+    //printf("%d %d\n%d %d\n\n",as.a[0][0],as.a[0][1],as.a[1][0],as.a[1][1]);
+    printf("%lld",as.a[1][0]);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

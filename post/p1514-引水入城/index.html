@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1514 引水入城 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="#include &lt;cstdio>
+#include &lt;cstring>
+using namespace std;
+int n,m,nm[505][505],vis[505][505];
+int l[505][505],r[50..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1514 引水入城</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;cstring>
+using namespace std;
+int n,m,nm[505][505],vis[505][505];
+int l[505][505],r[505][505];
+/*
+搜索当前点是否能到达目的点 并且回溯标记
+
+l数组为 某个蓄水厂 走过的所有的城市的 最小 标记   能走到最左边的哪个 最靠近沙漠的城市
+r数组为 某个蓄水厂 能走过的所有城市的 最大 标签 能走到最右边的哪个  最靠近沙漠的城市
+初始化:最靠近的一排城市 l 和 r 从1-m
+*/
+int xx[4]={-1,0,1,0};
+int yy[4]={0,1,0,-1};
+int max(int a,int b){return a>b?a:b;}
+int min(int a,int b){return a>b?b:a;}
+void dfs(int x,int y){
+    vis[x][y]=true;
+    for(int i=0;i&lt;4;i++){
+        int xa=x+xx[i];
+        int ya=y+yy[i];
+        if(xa&lt;1||xa>n||ya&lt;1||ya>m)continue;
+        if(nm[xa][ya]>=nm[x][y])continue;
+        if(!vis[xa][ya])dfs(xa,ya);
+        l[x][y]=min(l[x][y],l[xa][ya]);
+        r[x][y]=max(r[x][y],r[xa][ya]);
+    }
+}
+int main(){
+    scanf("%d%d",&n,&m);
+    memset(vis,0,sizeof(vis));
+    memset(l,0x3f,sizeof(l));
+    memset(r,0,sizeof(r));
+    for(int i=1;i&lt;=n;i++)
+        for(int j=1;j&lt;=m;j++)
+            scanf("%d",&nm[i][j]);
+    for(int i=1;i&lt;=m;i++)l[n][i]=r[n][i]=i;
+    for(int i=1;i&lt;=m;i++)dfs(1,i);
+    bool sf=false;
+    int cnt=0;
+    for(int i=1;i&lt;=m;i++){
+        if(!vis[n][i]){
+            sf=true;
+            cnt++;
+        }
+    }
+    if(sf){
+        printf("0\n%d",cnt);
+        return 0;
+    }
+/*
+按照题目要求，如果水无法流到每一个 接近沙漠的那一排城市中 ，则 输出 0 表示不能全部 流入
+然后输出有多少个城市 没有流入水
+*/
+    int left=1;
+/*
+如：数据
+3 6
+8 4 5 6 4 4
+7 3 4 3 3 3
+3 2 2 1 1 2
+
+l数组输出
+1 2 2 2 5 5 
+1 2 2 4 5 5 
+1 2 3 4 5 5 
+
+r数组输出
+2 2 4 5 5 6 
+2 2 4 4 5 6 
+2 2 4 4 5 6 
+
+初始值left为1
+查找第一行 也就是接近湖泊的那一行 看看有蓄水池的水能到达 最接近 沙漠的城市 的 1号城市
+如有 ，则看当前蓄水池能最多流到多少个最接近沙漠的城市 =>r数组
+然后left更新至left+1，也就是表示 将要 求 是否有蓄水池 能流到left+1号城市
+然后重复操作
+*/
+    while(left&lt;=m){
+        int mxr=0;
+        for(int i=1;i&lt;=m;i++)
+            if(l[1][i]&lt;=left){
+                mxr=max(mxr,r[1][i]);
+            }
+            cnt++;
+            left=mxr+1;
+    }
+    printf("1\n%d",cnt);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1843-奶牛晒衣服/">
+                  <h3 class="post-title">
+                    P1843 奶牛晒衣服
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

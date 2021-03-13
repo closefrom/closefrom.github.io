@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第七章-更灵活的定位内存地址的方法 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+
+
+and 
+mov al,01100011B
+and  al,00111011B
+执行后结果：al=00100011B
+or
+mov al,01100011B
+or     al,00111011B
+执行后结果：al=01111011B..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第七章-更灵活的定位内存地址的方法</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <ol>
+<li></li>
+</ol>
+<pre class="wp-block-code"><code>and 
+mov al,01100011B
+and  al,00111011B
+执行后结果：al=00100011B</code></pre>
+<pre class="wp-block-code"><code>or
+mov al,01100011B
+or     al,00111011B
+执行后结果：al=01111011B</code></pre>
+<p>在没有学习新命令之前，若要将一个大写字母转为小写字母，或者小写字母转为大写字母，可以用and和or来实现</p>
+<p>2.在汇编中，用’….’的方式指名数据是以字符的形式给出的，编译器将把它们转化为相对应的ascii码</p>
+<pre class="wp-block-code"><code>如：
+db 'unIX'  相当于 db 75H,6EH,49H,58H,  'u','n','I','X'对应的ascii码是75H,6EH,49H,58H
+mov al,'a' 相当于 mov al,61H,因为'a'的ascii码为61H</code></pre>
+<p>3.可以用[bx+idata]来表示一个内存单元</p>
+<pre class="wp-block-code"><code>如
+datasg segment
+db 'BaSiC'
+db 'MinIX'
+datasg ends</code></pre>
+<p>datasg段中有两个字符串，第一个起始地址为0，第二个起始地址为5，可以将这两个字符串看做两个数组</p>
+<p>0[bx] 5[x] 等价于 C语言当中的 a[i] b[i]</p>
+<p>4.si和di是8086CPU中和bx功能相近的寄存器，si和di不能分为两个8位寄存器来使用</p>
+<pre class="wp-block-code"><code>如：
+assume cs:codesg,ds:datasg
+datasg segment
+db 'welcome to masm!'
+db '...............'
+datasg ends
+用si和di实现将字符串'welcome to masm!'复制到它后面的数据区
+codesg segment
+start:mov ax,datasg
+ mov ds,ax
+ mov si,0
+ mov cx,8
+ s:mov ax,0[si]
+    mov 16[si],ax
+    add si,2
+    loop s
+    mov ax,4c00h
+    int 21h
+codesg ends
+end start</code></pre>
+<p>5.[bx+si]和[bx+di] 含义相似 [bx+si+idata]和[bx+di+idata]含义也相似</p>
+<p>如：mov ax,[bx+si]</p>
+<p>将一个内存单元的内容送入ax,这个内存单元的长度为2字节（字单元），存放一个字，偏移地址为bx的数值加上si的数值，段地址默认在ds中</p>
+<p>另外的[bx+si+idata]同理</p>
+<p>mov ax,[bx+200+si]</p>
+<p>可以写成</p>
+<pre class="wp-block-code"><code>mov ax,[200+bx+si]
+mov ax,200[bx][si]
+mov ax,[bx].200[si]
+mov ax,[bx][si].200</code></pre>
+<p>6.几种定位内存地址的方法，又称寻址方式</p>
+<pre class="wp-block-code"><code>（1）[idata]用一个常量来表示地址，可直接定位一个内存单元
+（2）[bx]用一个寄存器中的内容来表示内存地址，可间接定位一个内存单元
+（3）[bx+idata]用一个寄存器中的内容和一个常量的和来表示地址，可间接定位一个内存单元
+（4）[bx+si]用一个两个寄存器中的数据的和表示地址
+（5）[bx+si+idata]用两个寄存器中的数据和一个常量的和表示地址</code></pre>
+<p>7.编程 将datasg段中每个单词的前4个字母改为大写字母</p>
+<pre class="wp-block-code"><code>assume cs:codesg,ss:stacksg,ds:datasg
+stacksg segment
+dw 0,0,0,0,0,0,0,0
+stacksg ends
+datasg segment
+db '1. display      '
+db '2. brows        '
+db '3. replace      '
+db '4. modify       '
+datasg ends
+codesg segment
+start:
+mov ax,datasg
+mov ds,ax
+mov ax,stacksg
+mov ss,ax
+mov sp,16
+mov cx,4
+s1: push cx
+mov si,3
+mov cx,4
+s2:mov al,[bx+si]
+     and al,11011111B
+     mov [bx+si],al
+     inc si
+     loop s2
+add bx,16
+pop cx
+loop s1
+mov ax,4c00h
+int 21h
+codesg ends
+end start</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第六章-包含多个段的程序/">
+                  <h3 class="post-title">
+                    第六章-包含多个段的程序
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

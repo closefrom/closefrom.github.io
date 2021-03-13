@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第一章-基础知识 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.机器语言是机器指令的集合每一种CPU都有自己的汇编指令集CPU能直接使用的信息在存储器中存放
+2.汇编语言的核心是汇编指令，它决定了汇编语言的特性
+(1)汇编指令：机器码的助记符，有对应的机器码
+(2)伪指令：没有对应的机器码，由编译器..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第一章-基础知识</h2>
+            <div class="post-date">2019-05-11</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.机器语言是机器指令的集合每一种CPU都有自己的汇编指令集CPU能直接使用的信息在存储器中存放</p>
+<p>2.汇编语言的核心是汇编指令，它决定了汇编语言的特性</p>
+<p>(1)汇编指令：机器码的助记符，有对应的机器码</p>
+<p>(2)伪指令：没有对应的机器码，由编译器执行，计算机并不执行</p>
+<p>(3)其他符号：如：+-*/，由编译器识别，没有对应的机器码</p>
+<p>3.一个存储单元可以存储一个Byte</p>
+<p>4.CPU对存储器的读写必须进行下面三类信息的交互</p>
+<ul>
+<li>存储单元的地址(地址信息)</li>
+<li>器件的选择,还有读或者写的命令(控制信息)</li>
+<li>读或者写的数据(数据信息)</li>
+</ul>
+<p>比如:CPU从3号单元中读取数据</p>
+<p>(1)CPU通过地址线将地址信息3发出(也就是寻址)</p>
+<p>(2)CPU通过控制线发出内存读命令,选择存储器芯片,并通知它将要从中读取数据</p>
+<p>(3)存储器将3号单元的相应数据通过数据线送入到CPU5.地址总线,控制总线和数据总线</p>
+<p>一.地址总线CPU是通过地址总线来指定存储器单元的一个CPU有N根地址线,则这个CPU的地址总线宽度为N,最大寻址能力是 2^N 也就是寻找2^N个内存单元(Byte)</p>
+<p>二.数据总线CPU与内存或其他器件之间的数据传送是通过数据总线来进行的数据总线宽度为8, 则一次可以传送8位二进制数据(1Byte),同理宽度为16,则一次可以传送2Byte</p>
+<p>三.控制总线CPU对外部器件的控制是通过控制总线来进行的有多少根控制总线,意味着CPU提供对外部器件的多少种控制,控制总线的宽度决定CPU对外部器件的控制能力</p>
+<p>6.不同的计算机系统的内存地址空间的分配情况是不同的,如:在某一段中读数据(0-9FFFF),实际是在主随机存储器中的数据</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/study/">
+                  <h3 class="post-title">
+                    栈指针和帧指针总结
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1879 [USACO06NOV]玉米田Corn Fields | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="数据大小已经很明显的提示，这题是状压DP啊！
+读入以后，我们用F[i]来表示第i行上的草地情况，这里F数组里的是二进制数。MAXSTATE是2n，也就是这道题的最大状态（n列都是1）。
+然后我们在0~MAXSTATE-1这些状态里找到合法状..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1879 [USACO06NOV]玉米田Corn Fields</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>数据大小已经很明显的提示，这题是状压DP啊！</p>
+<p>读入以后，我们用F[i]来表示第i行上的草地情况，这里F数组里的是二进制数。MAXSTATE是2n，也就是这道题的最大状态（n列都是1）。</p>
+<p>然后我们在0~MAXSTATE-1这些状态里找到合法状态，也就是不能两头牛的草地是相邻的。判断方法就是把这个二进制数左移一位and，然后右移一位and。如果这个状态是合法的，那么都应该返回0。</p>
+<p>然后就开始动规，从第一行开始，在每行里找所有状态，如果这个状态是合法的，且不会在贫瘠的草地上（和(j &amp; F[i]) == j说明没有草地种在贫瘠的地方），那么接下来开始找上一行的合法情况（上下两行之间没有相邻的草地），把上一行的情况数加到f[i][j]里。</p>
+<p>最后把最下面一行的每一列的情况书统统加起来，就是答案啦~</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#define maxn 100000000
+#define size 4096
+using namespace std;
+int m,n,c[13][13],f[13],dp[13][size];
+bool pd[size];
+/*
+m n 表示 牧场的高和宽
+c[i][j] 表示 i行j列的位置 是否可以放草，1为可放，0为不可
+f[i] 表示  第i行的草地 状态
+dp[i][j] 表示 第i行，状态为j，一共有多少方案
+pd[i]表示 草地按照i这样的状态摆放，是否会有左右冲突
+*/
+int main(){
+    scanf("%d%d",&m,&n);
+    for(int i=1;i&lt;=m;i++)
+        for(int j=1;j&lt;=n;j++)
+            scanf("%d",&c[i][j]);
+    
+    for(int i=1;i&lt;=m;i++)
+        for(int j=1;j&lt;=n;j++)
+            f[i]=(f[i]&lt;&lt;1)+c[i][j];
+    /*将读入的n列数据压缩*/        
+    
+    for(int i=0;i&lt;size;i++)pd[i]=((i&(i&lt;&lt;1))==0)&&((i&(i>>1))==0);
+    /*初始化pd数组， 当前第i状态下草的摆放，左右都没有草  pd[i]=0则表示这个状态不合法或者说这种摆放不合法*/
+    dp[0][0]=1;//这里一定要初始化，因为dp[1][0]可以继承这个状态
+    for(int i=1;i&lt;=m;i++)
+        for(int j=0;j&lt;size;j++)
+            if(pd[j]&&((j&f[i])==j))
+            /*
+            表示当前j状态 草地摆放是合法的，
+            并且当前行 在这种状态下，的对应位置 草地都是可用的 
+            比如  j=100110  f[i]= 110110  则j&f[i]==j
+            */
+                for(int k=0;k&lt;size;k++)
+                    if((k&j)==0)
+                        dp[i][j]=(dp[i][j]+dp[i-1][k])%maxn;
+    /*
+    第一个循环表示当前第几行，
+    第二个循环表示当前行 可以不可以以j的状态摆放  
+    第三个循环表示 当前行的状态确定下，
+    上一行 是什么状态，有什么摆放状态可以转移过来
+    并且要满足，每块草地上下左右没有公共边
+    */
+    int ans;
+    for(int i=0;i&lt;size;i++)
+        ans=(ans+dp[m][i])%maxn;
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p2704-noi2001炮兵阵地/">
+                  <h3 class="post-title">
+                    P2704 [NOI2001]炮兵阵地
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

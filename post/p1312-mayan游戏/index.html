@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1312 Mayan游戏 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="DFS的剪枝：
+1.相同颜色的方块可以跳过（显而易见）；
+2.还有一个比较难想的剪枝：
+结论：只有右边有方块才move，左边没有方块才move；
+证明（自己瞎写的）：
+（你正在搜i列）若左面有方块，那么你会在搜i-1列时将其右移，和你在i列..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1312 Mayan游戏</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>DFS的剪枝：</p>
+<p>1.相同颜色的方块可以跳过（显而易见）；</p>
+<p>2.还有一个比较难想的剪枝：</p>
+<p>结论：只有右边有方块才move，左边没有方块才move；</p>
+<p>证明（自己瞎写的）：</p>
+<p>（你正在搜i列）若左面有方块，那么你会在搜i-1列时将其右移，和你在i列时左移是等效的，所以可以减掉；</p>
+<pre class="wp-block-code"><code>//My AC Code:
+#include &lt;cstdio>
+#include&lt;cstdlib>
+using namespace std;
+int map[6][9],cf[6][6][8];
+int xd[6][8];
+int ans[6][5];
+int n,js;
+void cp(int x){
+    for(int i=1;i&lt;=5;i++)
+        for(int j=1;j&lt;=7;j++)
+            cf[x][i][j]=map[i][j];
+}
+void update(){//检查 是否有消除，然后 让方块下落
+    for(int i=1;i&lt;=5;i++){
+        int xa=0;
+        for(int j=1;j&lt;=7;j++){
+            if(!map[i][j])xa++;
+            else {
+                if(!xa)continue;//因为如果空白为0 则表示当前方块下面没有被消除掉的方块
+                map[i][j-xa]=map[i][j];
+                map[i][j]=0;
+            }
+        }
+    }
+}
+bool remv(){
+    bool flag=false;
+    for(int i=1;i&lt;=5;i++){
+        for(int j=1;j&lt;=7;j++){
+            if(i-1>=1&&i+1&lt;=5&&map[i][j]&&map[i-1][j]==map[i][j]&&map[i][j]==map[i+1][j]){
+                xd[i-1][j]=1;xd[i][j]=1;xd[i+1][j]=1;flag=true;
+            }
+            if(j-1>=1&&j+1&lt;=7&&map[i][j]&&map[i][j-1]==map[i][j]&&map[i][j]==map[i][j+1]){
+                xd[i][j-1]=1;xd[i][j+1]=1;xd[i][j]=1;flag=true;
+            }
+        }
+    }
+    if(!flag)return 0;
+    for(int i=1;i&lt;=5;i++)
+        for(int j=1;j&lt;=7;j++)
+            if(xd[i][j]){
+                map[i][j]=0;
+                xd[i][j]=0;
+            }
+    return 1;
+}
+void move(int a,int b,int c){
+    int tp=map[a][b];
+    map[a][b]=map[a+c][b];
+    map[a+c][b]=tp;
+    update();
+    while(remv())update();
+    /*
+    移动后更新方块位置，有可能更新完之后 有方块可以消除，然后继续消除，知道 没有方块可以消除为止
+    */
+}
+
+bool check(){
+    for(int i=1;i&lt;=5;i++)
+        if(map[i][1])return 0;
+    return 1;
+}
+void dfs(int x){
+    if(check()){
+        for(int i=1;i&lt;=n;i++){
+            for(int j=1;j&lt;=3;j++){
+                printf("%d ",ans[i][j]);
+            }
+        printf("\n");
+    }
+    exit(0);
+    }
+    if(x==n+1)return;//要搜索到n 也就是第n步，因为前面有判断有没有全部消除
+    cp(x);
+    for(int i=1;i&lt;=5;i++){
+        for(int j=1;j&lt;=7;j++){
+            if(map[i][j]){
+                if(i+1&lt;=5&&map[i+1][j]!=map[i][j]){//右移 右边可以为空 也可以为其他数
+                    move(i,j,1);
+                    ans[x][1]=i-1;ans[x][2]=j-1;ans[x][3]=1;
+                    dfs(x+1);
+                    for(int qiq=1;qiq&lt;=5;qiq++)
+                        for(int qjq=1;qjq&lt;=7;qjq++)
+                            map[qiq][qjq]=cf[x][qiq][qjq];
+                    /*ans[x][1]=-1;ans[x][2]=-1;ans[x][3]=-1;//似乎可以不用*/
+                    
+                    /*
+                    移动 标记 更新 然后继续 下一步 移动 标记 更新  如果return 了 就开始回复 到移动之前
+                    */
+                }
+                if(i-1>=1&&!map[i-1][j]){//左移 只能是左边没有数
+                    move(i,j,-1);
+                    ans[x][1]=i-1;ans[x][2]=j-1;ans[x][3]=-1;
+                    dfs(x+1);
+                    for(int qaq=1;qaq&lt;=5;qaq++)
+                        for(int qwq=1;qwq&lt;=7;qwq++)
+                            map[qaq][qwq]=cf[x][qaq][qwq];
+                }
+                /*
+                    因为 左右移动都可以 移动到空白位置 然后下降，但是 如果 左移或者右移 左右有数，则会重复 ，所以留一个右移就好了            
+                */
+                
+            }
+        }
+    }
+}
+int main(){
+    scanf("%d",&n);
+    for(int i=1;i&lt;=5;i++){
+        for(int j=1;j&lt;=8;j++){
+            scanf("%d",&js);
+            if(js==0)break;
+            map[i][j]=js;
+        }
+    }
+    dfs(1);
+    printf("-1");
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p2871-usaco07dec手链charm-bracelet/">
+                  <h3 class="post-title">
+                    P2871 [USACO07DEC]手链Charm Bracelet
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

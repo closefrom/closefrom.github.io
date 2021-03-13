@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P3084 [USACO13OPEN]照片Photo | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+这一题用到了差分约束系统
+差分约束系统就是给出一些形如x-y&lt;=b不等式的约束，问你是否有满足问题的解，或者求最小，最大解。
+这个问题的神奇之处是可以转化为图论的最短路问题。
+一、预备知识：SPFA算法
+二、差分约束的转化原理..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P3084 [USACO13OPEN]照片Photo</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>这一题用到了差分约束系统<br>
+差分约束系统就是给出一些形如x-y&lt;=b不等式的约束，问你是否有满足问题的解，或者求最小，最大解。<br>
+这个问题的神奇之处是可以转化为图论的最短路问题。</p>
+<p>一、预备知识：SPFA算法</p>
+<p>二、差分约束的转化原理</p>
+<p>对于图论的最短路径，有：对于d(v) &lt;= d(u) + w(u, v) ，而差分约束系统的解法利用到了单源最短路径问题中的三角形不等式。</p>
+<p>移项得：d(v) – d(u) &lt;= w(u, v)，是不是和上面的x-y&lt;=b的一样？</p>
+<p>是的，这就是转化为最短路径算法的原理。</p>
+<p>三角不等式： 设dist[v]表示从源点s到v的最短路径长度。对于与v相邻的任意顶点u，dist[v]满足三角不等式：</p>
+<p>dist[v] ≤ dist[u] + w(u, v), (其中w(u,v)为边(u, v)的权值)</p>
+<p>题目大意：给定n个区间，每个区间中只有一头斑点牛，求最多可能有多少头斑点牛<br>
+每个区间最少只有一头斑点牛，也最多只有一头斑点牛<br>
+那么一只奶牛要不就是斑点牛，要不就是正常牛，那么就是0&lt;=sum[i]-sum[i-1]&lt;=1<br>
+转移一下sum[R]-sum[L-1]&lt;=1,sum[L-1]-sum[R]&lt;=-1<br>
+那么就可以差分约束，把i和i-1之间连一条0边，i-1和i之间连一条1边，a-1和b之间连一条1边，b和a-1之间连一条-1边<br>
+如何跑一个优秀的spfa才是重点，可以用双向队列优化spfa slf优化</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;queue>
+#define max_n 200005
+#define INF 0x3f3f3f3f
+using namespace std;
+int n,m,cnt=1;
+int dis[max_n],first[max_n],vis[max_n];
+struct edge{int back,to,cd;}e[max_n*4];
+void addedge(int x,int y,int cc){e[++cnt].back=first[x];e[cnt].to=y;e[cnt].cd=cc;first[x]=cnt;}//链式前向星存图
+int spfa(){
+    deque&lt;int> Q;
+    for(int i=1;i&lt;=n;i++)dis[i]=INF;
+    Q.push_back(0);
+    vis[0]=1;
+    while(Q.size()){
+        int QmQ=Q.front();Q.pop_front();vis[QmQ]=0;
+        for(int i=first[QmQ];i;i=e[i].back){
+            if(dis[e[i].to]>dis[QmQ]+e[i].cd){
+                dis[e[i].to]=dis[QmQ]+e[i].cd;
+                if(!vis[e[i].to]){
+                    if(++cnt>1314520)return -1;//梦幻卡时
+                    vis[e[i].to]=1;
+                    if(Q.size()&&dis[e[i].to]&lt;dis[Q.front()])Q.push_front(e[i].to);//slf优化spfa方法
+                    else Q.push_back(e[i].to);
+                }
+            }
+        }
+    }
+    return dis[n];
+}
+/*
+接下来的全都是基本的spfa模板
+*/
+int main(){
+    scanf("%d%d",&n,&m);
+    for(int i=1,x,y;i&lt;=m;i++)scanf("%d%d",&x,&y),addedge(x-1,y,1),addedge(y,x-1,-1);
+    for(int i=1;i&lt;=n;i++)addedge(i-1,i,1),addedge(i,i-1,0);
+    printf("%d",spfa());
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1313-计算系数/">
+                  <h3 class="post-title">
+                    P1313 计算系数
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

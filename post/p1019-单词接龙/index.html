@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P1019 单词接龙 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="引用：
+基本思路是搜索。
+处理的难点在于对重叠部分的处理。
+单词的使用次数很好判断，开一个数组即可，和正常向dfs的vis数组差不多。
+但对于重叠部分的处理，我想细说一下。
+因为连接起来的单词要最长，所以对比是选择从上一个单词的末尾与当前单..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P1019 单词接龙</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>引用：</p>
+<p>基本思路是搜索。</p>
+<p>处理的难点在于对重叠部分的处理。</p>
+<p>单词的使用次数很好判断，开一个数组即可，和正常向dfs的vis数组差不多。</p>
+<p>但对于重叠部分的处理，我想细说一下。</p>
+<p>因为连接起来的单词要最长，所以对比是选择从上一个单词的末尾与当前单词的开头进行比对，如果发现不符那就不能匹配。</p>
+<p>这里我借鉴了一位大神的思路，使用一个check函数，用来比较两个串s和m的长度为k的接口能不能匹配。</p>
+<p>判断方式有两种，第一种就是我用的这样按字符比较，如果发现某处不匹配立即返回false。还有一个方法是用string里面的substr，我就不展开了，有兴趣的同学可以试一下。</p>
+<p>我们假设接口长度为k，串s的长度为lens，然后我们从0到k枚举，判断s[lens-k+i]是不是等于m[i]。</p>
+<p>这个式子怎么来的呢？接口前面的串是s，后面的串是m，那么很显然，s串的接口最开始应该是lens-k处，然后在后面加上一个枚举的i就可以保证扫描到所有接口字符（我们的i是从0开始枚举的）。</p>
+<p>还有一些细节问题。 如果我们在接龙的时候发现我们现在要接的龙还不如之前某一次接过的长，那么这个接龙方案肯定不是最优的，所以要舍去，这个正确性是显然的。</p>
+<p>（想一下深搜时的遍历过程，这句话便不难理解）</p>
+<p>使用我这个方法，可能有一个奇怪的想法有同学没想到，那就是在进行拼接操作时，要注意使用给定的串的副本（即复制一份原来的串）进行拼接处理。</p>
+<p>这是因为，如果你把原串改变了，而且这个串还不是最优的，那就完了，回溯不回去了。</p>
+<p>具体到操作上，首先，我们从1到n枚举每个短字符串，如果它已经被用了两次则continue，然后我们求出当前短串的长度，从1到这个长度枚举，枚举的是接口的长度（自然是接口越短融合串越长嘛） 然后执行拼接操作，记录一下最大长度，再加上回溯就好了。</p>
+<p>拼接操作和check函数很像，具体到代码上大家就能看明白了。</p>
+<pre class="wp-block-code"><code>#include &lt;iostream>
+#include &lt;cstdio>
+#include &lt;cstdlib>
+#include &lt;cstring>
+#include &lt;cmath>
+#include &lt;algorithm>
+using namespace std;
+int n;//有多少个单词
+string str[25];//获取每个单词
+int cst[25],ans;//cst标记每个单词被用了几次，ans记录最长的拼接串
+
+
+/*
+函数dwd返回类型bool，
+a表示原字符串（第一次，是读入的begin，），b表示将要拼接的字符串，c是猜测要拼接字符串的接口的长度（越大越好）
+从0到猜测的接口长度循环，若a的len-c+i位置上的字符不等于b的i位置上的字符则返回false  =>因为c为猜测接口长度，所以若猜测的c为最大接口值，则原字符串的长度len减去最大接口长度c就是原字符串猜测为最大接口长度的开始位置
+*/
+bool dwd(string a,string b,int c){
+    int len = a.length();
+    for(int i=0;i&lt;c;i++){
+        if(a[len-c+i]!=b[i])return false;
+    }
+    return true;
+}
+
+/*
+addstr函数，
+参数&a就是第一个传进去的字符串，可以在当前函数操作，并且操作结果会同步。
+参数b是要拼接的字符串，c是要拼接字符串的长度
+
+然后从b字符串的第c个位置，因为前面的位置重复了，所以从接口最前面开始拼接，直到b字符串的最后
+*/
+void addstr(string &a,string b,int c){
+    int len = b.length();
+    for(int i=c;i&lt;len;i++){
+        a+=b[i];
+    }
+}
+
+/*
+dfs函数
+变量xn存放当前now的长度，ans存放当前拼接的字符串的最大长度
+要在n个字符串里面寻找，所以第一层循环是1-n
+cst数组表示当前位置的str被拼接了几次，按照题目要求，拼接了两次就不拼接了
+nln存放当前位置的str中字符串的长度
+然后进入循环为 1-nln，这是要猜测接口长度，所以最长为当前位置str的字符串的长度，
+然后调用dwd函数，传入当前的now字符串，还有将要拼接的字符串，还有接口的长度，返回true进入if语句里
+创建一个temp，因为如果改变了now之后发现改变的不是最优解就完蛋了，，，然后调用addstr函数，传入temp，将要拼接的函数和接口的长度
+如果拼接完之后，temp还是等于之前的now，则当前拼接没用，下面就不需要继续，直接剪掉，continue
+否则，即当前拼接有效，当前拼接了的字符串的位置cst上的对应位置++,然后继续用temp搜索，是否还能拼接，最后cst[i]--回溯到当前字符串没用过的状态
+*/
+void dfs(string now){
+    int xn=now.length();
+    ans=max(ans,xn);
+    for(int i=1;i&lt;=n;i++){
+        if(cst[i]>=2)continue;
+        int nln=str[i].length();
+        for(int j=1;j&lt;=nln;j++){
+            if(dwd(now,str[i],j)){
+                string temp=now;
+                addstr(temp,str[i],j);
+                if(temp==now)continue;
+                cst[i]++;
+                dfs(temp);
+                cst[i]--;
+                
+            }
+        }
+    }
+}
+int main()
+{
+    cin >> n;
+    for(int i=1;i&lt;=n;i++)cin >> str[i];
+    string begin;
+    cin >> begin;
+    dfs(begin);
+    printf("%d",ans);
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p1080-国王游戏/">
+                  <h3 class="post-title">
+                    P1080 国王游戏
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>P2157 [SDOI2009]学校食堂 (dp+状态压缩) | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本题状压DP。
+一个人打饭的状态最多由后面7个人影响，于是考虑状压DP。
+定义状态f[i][j][k]表示前i-1个人打完饭，第i个人和其后面7个人打饭状态为j，最后一个打饭的人编号为k的最小打饭时间（k含义相对于i，即编号为i+k,k∈[..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">P2157 [SDOI2009]学校食堂 (dp+状态压缩)</h2>
+            <div class="post-date">2019-05-10</div>
+            
+            <div class="post-content" v-pre>
+              <p>本题状压DP。</p>
+<p>一个人打饭的状态最多由后面7个人影响，于是考虑状压DP。</p>
+<p>定义状态f[i][j][k]表示前i-1个人打完饭，第i个人和其后面7个人打饭状态为j，最后一个打饭的人编号为k的最小打饭时间（k含义相对于i，即编号为i+k,k∈[-8,7]）。</p>
+<p>状态转移：</p>
+<p>1、当第i个人已经打完饭（即j&amp;1为真），则后面的人不能再影响到第i个人当前的状态，所以由f[i][j][k]直接转移到f[i+1][j&gt;&gt;1][k-1]。</p>
+<p>2、否则，就枚举第i个人和其往后的7个人中选出一个还没打饭的人来打饭，因为还得满足b的限制条件，所以用tp表示当前的最小限制范围（因为可能出现诸如第i人允许第i+7人插队，但第i+1人最多允许第i+1+4人插队的情况，转移必须做到对所有b合法），然后转移就非常简单了。</p>
+<p>最后末状态就是f[n+1][0][j]的最小值。</p>
+<pre class="wp-block-code"><code>#include &lt;cstdio>
+#include &lt;cstring>
+#define maxn_N 255
+#define INF 0x3f3f3f3f
+using namespace std;
+int t,n,dp[1005][maxn_N+1][16],ti[1005],bi[1005],ans;
+/*
+t表示轮数
+dp[i][j][k]
+表示
+前i-1个人已经打完饭了，
+第i个人和后面的7个人的吃饭状态是j，
+最后一个打完饭的人相对于i的编号（距离）是k的最少打饭时间 ps: k范围是-8到7
+因为最后状态是转移到n+1，也就是n 前面最多可以插7个人，转移到n+1则，再-1
+j位置初始化大小一定要是256！！！！！！！！！qvq
+
+ti[i]表示第i个人的口味  bi[i]表示当前第i同学只允许后面bi[i]的人插队
+*/
+int min(int a,int b){return a>b?b:a;}
+int main(){
+    scanf("%d",&t);
+    while(t--){
+        scanf("%d",&n);
+        for(int i=1;i&lt;=n;i++)scanf("%d%d",&ti[i],&bi[i]);
+        memset(dp,0x3f,sizeof(dp));
+        dp[1][0][7]=0;//这样初始化表示前0个人打完饭了，当前第i个人和后面7个人的吃饭状态为0，最后一个吃饭是7 也就是（7-8）=-1 也就是最后一个吃饭的是第0个人
+        for(int i=1;i&lt;=n;i++)
+            for(int j=0;j&lt;=maxn_N;j++)
+                for(int k=-8;k&lt;=7;k++)
+                    if(dp[i][j][k+8]!=INF){//为了找到有最后一个打完饭的人（相对于i的编号） 的合法状态转移
+                        if(j&1){
+                            dp[i+1][j>>1][k+7]=min(dp[i][j][k+8],dp[i+1][j>>1][k+7]);
+                            /*如果当前j状态下，第i个人已经打完饭了，
+                            则不会因为后面的人插不插队而生气，
+                            所以状态直接转移到下一个人上，
+                            同时j也要右移表示第i个人已经打完饭，
+                            k也要+7，因为是相对于i的最后一个打完饭的人
+                            */
+                        }else{
+                            int sm=INF;//这个sm为当前j状态下，维护前面的同学的容忍插队程度
+                            for(int fk=0;fk&lt;=7;fk++){
+                                if(!((j>>fk)&1)){//首先要确保，第i+fk位置，的人，有没有打完饭
+                                if(i+fk>sm)break;//如果后面的人先吃饭，前面有些人的比较小气，就不行
+				//如果后面选到插队的这个人的 编号，大于sm的范围，也就是前面的人 的容忍度，则不可以插队
+                                sm=min(sm,i+fk+bi[i+fk]);
+                                dp[i][j|(1&lt;&lt;fk)][fk+8]=min(dp[i][j|(1&lt;&lt;fk)][fk+8],dp[i][j][k+8]+(i+k?(ti[i+k]^ti[i+fk]):0));
+                                /*
+                                上面这一句表示，前i-1个人已经打完饭了，
+                                当前打饭状态为j|(1&lt;&lt;fk) 也就是让第i+fk个人先打饭，
+                                最后一个打完饭的编号是 fk+8，
+                                也就是第i+fk位同学最后打完饭
+                                
+                                也就是从dp[i][j][k+8]的状态转移过来的，因为，dp[i][j][k+8]状态下，第i后面的同学还没有插队
+                                i+k表示最后一个打完饭的编号，如果小于等于0也就是不存在最后一个打完饭的则直接返回0
+                                */
+                                }
+                            }
+                        }
+                    }
+                    ans=INF;
+                    //为何要从0-8的状态下找，因为 0-8 是当前第i位 的前面的同学，9-15 是后面的同学， 最后的状态会转移到n+1也就是后面不会有同学，所以 最后一个打完饭的同学相对于i的编号一定是在0-8里面
+                    for(int i=0;i&lt;=8;i++)ans=min(ans,dp[n+1][0][i]);
+                    printf("%d\n",ans);
+    }
+    return 0;
+}</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/iLEFmQtwA/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/p2467-sdoi2010地精部落/">
+                  <h3 class="post-title">
+                    P2467 [SDOI2010]地精部落
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

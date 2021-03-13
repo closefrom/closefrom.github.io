@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第八章-数据处理的两个基本问题 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.书中的描述性符号：reg寄存器，sreg段寄存器
+在8086CPU中只能有这4个寄存器可以用在[。。。]中进行内存单元的寻址
+bx,si,di,bp
+这四个寄存器可以单个出现，或者以4种组合出现，bx，和si、bx和di、bp和si、b..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第八章-数据处理的两个基本问题</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.书中的描述性符号：reg寄存器，sreg段寄存器</p>
+<p>在8086CPU中只能有这4个寄存器可以用在[。。。]中进行内存单元的寻址</p>
+<pre class="wp-block-code"><code>bx,si,di,bp
+这四个寄存器可以单个出现，或者以4种组合出现，bx，和si、bx和di、bp和si、bp和di（可以加上idata常量）
+特别地：在[]中使用寄存器bp，指令中没有显性地给出段地址，段地址默认在ss</code></pre>
+<p>2.指令在执行之前，所要处理的数据可以在3个地方：CPU内部，内存，端口</p>
+<p>3.在没有寄存器名存在的情况下，用work ptr或byte ptr显性地指明所要访问的内存单元的长度是很有必要的</p>
+<pre class="wp-block-code"><code>如：
+用work ptr指明了指令访问的内存单元是一个字单元
+mov word ptr ds:[0],1
+inc word ptr [bx]
+
+用byte ptr指明了指令访问的内存单元是一个字节单元
+mov byte ptr ds:[0],1
+inc byte ptr [bx]
+
+特别地：有一些指令默认了访问的是字单元还是字节单元，如push，只能进行字操作
+在c语言中可以用dec.cp[i]定位，在汇编中可以用 bx.10h[si]定位</code></pre>
+<p>4.div是除法指令，</p>
+<pre class="wp-block-code"><code>（1）除数：有8位和16位，在一个reg或者内存单元中
+（2）被除数：默认在ax或ax和dx中，若除数为8位，则被除数则为16位，默认在ax中存放，若除数为16位，则被除数则为32位，在dx和ax中存放，dx存放高16位，ax存放低16位
+（3）结果：若除数为8位，则al存放除法操作的商，ah存放除法操作的余数
+      若除数为16位，则ax存放除法操作的商，dx存放除法操作的余数
+如：div byte ptr ds:[0]
+含义：(al)=(ax)/((ds)*16+0) 的商
+    	  (ah)=(ax)/((ds)*16+0)的余数</code></pre>
+<p>5.db== define byte dw== define word dd==double word</p>
+<pre class="wp-block-code"><code>如:
+data segment
+db 1
+dw 1
+dd 1
+data ends
+第一个数据为01H,在data：0处，占1个字节
+第二个数据为0001H，在data：1处，占1个字
+第三个数据为00000001H，在data：3处，占2个字</code></pre>
+<pre class="wp-block-code"><code>题目：用div计算data段中第一个数据除以第二个数据后的结果，商存在第三个数据的存储单元中
+data segment
+dd 100001
+dw 100
+dw 0
+data ends
+code sement
+start:
+mov ax,data
+mov ds,ax
+mov ax,ds:[0]
+mov dx,ds:[2]
+div word ptr ds:[4]
+mov ds:[6],ax
+mov ax,4c00h
+int 21h
+code ends
+end startki</code></pre>
+<p>6.dup</p>
+<p>dup是和db，dw，dd配合使用的，用来进行数据重复</p>
+<pre class="wp-block-code"><code>如
+db 3 dup (0) == db 0,0,0
+db 3 dup ('abc','ABC') == 'abcABCabcABCabcABC'
+
+dup的使用格式
+db 重复的次数 dup （重复的字节型数据）
+dw 重复的次数 dup （重复的字型数据）
+dd 重复的次数 dup （重复的双字型数据）</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第七章-更灵活的定位内存地址的方法/">
+                  <h3 class="post-title">
+                    第七章-更灵活的定位内存地址的方法
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

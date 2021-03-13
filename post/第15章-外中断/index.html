@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第15章-外中断 | closefrom</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://closefrom.github.io/favicon.ico?v=1615649066608">
+<link rel="stylesheet" href="https://closefrom.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1.外中断分两种：可屏蔽中断和不可屏蔽中断
+可屏蔽中断：CPU可以不响应的中断，当IF=1时，CPU执行完指令响应中断。IF为0则CPU不响应可屏蔽中断
+特别地：若在中断处理程序中需要处理可屏蔽中断，可用指令设置IF位为1，sti指令设置I..." />
+    <meta name="keywords" content="汇编语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://closefrom.github.io">
+        <img src="https://closefrom.github.io/images/avatar.png?v=1615649066608" class="site-logo">
+        <h1 class="site-title">closefrom</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://closefrom.github.io/archives" class="site-nav">
+            文章汇总
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            文章标签分类
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The deeper you explore, the more you close from the truth
+    </div>
+    <div class="site-footer">
+      <div>
+	<a href="https://www.zyglz.com"> © 资源管理站</a>
+	<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	<p><span id="busuanzi_container_site_uv" style='display:none'>总访客人数量<span id="busuanzi_value_site_uv"></span>次</span></p>
+	<p><span id="busuanzi_container_site_pv" style='display:none'>本站总访问量<span id="busuanzi_value_site_pv"></span>次</span></p>
+</div>
+Powered by <a href="https://github.com/getgridea/gridea" target="_blank">closefrom</a> | <a class="rss" href="https://closefrom.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第15章-外中断</h2>
+            <div class="post-date">2019-05-12</div>
+            
+            <div class="post-content" v-pre>
+              <p>1.外中断分两种：可屏蔽中断和不可屏蔽中断</p>
+<p>可屏蔽中断：CPU可以不响应的中断，当IF=1时，CPU执行完指令响应中断。IF为0则CPU不响应可屏蔽中断</p>
+<p>特别地：若在中断处理程序中需要处理可屏蔽中断，可用指令设置IF位为1，sti指令设置IF为1，cli设置IF为0</p>
+<p>不可屏蔽中断：CPU必须响应的中断，当CPU检测到不可屏蔽中断信息时，执行完当前指令，立刻响应引发中断过程</p>
+<p>（ps：几乎所有外设引发的都是可屏蔽中断）</p>
+<p>2.键盘输入处理过程：</p>
+<pre class="wp-block-code"><code>（1）键盘上每个键都对应一个开关，键盘中有一个芯片对键盘上每一个键的开关状态进行扫描
+（2）按下一个键和松开一个键，都会生成一个扫描码，这个码最后被送入主板上相关接口芯片的寄存器中
+（3）按下一个键产生的扫描码称为通码，松开一个键产生的扫描码称为断码，扫描码长度为一字节，通码的第7位为0，断码第7位为1。即：断码=通码+80H</code></pre>
+<p>4.来自BIOS提供的int 9 中断例程来处理键盘输入处理，主要工作：</p>
+<pre class="wp-block-code"><code>（1）读取60h端口中的扫描码
+（2）若是字符键的扫描码，将该扫描码和它对应的字符码（ascii码）送入内存中BIOS键盘缓冲区，若为控制或切换键的扫描码，则将其转为状态字节（用二进制位记录控制键和切换键状态的字节）写入内存中存储状态字节的单元
+（3）对键盘系统进行相关控制，如：向相关芯片发送应答信息</code></pre>
+<ol start="5">
+<li></li>
+</ol>
+<pre class="wp-block-code"><code>0040:17单元存储键盘状态字节，该字节记录控制键和切换键的状态：
+0：右shift，置1表示按下右shift
+1：左shift状态，置1表示按下左shift
+2：ctrl状态，置1为按下
+3：alt状态，置1为按下
+4：scrollLock状态，置1表示scroll指示灯亮
+5：numlock状态，置1表示小键盘输入的是数字
+6：capslock状态，置1为输入大写字母
+7：insert状态，置1,处于删除状态</code></pre>
+<p>6.CPU对外设的通常处理方法：</p>
+<pre class="wp-block-code"><code>（1）外设的输入送入端口
+（2）向CPU发送外中断（可屏蔽中断）的信息
+（3）CPU检测到可屏蔽中断信息，若IF为1，则CPU在执行完当前指令后响应中断
+（4）可在中断例程中实现对外设输入的处理
+</code></pre>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://closefrom.github.io/tag/3MxILNLEI/" class="tag">
+                    汇编语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://closefrom.github.io/post/第14章-端口/">
+                  <h3 class="post-title">
+                    第14章-端口
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>
